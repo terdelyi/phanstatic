@@ -17,7 +17,7 @@ class AssetBuilder implements BuilderInterface
     )
     {
         $this->sourcePath = $this->fileManager->getSourceFolder($this->sourcePath);
-        $this->destinationPath = $this->fileManager->getSourceFolder($this->destinationPath);
+        $this->destinationPath = $this->fileManager->getDestinationFolder($this->destinationPath);
     }
 
     public function build(): void
