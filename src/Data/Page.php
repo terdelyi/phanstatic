@@ -11,9 +11,7 @@ class Page
         public ?string $title = null,
         public ?string $content = null,
         private array $meta = [],
-    )
-    {
-    }
+    ) {}
 
     public function __get($key): mixed
     {

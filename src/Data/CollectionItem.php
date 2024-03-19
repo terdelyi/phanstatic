@@ -9,5 +9,5 @@ class CollectionItem
         public string $link,
         public string $excerpt,
         public string $date,
-    ){}
+    ) {}
 }

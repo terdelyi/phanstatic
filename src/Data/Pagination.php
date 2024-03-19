@@ -1,6 +1,7 @@
 <?php
 
 namespace Terdelyi\Phanstatic\Data;
+
 class Pagination
 {
     public function __construct(
@@ -9,5 +10,5 @@ class Pagination
         public int $current,
         public int $total,
         public bool $isLast,
-    ){}
+    ) {}
 }

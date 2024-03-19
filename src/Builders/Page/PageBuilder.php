@@ -19,9 +19,8 @@ class PageBuilder implements BuilderInterface
         private readonly FileManager          $fileManager,
         private readonly BuildOutputInterface $output,
         private readonly Config               $config,
-    )
-    {
-        $this->sourcePath = $this->fileManager->getSourceFolder($this->sourcePath);;
+    ) {
+        $this->sourcePath = $this->fileManager->getSourceFolder($this->sourcePath);
     }
 
     /**

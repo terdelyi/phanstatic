@@ -11,7 +11,5 @@ class RenderData
         public ?Page       $page = null,
         public ?Collection $collection = null,
         public ?Pagination $pagination = null,
-    )
-    {
-    }
+    ) {}
 }

@@ -12,9 +12,7 @@ class Phanstatic
 {
     public function __construct(
         private readonly string $workDir,
-    )
-    {
-    }
+    ) {}
 
     public function init(): void
     {

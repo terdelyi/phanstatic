@@ -5,6 +5,9 @@ namespace Terdelyi\Phanstatic\Services;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Terdelyi\Phanstatic\Data\RenderData;
+use Throwable;
+
+use function dirname;
 
 class FileManager
 {
@@ -14,9 +17,7 @@ class FileManager
     public function __construct(
         private Filesystem $filesystem,
         private Finder     $finder,
-    )
-    {
-    }
+    ) {}
 
     public function getSourceFolder(string $path = ''): string
     {
@@ -78,7 +79,7 @@ class FileManager
 
         try {
             $this->require($path, $data);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             while (ob_get_level() > $obLevel) {
                 ob_end_clean();
             }
@@ -101,10 +102,10 @@ class FileManager
 
     public function save(string $path, string $data): bool
     {
-        $outputDir = \dirname($path);
+        $outputDir = dirname($path);
 
         if (!is_dir($outputDir)) {
-            mkdir($outputDir, 0755, true);
+            mkdir($outputDir, 0o755, true);
         }
 
         return file_put_contents($path, $data) !== false;

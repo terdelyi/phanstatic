@@ -14,8 +14,7 @@ class AssetBuilder implements BuilderInterface
     public function __construct(
         private readonly FileManager          $fileManager,
         private readonly BuildOutputInterface $output,
-    )
-    {
+    ) {
         $this->sourcePath = $this->fileManager->getSourceFolder($this->sourcePath);
         $this->destinationPath = $this->fileManager->getDestinationFolder($this->destinationPath);
     }

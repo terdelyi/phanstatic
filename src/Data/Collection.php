@@ -15,9 +15,7 @@ class Collection
         public string $indexTemplate,
         array         $items = [],
         public int    $pageSize = 10,
-    )
-    {
-    }
+    ) {}
 
     public function add(CollectionItem $item): void
     {

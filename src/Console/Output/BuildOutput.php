@@ -8,9 +8,7 @@ class BuildOutput implements BuildOutputInterface
 {
     public function __construct(
         private OutputInterface $output,
-    )
-    {
-    }
+    ) {}
 
     public function header(string $message): void
     {

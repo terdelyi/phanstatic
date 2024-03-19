@@ -4,6 +4,7 @@ namespace Terdelyi\Phanstatic\Builders\Collection;
 
 use DateTime;
 use DateTimeInterface;
+use Exception;
 use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\Exception\CommonMarkException;
 use Spatie\YamlFrontMatter\YamlFrontMatter;
@@ -28,8 +29,7 @@ class CollectionBuilder implements BuilderInterface
         private readonly FileManager          $fileManager,
         private readonly BuildOutputInterface $output,
         private readonly Config               $config,
-    )
-    {
+    ) {
         $this->sourcePath = $this->fileManager->getSourceFolder($this->sourcePath);
         $this->destinationPath = $this->fileManager->getDestinationFolder();
     }
@@ -47,7 +47,7 @@ class CollectionBuilder implements BuilderInterface
             $collection = $this->createCollection($directory);
 
             if (!$this->fileManager->exists($collection->singleTemplate)) {
-                throw new \Exception("Collection must have a single template: " . $collection->singleTemplate);
+                throw new Exception("Collection must have a single template: " . $collection->singleTemplate);
             }
 
             $this->output->action(ucfirst($collection->basename) . ' collection found. Looking for items...');
@@ -61,7 +61,7 @@ class CollectionBuilder implements BuilderInterface
             }
 
             foreach ($files as $file) {
-                list($page, $data) = $this->buildSinglePages($file, $collection);
+                [$page, $data] = $this->buildSinglePages($file, $collection);
 
                 $item = new CollectionItem(
                     title: $page->title,
@@ -154,7 +154,7 @@ class CollectionBuilder implements BuilderInterface
     private function buildIndexPages(Collection $collection): void
     {
         $total = $collection->count();
-        $pagesRequired = (int)ceil($total / $collection->pageSize);
+        $pagesRequired = (int) ceil($total / $collection->pageSize);
 
         for ($page = 1; $page <= $pagesRequired; $page++) {
             $pagination = $this->getPagination($page, $pagesRequired, $collection->slug, $total);

@@ -19,9 +19,7 @@ class BuildManager
     public function __construct(
         private readonly BuildOutputInterface $output,
         private readonly Config               $config,
-    )
-    {
-    }
+    ) {}
 
     public function run(): void
     {

@@ -7,7 +7,7 @@ function url(string $permalink): string
     $config = Config::getInstance();
 
     if (!str_starts_with($permalink, '/')) {
-        $permalink = '/'. $permalink;
+        $permalink = '/' . $permalink;
     }
 
     return $config->getSite()->baseUrl . $permalink;
@@ -16,7 +16,7 @@ function url(string $permalink): string
 function asset(string $permalink): string
 {
     if (!str_starts_with($permalink, '/')) {
-        $permalink = '/'. $permalink;
+        $permalink = '/' . $permalink;
     }
 
     $permalink = '/assets' . $permalink;

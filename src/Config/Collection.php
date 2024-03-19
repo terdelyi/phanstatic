@@ -8,7 +8,5 @@ class Collection
         public readonly ?string $title,
         public readonly ?string $slug,
         public readonly ?string $pageSize,
-    )
-    {
-    }
+    ) {}
 }
