@@ -3,10 +3,7 @@
 namespace Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Mockery as m;
-use stdClass;
 use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\Config\Site;
 
 class HelpersTest extends TestCase
 {
@@ -14,23 +11,19 @@ class HelpersTest extends TestCase
     {
         parent::setUp();
 
-        Config::getInstance([
-            'site' => [
-                'baseUrl' => 'https://example.com',
-            ],
-            'workingDirectory' => '../'
+        $config = Config::getInstance();
+        $config->setSite([
+            'baseUrl' => 'https://example.com',
         ]);
     }
 
-    /** @test */
-    public function permalinkReturnsFullUrl()
+    public function testPermalinkReturnsFullUrl()
     {
         $this->assertEquals('https://example.com/test-url', url('test-url'));
         $this->assertEquals('https://example.com/test-url-with-slash', url('/test-url-with-slash'));
     }
 
-    /** @test */
-    public function assetReturnsFullUrl()
+    public function testAssetReturnsFullUrl()
     {
         $this->assertEquals('https://example.com/assets/image/test.jpg', asset('image/test.jpg'));
         $this->assertEquals('https://example.com/assets/css/test-with-slash.css', asset('/css/test-with-slash.css'));
