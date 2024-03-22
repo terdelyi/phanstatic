@@ -42,7 +42,7 @@
     "scripts": {
         "check": "php-cs-fixer check",
         "fix": "php-cs-fixer fix",
-        "static": "phpstan analyse src/ tests/ bin/ --level=9",
+        "static": "phpstan analyse",
         "tests": "phpunit tests/"
     }
 }
