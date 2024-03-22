@@ -4,9 +4,12 @@ namespace Terdelyi\Phanstatic\Data;
 
 class Collection
 {
-    /* @var CollectionItem[] $items */
+    /** @var CollectionItem[] $items */
     private array $items;
 
+    /**
+     * @param CollectionItem[] $items
+     */
     public function __construct(
         public string $basename,
         public string $sourceDir,
@@ -15,13 +18,18 @@ class Collection
         public string $indexTemplate,
         array         $items = [],
         public int    $pageSize = 10,
-    ) {}
+    ) {
+        $this->items = $items;
+    }
 
     public function add(CollectionItem $item): void
     {
         $this->items[] = $item;
     }
 
+    /**
+     * @param CollectionItem[] $items
+     */
     public function setItems(array $items): Collection
     {
         $this->items = $items;

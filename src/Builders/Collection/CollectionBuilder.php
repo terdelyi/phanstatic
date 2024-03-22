@@ -64,8 +64,8 @@ class CollectionBuilder implements BuilderInterface
                 [$page, $data] = $this->buildSinglePages($file, $collection);
 
                 $item = new CollectionItem(
-                    title: $page->title,
-                    link: $page->url,
+                    title: $page->title ?? '',
+                    link: $page->url ?? '',
                     excerpt: $data->page->description ?? '',
                     date: $data->page->date ?? date(DateTimeInterface::ATOM, $file->getMTime())
                 );
@@ -81,11 +81,18 @@ class CollectionBuilder implements BuilderInterface
 
     /**
      * @throws CommonMarkException
+     * @throws Exception
      */
     private function getPage(SplFileInfo $file, string $collectionSlug): Page
     {
         $fileData = $this->getFileData($file->getBasename('.md'), $collectionSlug);
-        $parsedFile = YamlFrontMatter::parse(file_get_contents($file->getPathname()));
+        $fileContent = file_get_contents($file->getPathname());
+
+        if ($fileContent) {
+            throw new Exception('File is empty: ' . $file->getPathname());
+        }
+
+        $parsedFile = YamlFrontMatter::parse((string) $fileContent);
         $meta = $parsedFile->matter();
         $title = $parsedFile->matter('title');
         $body = (new CommonMarkConverter())->convert($parsedFile->body());
@@ -101,6 +108,9 @@ class CollectionBuilder implements BuilderInterface
         );
     }
 
+    /**
+     * @return array<string,string>
+     */
     private function getFileData(string $basename, string $collectionSlug): array
     {
         $permalink = '/' . $collectionSlug . "/{$basename}/";
@@ -136,7 +146,12 @@ class CollectionBuilder implements BuilderInterface
         );
     }
 
-    private function buildSinglePages(mixed $file, Collection $collection): array
+    /**
+     * @return array{Page, RenderData}
+     * @throws CommonMarkException
+     * @throws Exception|Throwable
+     */
+    private function buildSinglePages(SplFileInfo $file, Collection $collection): array
     {
         $page = $this->getPage($file, $collection->slug);
         $data = new RenderData(
@@ -151,6 +166,9 @@ class CollectionBuilder implements BuilderInterface
         return [$page, $data];
     }
 
+    /**
+     * @throws Throwable
+     */
     private function buildIndexPages(Collection $collection): void
     {
         $total = $collection->count();
@@ -216,12 +234,15 @@ class CollectionBuilder implements BuilderInterface
 
     public function getPagination(int $page, int $pagesRequired, string $slug, int $total): Pagination
     {
-        $next = $page >= 1 && $page < $pagesRequired ? $slug . '/page/' . $page + 1 : null;
-        $previous = $page != 1 ? $slug . ($page === 2 ? '' : '/page/' . $page - 1) : null;
+        $shouldHaveNextPage = $page >= 1 && $page < $pagesRequired;
+        $nextSlug = $slug . '/page/' . ($page + 1);
+
+        $shouldHavePreviousPage = $page !== 1;
+        $previousSlug = $page === 2 ? $slug : "{$slug}/page/" . ($page - 1);
 
         return new Pagination(
-            next: $next !== null ? url($next) : null,
-            previous: $previous !== null ? url($previous) : null,
+            next: $shouldHaveNextPage ? url($nextSlug) : null,
+            previous: $shouldHavePreviousPage ? url($previousSlug) : null,
             current: $page,
             total: $total,
             isLast: $page === $pagesRequired,

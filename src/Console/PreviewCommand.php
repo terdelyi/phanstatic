@@ -2,6 +2,7 @@
 
 namespace Terdelyi\Phanstatic\Console;
 
+use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -37,12 +38,22 @@ class PreviewCommand extends Command
     {
         $fileManager = new FileManager(new Filesystem(), new Finder());
         $documentRoot = $fileManager->getDestinationFolder();
+        $options = $input->getOptions();
 
-        $host = $input->getOption('host');
-        $port = $input->getOption('port');
+        if (!is_string($options['host'])) {
+            throw new InvalidArgumentException('Host must be a string');
+        }
 
-        passthru("php -S {$host}:{$port} -t {$documentRoot}");
+        if (!is_int($options['port'])) {
+            throw new InvalidArgumentException('Host must be a string');
+        }
 
-        return Command::SUCCESS;
+        $host = $options['host'] ?: 'localhost';
+        $port = $options['port'] ?: 8000;
+        $resultCode = 0;
+
+        passthru(sprintf("php -S %s %s -t %s", $host, $port, $documentRoot), $resultCode);
+
+        return $resultCode === 0 ? Command::SUCCESS : Command::FAILURE;
     }
 }

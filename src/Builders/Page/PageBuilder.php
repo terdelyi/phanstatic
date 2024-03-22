@@ -51,20 +51,14 @@ class PageBuilder implements BuilderInterface
         }
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getFileData(SplFileInfo $file): array
     {
         $basename = $file->getBasename('.php');
-        $permalink = ($file->getRelativePath() !== "") ? "/{$file->getRelativePath()}/{$basename}/" : "/{$basename}/";
-
-        if ($basename === 'index') {
-            $permalink = '/';
-        }
-
-        $targetPath = $this->fileManager->getDestinationFolder("{$permalink}index.html");
-
-        if ($permalink === '/') {
-            $targetPath = $this->fileManager->getDestinationFolder('/index.html');
-        }
+        $permalink = ($basename === 'index') ? '/' : ($file->getRelativePath() !== "" ? "/{$file->getRelativePath()}/{$basename}/" : "/{$basename}/");
+        $targetPath = $this->fileManager->getDestinationFolder(($permalink === '/' ? '/' : "{$permalink}index.html"));
 
         return [
             'path' => $targetPath,

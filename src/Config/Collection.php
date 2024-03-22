@@ -7,6 +7,6 @@ class Collection
     public function __construct(
         public readonly ?string $title,
         public readonly ?string $slug,
-        public readonly ?string $pageSize,
+        public readonly ?int $pageSize,
     ) {}
 }

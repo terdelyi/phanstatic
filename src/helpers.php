@@ -10,7 +10,7 @@ function url(string $permalink): string
         $permalink = '/' . $permalink;
     }
 
-    return $config->getSite()->baseUrl . $permalink;
+    return $config->getSite()->get('baseUrl') . $permalink;
 }
 
 function asset(string $permalink): string

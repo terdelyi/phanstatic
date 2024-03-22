@@ -11,6 +11,7 @@ class Config
 
     private Site $site;
 
+    /** @var Collection[] */
     private array $collections;
 
     public static function getInstance(): Config
@@ -53,6 +54,9 @@ class Config
         return $this->workingDirectory;
     }
 
+    /**
+     * @param array<string,mixed> $site
+     */
     public function setSite(array $site): void
     {
         $this->site = new Site($site);
@@ -63,15 +67,19 @@ class Config
         return $this->site;
     }
 
+    /**
+     * @param array<string,array<string,string|int>> $collections
+     */
     public function setCollections(array $collections): void
     {
+        /** @var Collection[] $parsedCollection */
         $parsedCollection = [];
 
         foreach ($collections as $collection) {
             $parsedCollection[] = new Collection(
-                $collection['title'] ?? null,
-                $collection['slug'] ?? null,
-                $collection['pageSize'] ?? null
+                $collection['title'] ? (string) $collection['title'] : null,
+                $collection['slug'] ? (string) $collection['slug'] : null,
+                $collection['pageSize'] ? (int) $collection['pageSize'] : null,
             );
         }
 

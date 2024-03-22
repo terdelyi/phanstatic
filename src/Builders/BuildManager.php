@@ -43,6 +43,9 @@ class BuildManager
         return round($this->endTime - $this->startTime, 4);
     }
 
+    /**
+     * @return array<int,string>
+     */
     private function getBuilders(): array
     {
         return [

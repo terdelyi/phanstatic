@@ -15,8 +15,8 @@ class FileManager
     private string $destinationFolder = 'dist';
 
     public function __construct(
-        private Filesystem $filesystem,
-        private Finder     $finder,
+        private readonly Filesystem $filesystem,
+        private readonly Finder     $finder,
     ) {}
 
     public function getSourceFolder(string $path = ''): string
@@ -42,11 +42,14 @@ class FileManager
         return false;
     }
 
-    public function exists($path): bool
+    public function exists(string $path): bool
     {
         return $this->filesystem->exists($path);
     }
 
+    /**
+     * @param string|string[] $path
+     */
     public function getFiles(array|string $path, ?string $pattern = null): Finder
     {
         $files = $this->finder::create()
@@ -62,6 +65,10 @@ class FileManager
         return $files;
     }
 
+    /**
+     * @param string|string[] $path
+     * @param string|string[]|int $level
+     */
     public function getDirectories(array|string $path, array|int|string $level = ''): Finder
     {
         return $this->finder::create()
@@ -73,27 +80,24 @@ class FileManager
 
     public function render(string $path, RenderData $data): string
     {
-        $obLevel = ob_get_level();
-
         ob_start();
 
         try {
             $this->require($path, $data);
         } catch (Throwable $e) {
-            while (ob_get_level() > $obLevel) {
-                ob_end_clean();
-            }
-
+            ob_end_clean();
             throw $e;
         }
 
-        return ltrim(ob_get_clean());
+        $output = ob_get_clean();
+        return $output !== false ? ltrim($output) : '';
     }
 
     public function require(string $filePath, RenderData $data): string
     {
         return (static function () use ($filePath, $data) {
-            extract(get_object_vars($data), EXTR_SKIP);
+            $dataVars = get_object_vars($data);
+            extract($dataVars, EXTR_SKIP);
             unset($data);
 
             return require $filePath;
@@ -111,7 +115,7 @@ class FileManager
         return file_put_contents($path, $data) !== false;
     }
 
-    public function copy($sourcePath, $targetPath): void
+    public function copy(string $sourcePath, string $targetPath): void
     {
         $this->filesystem->copy($sourcePath, $targetPath, true);
     }
