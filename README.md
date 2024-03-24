@@ -54,10 +54,10 @@ return (new ConfigBuilder)
     ->build();
 ```
 
-## Content directory
+## Example content structure
 
-None of these files are not mandatory. Phanstatic and its builders will look for the existing folders and configuration
-file and use them if they're available.
+None of these files are mandatory. Phanstatic and its builders will look for the existing folders and configuration
+and use them if they're available.
 
 ```
 ├── content
