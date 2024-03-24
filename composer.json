@@ -28,7 +28,7 @@
             "Terdelyi\\Phanstatic\\": "src/"
         },
         "files": [
-            "src/helpers.php"
+            "src/Support/helpers.php"
         ]
     },
     "autoload-dev": {

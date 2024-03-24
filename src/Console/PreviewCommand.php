@@ -7,10 +7,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\Services\FileManager;
+use Terdelyi\Phanstatic\Services\Container;
 
 class PreviewCommand extends Command
 {
@@ -36,8 +34,8 @@ class PreviewCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $fileManager = new FileManager(new Filesystem(), new Finder());
-        $documentRoot = $fileManager->getDestinationFolder();
+        /** @var Config $config */
+        $config = Container::get('config');
         $options = $input->getOptions();
 
         if (!is_string($options['host'])) {
@@ -52,7 +50,7 @@ class PreviewCommand extends Command
         $port = $options['port'] ?: 8000;
         $resultCode = 0;
 
-        passthru(sprintf("php -S %s %s -t %s", $host, $port, $documentRoot), $resultCode);
+        passthru(sprintf("php -S %s %s -t %s", $host, $port, $config->getBuildDir()), $resultCode);
 
         return $resultCode === 0 ? Command::SUCCESS : Command::FAILURE;
     }

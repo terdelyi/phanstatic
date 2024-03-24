@@ -2,7 +2,7 @@
 
 namespace Terdelyi\Phanstatic\Config;
 
-class Collection
+class CollectionConfig
 {
     public function __construct(
         public readonly ?string $title,

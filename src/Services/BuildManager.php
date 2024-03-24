@@ -1,15 +1,13 @@
 <?php
 
-namespace Terdelyi\Phanstatic\Builders;
+namespace Terdelyi\Phanstatic\Services;
 
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 use Terdelyi\Phanstatic\Builders\Asset\AssetBuilder;
+use Terdelyi\Phanstatic\Builders\BuilderInterface;
 use Terdelyi\Phanstatic\Builders\Collection\CollectionBuilder;
 use Terdelyi\Phanstatic\Builders\Page\PageBuilder;
 use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\Console\Output\BuildOutputInterface;
-use Terdelyi\Phanstatic\Services\FileManager;
 
 class BuildManager
 {
@@ -23,7 +21,7 @@ class BuildManager
 
     public function run(): void
     {
-        $fileManager = new FileManager(new Filesystem(), new Finder());
+        $fileManager = new FileManager();
 
         $this->startTime = microtime(true);
 

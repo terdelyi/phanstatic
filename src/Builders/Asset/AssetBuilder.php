@@ -3,6 +3,7 @@
 namespace Terdelyi\Phanstatic\Builders\Asset;
 
 use Terdelyi\Phanstatic\Builders\BuilderInterface;
+use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\Console\Output\BuildOutputInterface;
 use Terdelyi\Phanstatic\Services\FileManager;
 
@@ -14,9 +15,10 @@ class AssetBuilder implements BuilderInterface
     public function __construct(
         private readonly FileManager          $fileManager,
         private readonly BuildOutputInterface $output,
+        private readonly Config               $config,
     ) {
-        $this->sourcePath = $this->fileManager->getSourceFolder($this->sourcePath);
-        $this->destinationPath = $this->fileManager->getDestinationFolder($this->destinationPath);
+        $this->sourcePath = $this->config->getSourceDir($this->sourcePath);
+        $this->destinationPath = $this->config->getBuildDir($this->destinationPath);
     }
 
     public function build(): void

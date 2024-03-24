@@ -3,7 +3,8 @@
 namespace Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Terdelyi\Phanstatic\Config\Config;
+use Terdelyi\Phanstatic\Config\ConfigBuilder;
+use Terdelyi\Phanstatic\Services\Container;
 
 class HelpersTest extends TestCase
 {
@@ -11,10 +12,8 @@ class HelpersTest extends TestCase
     {
         parent::setUp();
 
-        $config = Config::getInstance();
-        $config->setSite([
-            'baseUrl' => 'https://example.com',
-        ]);
+        $config = (new ConfigBuilder())->setBaseUrl('https://example.com')->build();
+        Container::set('config', $config);
     }
 
     public function testPermalinkReturnsFullUrl(): void

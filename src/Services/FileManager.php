@@ -4,37 +4,25 @@ namespace Terdelyi\Phanstatic\Services;
 
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
-use Terdelyi\Phanstatic\Data\RenderData;
+use Terdelyi\Phanstatic\Builders\RenderContext;
 use Throwable;
-
-use function dirname;
 
 class FileManager
 {
-    private string $sourceFolder = 'content';
-    private string $destinationFolder = 'dist';
+    private Filesystem $filesystem;
 
-    public function __construct(
-        private readonly Filesystem $filesystem,
-        private readonly Finder     $finder,
-    ) {}
+    private Finder $finder;
 
-    public function getSourceFolder(string $path = ''): string
+    public function __construct()
     {
-        return $this->sourceFolder . $path;
+        $this->filesystem = new Filesystem();
+        $this->finder = new Finder();
     }
 
-    public function getDestinationFolder(string $path = ''): string
+    public function cleanFolder(string $path): bool
     {
-        return $this->destinationFolder . $path;
-    }
-
-    public function cleanDestinationFolder(): bool
-    {
-        $destinationFolder = $this->getDestinationFolder();
-
-        if ($this->filesystem->exists($destinationFolder)) {
-            $this->filesystem->remove($destinationFolder);
+        if ($this->filesystem->exists($path)) {
+            $this->filesystem->remove($path);
 
             return true;
         }
@@ -78,7 +66,7 @@ class FileManager
             ->depth($level);
     }
 
-    public function render(string $path, RenderData $data): string
+    public function render(string $path, RenderContext $data): string
     {
         ob_start();
 
@@ -93,7 +81,7 @@ class FileManager
         return $output !== false ? ltrim($output) : '';
     }
 
-    public function require(string $filePath, RenderData $data): string
+    public function require(string $filePath, RenderContext $data): string
     {
         return (static function () use ($filePath, $data) {
             $dataVars = get_object_vars($data);
@@ -106,7 +94,7 @@ class FileManager
 
     public function save(string $path, string $data): bool
     {
-        $outputDir = dirname($path);
+        $outputDir = \dirname($path);
 
         if (!is_dir($outputDir)) {
             mkdir($outputDir, 0o755, true);

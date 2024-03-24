@@ -1,16 +1,18 @@
 <?php
 
 use Terdelyi\Phanstatic\Config\Config;
+use Terdelyi\Phanstatic\Services\Container;
 
 function url(string $permalink): string
 {
-    $config = Config::getInstance();
+    /** @var Config $config */
+    $config = Container::get('config');
 
     if (!str_starts_with($permalink, '/')) {
         $permalink = '/' . $permalink;
     }
 
-    return $config->getSite()->get('baseUrl') . $permalink;
+    return $config->getBaseUrl($permalink);
 }
 
 function asset(string $permalink): string

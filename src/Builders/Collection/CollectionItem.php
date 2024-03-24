@@ -1,6 +1,6 @@
 <?php
 
-namespace Terdelyi\Phanstatic\Data;
+namespace Terdelyi\Phanstatic\Builders\Collection;
 
 class CollectionItem
 {

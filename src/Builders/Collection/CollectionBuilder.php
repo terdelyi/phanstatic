@@ -2,7 +2,6 @@
 
 namespace Terdelyi\Phanstatic\Builders\Collection;
 
-use DateTime;
 use DateTimeInterface;
 use Exception;
 use League\CommonMark\CommonMarkConverter;
@@ -10,12 +9,10 @@ use League\CommonMark\Exception\CommonMarkException;
 use Spatie\YamlFrontMatter\YamlFrontMatter;
 use Symfony\Component\Finder\SplFileInfo;
 use Terdelyi\Phanstatic\Builders\BuilderInterface;
+use Terdelyi\Phanstatic\Builders\Page\Page;
+use Terdelyi\Phanstatic\Builders\RenderContext;
 use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\Data\Collection;
-use Terdelyi\Phanstatic\Data\CollectionItem;
-use Terdelyi\Phanstatic\Data\RenderData;
-use Terdelyi\Phanstatic\Data\Page;
-use Terdelyi\Phanstatic\Data\Pagination;
+use Terdelyi\Phanstatic\Config\SiteConfig;
 use Terdelyi\Phanstatic\Console\Output\BuildOutputInterface;
 use Terdelyi\Phanstatic\Services\FileManager;
 use Throwable;
@@ -30,8 +27,8 @@ class CollectionBuilder implements BuilderInterface
         private readonly BuildOutputInterface $output,
         private readonly Config               $config,
     ) {
-        $this->sourcePath = $this->fileManager->getSourceFolder($this->sourcePath);
-        $this->destinationPath = $this->fileManager->getDestinationFolder();
+        $this->sourcePath = $this->config->getSourceDir($this->sourcePath);
+        $this->destinationPath = $this->config->getBuildDir();
     }
 
     /**
@@ -88,7 +85,7 @@ class CollectionBuilder implements BuilderInterface
         $fileData = $this->getFileData($file->getBasename('.md'), $collectionSlug);
         $fileContent = file_get_contents($file->getPathname());
 
-        if ($fileContent) {
+        if (!$fileContent) {
             throw new Exception('File is empty: ' . $file->getPathname());
         }
 
@@ -147,15 +144,15 @@ class CollectionBuilder implements BuilderInterface
     }
 
     /**
-     * @return array{Page, RenderData}
+     * @return array{Page, RenderContext}
      * @throws CommonMarkException
      * @throws Exception|Throwable
      */
     private function buildSinglePages(SplFileInfo $file, Collection $collection): array
     {
         $page = $this->getPage($file, $collection->slug);
-        $data = new RenderData(
-            site: $this->config->getSite(),
+        $data = new RenderContext(
+            site: $this->getSite(),
             page: $page,
         );
 
@@ -214,7 +211,7 @@ class CollectionBuilder implements BuilderInterface
         );
     }
 
-    private function getRenderData(Collection $collection, int $page, Page $pageData, Pagination $pagination, int $pagesRequired): RenderData
+    private function getRenderData(Collection $collection, int $page, Page $pageData, Pagination $pagination, int $pagesRequired): RenderContext
     {
         $items = $collection->items();
 
@@ -224,8 +221,8 @@ class CollectionBuilder implements BuilderInterface
 
         $collection = $collection->setItems($items)->slice(($page - 1) * $collection->pageSize, $collection->pageSize);
 
-        return new RenderData(
-            site: $this->config->getSite(),
+        return new RenderContext(
+            site: $this->getSite(),
             page: $pageData,
             collection: $collection,
             pagination: $pagesRequired > 1 ? $pagination : null
@@ -246,6 +243,18 @@ class CollectionBuilder implements BuilderInterface
             current: $page,
             total: $total,
             isLast: $page === $pagesRequired,
+        );
+    }
+
+    /**
+     * @return SiteConfig
+     */
+    public function getSite(): SiteConfig
+    {
+        return new SiteConfig(
+            title: $this->config->getTitle(),
+            baseUrl: $this->config->getBaseUrl(),
+            meta: $this->config->getMeta(),
         );
     }
 }

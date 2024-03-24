@@ -6,90 +6,83 @@ use RuntimeException;
 
 class Config
 {
-    private static ?Config $instance = null;
-    private string $workingDirectory;
-
-    private Site $site;
-
-    /** @var Collection[] */
+    private string $workDir;
+    private string $sourceDir;
+    private string $buildDir;
+    /**
+     * @var CollectionConfig[]
+     */
     private array $collections;
+    private string $baseUrl;
+    private string $title;
+    /**
+     * @var array<string,mixed>
+     */
+    private array $meta;
 
-    public static function getInstance(): Config
+    /**
+     * @param array<string,mixed> $config
+     */
+    public function __construct(array $config)
     {
-        if (self::$instance === null) {
-            self::$instance = new Config();
-        }
-
-        return self::$instance;
-    }
-
-    public function setWorkDir(string $path): void
-    {
-        $this->workingDirectory = $path;
-    }
-
-    public function loadFromFile(string $configFile): void
-    {
-        if (!file_exists($configFile)) {
-            throw new RuntimeException('Config file not found');
-        }
-
-        $config = require $configFile;
-
-        if (!is_array($config)) {
-            throw new RuntimeException('Config variables are not in an array');
-        }
-
-        if (isset($config['site'])) {
-            $this->setSite($config['site']);
-        }
-
-        if (isset($config['collections'])) {
-            $this->setCollections($config['collections']);
-        }
+        $this->workDir = $config['workDir'] ?? throw new RuntimeException('Work directory is not set');
+        $this->sourceDir = $config['sourceDir'] ?? throw new RuntimeException('Source directory is not set');
+        $this->buildDir = $config['buildDir'] ?? throw new RuntimeException('Build directory is not set');
+        $this->title = $config['title'] ?? '';
+        $this->baseUrl = $config['baseUrl'] ?? '';
+        $this->meta = $config['meta'] ?? [];
+        $this->collections = $config['collections'] ?? [];
     }
 
     public function getWorkDir(): string
     {
-        return $this->workingDirectory;
+        return $this->workDir;
     }
 
-    /**
-     * @param array<string,mixed> $site
-     */
-    public function setSite(array $site): void
+    public function getSourceDir(?string $path = null): string
     {
-        $this->site = new Site($site);
-    }
-
-    public function getSite(): Site
-    {
-        return $this->site;
-    }
-
-    /**
-     * @param array<string,array<string,string|int>> $collections
-     */
-    public function setCollections(array $collections): void
-    {
-        /** @var Collection[] $parsedCollection */
-        $parsedCollection = [];
-
-        foreach ($collections as $collection) {
-            $parsedCollection[] = new Collection(
-                $collection['title'] ? (string) $collection['title'] : null,
-                $collection['slug'] ? (string) $collection['slug'] : null,
-                $collection['pageSize'] ? (int) $collection['pageSize'] : null,
-            );
+        if ($path !== null) {
+            return $this->sourceDir . $path;
         }
 
-        $this->collections = $parsedCollection;
+        return $this->sourceDir;
+    }
+
+    public function getBuildDir(?string $path = null): string
+    {
+        if ($path !== null) {
+            return $this->buildDir . $path;
+        }
+
+        return $this->buildDir;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function getBaseUrl(?string $permalink = null): string
+    {
+        if ($permalink !== null) {
+            return $this->baseUrl . $permalink;
+        }
+
+        return $this->baseUrl;
     }
 
     /**
-     * @return Collection|Collection[]
+     * @return array<string,mixed>
      */
-    public function getCollections(string $key = null): Collection|array
+    public function getMeta(): array
+    {
+        return $this->meta;
+    }
+
+    /**
+     * @return CollectionConfig|CollectionConfig[]
+     */
+    public function getCollections(?string $key): CollectionConfig|array
     {
         if ($key !== null && isset($this->collections[$key])) {
             return $this->collections[$key];

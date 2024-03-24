@@ -4,9 +4,9 @@ namespace Terdelyi\Phanstatic\Builders\Page;
 
 use Symfony\Component\Finder\SplFileInfo;
 use Terdelyi\Phanstatic\Builders\BuilderInterface;
+use Terdelyi\Phanstatic\Builders\RenderContext;
 use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\Data\RenderData;
-use Terdelyi\Phanstatic\Data\Page;
+use Terdelyi\Phanstatic\Config\SiteConfig;
 use Terdelyi\Phanstatic\Console\Output\BuildOutputInterface;
 use Terdelyi\Phanstatic\Services\FileManager;
 use Throwable;
@@ -20,7 +20,7 @@ class PageBuilder implements BuilderInterface
         private readonly BuildOutputInterface $output,
         private readonly Config               $config,
     ) {
-        $this->sourcePath = $this->fileManager->getSourceFolder($this->sourcePath);
+        $this->sourcePath = $this->config->getSourceDir($this->sourcePath);
     }
 
     /**
@@ -34,8 +34,12 @@ class PageBuilder implements BuilderInterface
 
         foreach ($pages as $page) {
             $fileData = $this->getFileData($page);
-            $data = new RenderData(
-                site: $this->config->getSite(),
+            $data = new RenderContext(
+                site: new SiteConfig(
+                    title: $this->config->getTitle(),
+                    baseUrl: $this->config->getBaseUrl(),
+                    meta: $this->config->getMeta()
+                ),
                 page: new Page(
                     path: $fileData['path'],
                     permalink: $fileData['permalink'],
@@ -58,7 +62,7 @@ class PageBuilder implements BuilderInterface
     {
         $basename = $file->getBasename('.php');
         $permalink = ($basename === 'index') ? '/' : ($file->getRelativePath() !== "" ? "/{$file->getRelativePath()}/{$basename}/" : "/{$basename}/");
-        $targetPath = $this->fileManager->getDestinationFolder(($permalink === '/' ? '/' : "{$permalink}index.html"));
+        $targetPath = $permalink === '/' ? $this->config->getBuildDir('/index.html') : $this->config->getBuildDir("{$permalink}index.html");
 
         return [
             'path' => $targetPath,

@@ -5,14 +5,15 @@ namespace Terdelyi\Phanstatic\Console;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Terdelyi\Phanstatic\Builders\BuildManager;
 use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\Console\Output\BuildOutput;
+use Terdelyi\Phanstatic\Services\BuildManager;
 
 class BuildCommand extends Command
 {
-    public function __construct(private Config $config)
-    {
+    public function __construct(
+        private readonly Config $config
+    ) {
         parent::__construct();
     }
 
@@ -24,8 +25,6 @@ class BuildCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->config->loadFromFile($this->config->getWorkDir() . '/content/config.php');
-
         $output = new BuildOutput($output);
         $buildManager = new BuildManager($output, $this->config);
 
