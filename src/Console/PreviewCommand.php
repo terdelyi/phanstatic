@@ -43,14 +43,14 @@ class PreviewCommand extends Command
         }
 
         if (!is_int($options['port'])) {
-            throw new InvalidArgumentException('Host must be a string');
+            throw new InvalidArgumentException('Port must be an integer');
         }
 
         $host = $options['host'] ?: 'localhost';
         $port = $options['port'] ?: 8000;
         $resultCode = 0;
 
-        passthru(sprintf("php -S %s %s -t %s", $host, $port, $config->getBuildDir()), $resultCode);
+        passthru(sprintf("php -S %s:%s -t %s", $host, $port, $config->getBuildDir()), $resultCode);
 
         return $resultCode === 0 ? Command::SUCCESS : Command::FAILURE;
     }
