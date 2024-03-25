@@ -7,7 +7,7 @@ is transformed into static HTML files, ready to deploy.
 
 ## Install
 
-To create a new project just run
+To create a new project just run:
 
 ```
 composer create-project terdelyi/phanstatic:dev-develop
@@ -15,7 +15,7 @@ composer create-project terdelyi/phanstatic:dev-develop
 
 ## Build
 
-To build static files from your `content` directory run the following command in your root folder:
+To build static files from your `content` directory to the `dist` folder run the following command in your root folder:
 
 ```
 php ./vendor/bin/phanstatic build
@@ -36,8 +36,10 @@ You can override the default host (`--host`) and the port (`--port`) settings if
 
 ## Configuration
 
-All you need is a `content` directory in the root of your project with your `.php` and `.md` files, and an optional
-configuration file under `content/config.php`:
+For starter all you need is a `content/pages` directory in the root of your project which contains `.php` files or a
+`content/collections/{collectionName}` with `.md` files.
+
+Optionally, you can place a configuration file under `content/config.php` which must return a `Config` object:
 
 ```php
 use Terdelyi\Phanstatic\Config\ConfigBuilder;
