@@ -36,6 +36,12 @@ class CollectionBuilder implements BuilderInterface
      */
     public function build(): void
     {
+        if (!$this->fileManager->exists($this->sourcePath)) {
+            $this->output->action("Skipping collections: no 'content/collections' directory found");
+
+            return;
+        }
+
         $this->output->action("Looking for collections...");
 
         $collections = $this->fileManager->getDirectories($this->sourcePath, '== 0');

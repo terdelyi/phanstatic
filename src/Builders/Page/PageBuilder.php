@@ -28,6 +28,12 @@ class PageBuilder implements BuilderInterface
      */
     public function build(): void
     {
+        if (!$this->fileManager->exists($this->sourcePath)) {
+            $this->output->action("Skipping pages: no 'content/pages' directory found");
+
+            return;
+        }
+
         $this->output->action("Looking for pages...");
 
         $pages = $this->fileManager->getFiles($this->sourcePath, '*.php');

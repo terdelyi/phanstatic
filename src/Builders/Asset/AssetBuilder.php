@@ -23,6 +23,12 @@ class AssetBuilder implements BuilderInterface
 
     public function build(): void
     {
+        if (!$this->fileManager->exists($this->sourcePath)) {
+            $this->output->action("Skipping assets: no 'content/assets' directory found");
+
+            return;
+        }
+
         $this->output->action("Looking for assets...");
 
         $assets = $this->fileManager->getFiles($this->sourcePath);
