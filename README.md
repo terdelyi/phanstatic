@@ -29,17 +29,17 @@ To preview your build in a browser:
 php ./vendor/bin/phanstatic preview
 ```
 
-This will start PHP's built-in server at `localhost` with port `8000` and makes the files from the `dist` available in a
+This will start PHP's built-in server at `localhost` with port `8000` and make the files from the `dist` available in a
 browser.
 
 You can override the default host (`--host`) and the port (`--port`) settings if necessary.
 
 ## Configuration
 
-For starter all you need is a `content/pages` directory in the root of your project which contains `.php` files or a
-`content/collections/{collectionName}` with `.md` files.
+As a starter all you need is a `content/pages` directory in the root of your project which contains `.php` files.
 
-Optionally, you can place a configuration file under `content/config.php` which must return a `Config` object:
+Optionally, you can also place a configuration file under `content/config.php` which must return a `Config` object like
+this:
 
 ```php
 use Terdelyi\Phanstatic\Config\ConfigBuilder;
@@ -83,4 +83,5 @@ from the url `/assets`.
 
 ## Contributing
 
-Bugfixes are highly welcome, but this package is in its early stages, and I'm planning to add new features carefully.
+Bugfixes and feature requests are highly welcome, but this package is in its early stages, and I'm planning to add any
+new features carefully.

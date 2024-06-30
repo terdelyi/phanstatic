@@ -6,33 +6,36 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\Console\Output\BuildOutput;
-use Terdelyi\Phanstatic\Services\BuildManager;
+use Terdelyi\Phanstatic\Services\ContentBuilderManager;
+use Terdelyi\Phanstatic\Support\Output\Output;
 
 class BuildCommand extends Command
 {
-    public function __construct(
-        private readonly Config $config
-    ) {
+    private Config $config;
+
+    public function __construct(Config $config)
+    {
         parent::__construct();
+
+        $this->config = $config;
     }
 
     protected function configure(): void
     {
         $this->setName('build')
-            ->setDescription('Build site distribution');
+            ->setDescription('Build the static files into the output directory');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output = new BuildOutput($output);
-        $buildManager = new BuildManager($output, $this->config);
+        $wrappedOutput = new Output($output);
+        $buildManager = new ContentBuilderManager($wrappedOutput, $this->config);
 
-        $output->header("Build started");
+        $wrappedOutput->header("Build started");
 
         $buildManager->run();
 
-        $output->time("Build completed in {$buildManager->getExecutionTime()} seconds");
+        $wrappedOutput->time("Build completed in {$buildManager->getExecutionTime()} seconds");
 
         return Command::SUCCESS;
     }

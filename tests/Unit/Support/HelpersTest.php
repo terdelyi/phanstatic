@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Support;
 
+use Mockery;
 use PHPUnit\Framework\TestCase;
 use Terdelyi\Phanstatic\Config\ConfigBuilder;
-use Terdelyi\Phanstatic\Services\Container;
 
 class HelpersTest extends TestCase
 {
@@ -12,8 +12,13 @@ class HelpersTest extends TestCase
     {
         parent::setUp();
 
-        $config = (new ConfigBuilder())->setBaseUrl('https://example.com')->build();
-        Container::set('config', $config);
+        $config = (new ConfigBuilder())
+            ->setBaseUrl('https://example.com')
+            ->build();
+
+        Mockery::mock('alias:Terdelyi\Phanstatic\Phanstatic')
+            ->shouldReceive('getConfig')
+            ->andReturn($config);
     }
 
     public function testPermalinkReturnsFullUrl(): void

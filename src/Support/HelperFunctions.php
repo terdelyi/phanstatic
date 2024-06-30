@@ -1,12 +1,10 @@
 <?php
 
-use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\Services\Container;
+use Terdelyi\Phanstatic\Phanstatic;
 
 function url(string $permalink): string
 {
-    /** @var Config $config */
-    $config = Container::get('config');
+    $config = Phanstatic::getConfig();
 
     if (!str_starts_with($permalink, '/')) {
         $permalink = '/' . $permalink;

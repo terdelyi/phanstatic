@@ -7,46 +7,63 @@ use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\Config\ConfigBuilder;
 use Terdelyi\Phanstatic\Console\BuildCommand;
 use Terdelyi\Phanstatic\Console\PreviewCommand;
-use Terdelyi\Phanstatic\Services\Container;
+use Terdelyi\Phanstatic\Console\ShowConfigCommand;
 
 class Phanstatic
 {
     private string $name = 'Phanstatic';
-    private string $version = '0.1.0';
-    private string $configFile = 'content/config.php';
-
-    public function __construct(
-        private readonly string $workDir
-    ) {}
+    private string $version = '0.5.0';
+    private string $defaultConfigFile = 'content/config.php';
+    private static ?Config $config = null;
 
     public function init(): void
     {
-        $config = $this->getConfig();
+        try {
+            $this->loadConfig($this->defaultConfigFile);
+            $config = $this->getConfig();
 
-        Container::set('config', $config);
+            $application = new Application($this->name, $this->version);
+            $application->addCommands([
+                new BuildCommand($config),
+                new PreviewCommand($config),
+                new ShowConfigCommand($config),
+            ]);
+            $application->setCatchErrors();
+            $application->setCatchExceptions(true);
 
-        $application = new Application($this->name, $this->version);
-        $application->addCommands([
-            new BuildCommand($config),
-            new PreviewCommand(),
-        ]);
-        $application->setCatchErrors();
-        $application->setCatchExceptions(true);
-        $application->run();
+            $application->run();
+        } catch (\Throwable $e) {
+            echo 'Error: ' . $e->getMessage() . PHP_EOL;
+        }
     }
 
-    private function getConfig(): Config
+    public static function getConfig(): Config
     {
-        $configFile = $this->workDir . '/' . $this->configFile;
-
-        if (file_exists($configFile)) {
-            return require $configFile;
+        if (self::$config === null) {
+            return (new ConfigBuilder())
+                ->setBaseUrl('http://localhost')
+                ->build();
         }
 
-        $configBuilder = new ConfigBuilder();
+        return self::$config;
+    }
 
-        return $configBuilder
-            ->setWorkDir($this->workDir)
-            ->build();
+    /**
+     * @throws \RuntimeException
+     */
+    private function loadConfig(string $file): void
+    {
+        $configFile = dirname(__DIR__) . '/' . $file;
+
+        if (file_exists($configFile)) {
+            $config = require $configFile;
+
+            self::setConfig($config);
+        }
+    }
+
+    private static function setConfig(Config $config): void
+    {
+        self::$config = $config;
     }
 }

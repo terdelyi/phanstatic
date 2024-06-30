@@ -4,7 +4,7 @@ namespace Terdelyi\Phanstatic\Services;
 
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
-use Terdelyi\Phanstatic\Builders\RenderContext;
+use Terdelyi\Phanstatic\ContentBuilders\RenderContext;
 use Throwable;
 
 class FileManager

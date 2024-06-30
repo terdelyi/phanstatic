@@ -2,8 +2,6 @@
 
 namespace Terdelyi\Phanstatic\Config;
 
-use Terdelyi\Phanstatic\Builders\Collection\Collection;
-
 class ConfigBuilder
 {
     /**
@@ -14,17 +12,10 @@ class ConfigBuilder
     public function __construct()
     {
         $this->config = [
-            'workDir' => dirname(__DIR__),
-            'sourceDir' => 'content',
-            'buildDir' => 'dist',
+            'baseUrl' => 'http://localhost',
+            'sourceDir' => $this->getRelativeWorkDirPath('content'),
+            'buildDir' => $this->getRelativeWorkDirPath('dist'),
         ];
-    }
-
-    public function setWorkDir(string $workDir): self
-    {
-        $this->config['workDir'] = $workDir;
-
-        return $this;
     }
 
     public function setSourceDir(string $sourceDir): self
@@ -41,10 +32,7 @@ class ConfigBuilder
         return $this;
     }
 
-    /**
-     * @param CollectionConfig[] $collections
-     */
-    public function addCollection(string $key, ?string $title, ?string $slug, ?int $pageSize): self
+    public function addCollection(string $key, ?string $title, ?string $slug, ?int $pageSize): ConfigBuilder
     {
         $this->config['collections'][$key] = new CollectionConfig($title, $slug, $pageSize);
 
@@ -75,8 +63,29 @@ class ConfigBuilder
         return $this;
     }
 
+    /**
+     * @param array<mixed> $builders
+     */
+    public function setBuilders(array $builders): self
+    {
+        $this->config['builders'] = $builders;
+
+        return $this;
+    }
+
     public function build(): Config
     {
         return new Config($this->config);
+    }
+
+    private function getRelativeWorkDirPath(string $path): string
+    {
+        $workDir = getcwd();
+
+        if ($workDir === false) {
+            throw new \RuntimeException('Could not determine the current working directory');
+        }
+
+        return $workDir . '/' . $path;
     }
 }

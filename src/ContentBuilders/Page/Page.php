@@ -1,6 +1,6 @@
 <?php
 
-namespace Terdelyi\Phanstatic\Builders\Page;
+namespace Terdelyi\Phanstatic\ContentBuilders\Page;
 
 class Page
 {

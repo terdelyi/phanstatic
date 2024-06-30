@@ -1,13 +1,13 @@
 <?php
 
-namespace Terdelyi\Phanstatic\Console\Output;
+namespace Terdelyi\Phanstatic\Support\Output;
 
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\OutputInterface as SymfonyOutputInterface;
 
-class BuildOutput implements BuildOutputInterface
+class Output implements OutputInterface
 {
     public function __construct(
-        private OutputInterface $output,
+        private readonly SymfonyOutputInterface $output,
     ) {}
 
     public function header(string $message): void

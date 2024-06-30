@@ -1,6 +1,6 @@
 <?php
 
-namespace Terdelyi\Phanstatic\Builders\Collection;
+namespace Terdelyi\Phanstatic\ContentBuilders\Collection;
 
 use DateTimeInterface;
 use Exception;
@@ -8,35 +8,33 @@ use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\Exception\CommonMarkException;
 use Spatie\YamlFrontMatter\YamlFrontMatter;
 use Symfony\Component\Finder\SplFileInfo;
-use Terdelyi\Phanstatic\Builders\BuilderInterface;
-use Terdelyi\Phanstatic\Builders\Page\Page;
-use Terdelyi\Phanstatic\Builders\RenderContext;
+use Terdelyi\Phanstatic\ContentBuilders\BuilderContextInterface;
+use Terdelyi\Phanstatic\ContentBuilders\BuilderInterface;
+use Terdelyi\Phanstatic\ContentBuilders\Page\Page;
+use Terdelyi\Phanstatic\ContentBuilders\RenderContext;
 use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\Config\SiteConfig;
-use Terdelyi\Phanstatic\Console\Output\BuildOutputInterface;
 use Terdelyi\Phanstatic\Services\FileManager;
+use Terdelyi\Phanstatic\Support\Output\OutputInterface;
 use Throwable;
 
 class CollectionBuilder implements BuilderInterface
 {
     private string $sourcePath = '/collections';
-    private string $destinationPath;
-
-    public function __construct(
-        private readonly FileManager          $fileManager,
-        private readonly BuildOutputInterface $output,
-        private readonly Config               $config,
-    ) {
-        $this->sourcePath = $this->config->getSourceDir($this->sourcePath);
-        $this->destinationPath = $this->config->getBuildDir();
-    }
+    private Config $config;
+    private OutputInterface $output;
+    private FileManager $fileManager;
 
     /**
      * @throws Throwable
      */
-    public function build(): void
+    public function build(BuilderContextInterface $context): void
     {
-        if (!$this->fileManager->exists($this->sourcePath)) {
+        $this->config = $context->getConfig();
+        $this->output = $context->getOutput();
+        $this->fileManager = new FileManager();
+
+        if (!$this->fileManager->exists($this->getSourcePath())) {
             $this->output->action("Skipping collections: no 'content/collections' directory found");
 
             return;
@@ -44,27 +42,27 @@ class CollectionBuilder implements BuilderInterface
 
         $this->output->action("Looking for collections...");
 
-        $collections = $this->fileManager->getDirectories($this->sourcePath, '== 0');
+        $collectionDirectories = $this->fileManager->getDirectories($this->getSourcePath(), '== 0');
 
-        foreach ($collections as $directory) {
+        foreach ($collectionDirectories as $directory) {
             $collection = $this->createCollection($directory);
 
             if (!$this->fileManager->exists($collection->singleTemplate)) {
-                throw new Exception("Collection must have a single template: " . $collection->singleTemplate);
+                throw new Exception("Collection must have a single template exist at " . $collection->singleTemplate);
             }
 
-            $this->output->action(ucfirst($collection->basename) . ' collection found. Looking for items...');
+            $this->output->action(ucfirst($collection->basename) . ' collection set. Looking for items...');
 
-            $files = $this->fileManager->getFiles($collection->sourceDir, '*.md');
+            $collectionContent = $this->fileManager->getFiles($collection->sourceDir, '*.md');
 
-            if ($files->count() === 0) {
-                $this->output->warning('No items to copy in' . $collection->basename);
+            if ($collectionContent->count() === 0) {
+                $this->output->warning('No items available in this collection.');
 
                 continue;
             }
 
-            foreach ($files as $file) {
-                [$page, $data] = $this->buildSinglePages($file, $collection);
+            foreach ($collectionContent as $file) {
+                [$page, $data] = $this->buildPages($file, $collection);
 
                 $item = new CollectionItem(
                     title: $page->title ?? '',
@@ -95,7 +93,7 @@ class CollectionBuilder implements BuilderInterface
             throw new Exception('File is empty: ' . $file->getPathname());
         }
 
-        $parsedFile = YamlFrontMatter::parse((string) $fileContent);
+        $parsedFile = YamlFrontMatter::parse($fileContent);
         $meta = $parsedFile->matter();
         $title = $parsedFile->matter('title');
         $body = (new CommonMarkConverter())->convert($parsedFile->body());
@@ -116,16 +114,16 @@ class CollectionBuilder implements BuilderInterface
      */
     private function getFileData(string $basename, string $collectionSlug): array
     {
-        $permalink = '/' . $collectionSlug . "/{$basename}/";
+        $permalink = "/$collectionSlug/$basename/";
 
         if ($basename === 'index') {
             $permalink = '/';
         }
 
-        $newPath = $this->destinationPath . "{$permalink}index.html";
+        $newPath = $this->getDestinationPath() . "{$permalink}index.html";
 
         if ($permalink === '/') {
-            $newPath = $this->destinationPath . "/index.html";
+            $newPath = $this->getDestinationPath() . "/index.html";
         }
 
         return [
@@ -154,7 +152,7 @@ class CollectionBuilder implements BuilderInterface
      * @throws CommonMarkException
      * @throws Exception|Throwable
      */
-    private function buildSinglePages(SplFileInfo $file, Collection $collection): array
+    private function buildPages(SplFileInfo $file, Collection $collection): array
     {
         $page = $this->getPage($file, $collection->slug);
         $data = new RenderContext(
@@ -174,11 +172,11 @@ class CollectionBuilder implements BuilderInterface
      */
     private function buildIndexPages(Collection $collection): void
     {
-        $total = $collection->count();
-        $pagesRequired = (int) ceil($total / $collection->pageSize);
+        $itemsTotal = $collection->count();
+        $pagesRequired = (int) ceil($itemsTotal / $collection->pageSize);
 
         for ($page = 1; $page <= $pagesRequired; $page++) {
-            $pagination = $this->getPagination($page, $pagesRequired, $collection->slug, $total);
+            $pagination = CollectionPaginator::create($page, $pagesRequired, $collection->slug, $itemsTotal);
             $slugPath = $this->getSlugPath($collection, $page);
             $targetFile = $this->getTargetFile($slugPath);
             $current = $this->getCurrent($collection, $page);
@@ -188,7 +186,7 @@ class CollectionBuilder implements BuilderInterface
             $html = $this->fileManager->render($collection->indexTemplate, $data);
 
             if ($this->fileManager->save($targetFile, $html) !== false) {
-                $this->output->file($this->sourcePath . '/' . $collection->slug . ' => ' . $targetFile);
+                $this->output->file($this->getSourcePath() . '/' . $collection->slug . ' => ' . $targetFile);
             }
         }
     }
@@ -200,7 +198,7 @@ class CollectionBuilder implements BuilderInterface
 
     private function getTargetFile(string $slugPath): string
     {
-        return $this->destinationPath . '/' . $slugPath . '/index.html';
+        return $this->getDestinationPath() . '/' . $slugPath . '/index.html';
     }
 
     private function getCurrent(Collection $collection, int $page): string
@@ -217,7 +215,7 @@ class CollectionBuilder implements BuilderInterface
         );
     }
 
-    private function getRenderData(Collection $collection, int $page, Page $pageData, Pagination $pagination, int $pagesRequired): RenderContext
+    private function getRenderData(Collection $collection, int $page, Page $pageData, CollectionPaginator $pagination, int $pagesRequired): RenderContext
     {
         $items = $collection->items();
 
@@ -235,23 +233,6 @@ class CollectionBuilder implements BuilderInterface
         );
     }
 
-    public function getPagination(int $page, int $pagesRequired, string $slug, int $total): Pagination
-    {
-        $shouldHaveNextPage = $page >= 1 && $page < $pagesRequired;
-        $nextSlug = $slug . '/page/' . ($page + 1);
-
-        $shouldHavePreviousPage = $page !== 1;
-        $previousSlug = $page === 2 ? $slug : "{$slug}/page/" . ($page - 1);
-
-        return new Pagination(
-            next: $shouldHaveNextPage ? url($nextSlug) : null,
-            previous: $shouldHavePreviousPage ? url($previousSlug) : null,
-            current: $page,
-            total: $total,
-            isLast: $page === $pagesRequired,
-        );
-    }
-
     /**
      * @return SiteConfig
      */
@@ -262,5 +243,15 @@ class CollectionBuilder implements BuilderInterface
             baseUrl: $this->config->getBaseUrl(),
             meta: $this->config->getMeta(),
         );
+    }
+
+    private function getSourcePath(): string
+    {
+        return $this->config->getSourceDir($this->sourcePath);
+    }
+
+    private function getDestinationPath(): string
+    {
+        return $this->config->getBuildDir();
     }
 }
