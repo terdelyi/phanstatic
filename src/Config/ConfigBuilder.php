@@ -13,8 +13,9 @@ class ConfigBuilder
     {
         $this->config = [
             'baseUrl' => 'http://localhost',
-            'sourceDir' => $this->getRelativeWorkDirPath('content'),
-            'buildDir' => $this->getRelativeWorkDirPath('dist'),
+            'sourceDir' => 'content',
+            'buildDir' => 'dist',
+            'workDir' => $this->getWorkDir(),
         ];
     }
 
@@ -78,7 +79,7 @@ class ConfigBuilder
         return new Config($this->config);
     }
 
-    private function getRelativeWorkDirPath(string $path): string
+    private function getWorkDir(): string
     {
         $workDir = getcwd();
 
@@ -86,6 +87,6 @@ class ConfigBuilder
             throw new \RuntimeException('Could not determine the current working directory');
         }
 
-        return $workDir . '/' . $path;
+        return $workDir;
     }
 }

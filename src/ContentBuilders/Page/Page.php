@@ -9,6 +9,7 @@ class Page
      */
     public function __construct(
         public string          $path,
+        public string          $relativePath,
         public string          $permalink,
         public string          $url,
         public ?string         $title = null,

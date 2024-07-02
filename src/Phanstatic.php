@@ -8,6 +8,7 @@ use Terdelyi\Phanstatic\Config\ConfigBuilder;
 use Terdelyi\Phanstatic\Console\BuildCommand;
 use Terdelyi\Phanstatic\Console\PreviewCommand;
 use Terdelyi\Phanstatic\Console\ShowConfigCommand;
+use Terdelyi\Phanstatic\Support\Output;
 
 class Phanstatic
 {
@@ -31,7 +32,10 @@ class Phanstatic
             $application->setCatchErrors();
             $application->setCatchExceptions(true);
 
-            $application->run();
+            // TODO: Add custom output formatter here
+            $application->run(
+                output: new Output()
+            );
         } catch (\Throwable $e) {
             echo 'Error: ' . $e->getMessage() . PHP_EOL;
         }

@@ -14,26 +14,29 @@ use Terdelyi\Phanstatic\ContentBuilders\Page\Page;
 use Terdelyi\Phanstatic\ContentBuilders\RenderContext;
 use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\Config\SiteConfig;
-use Terdelyi\Phanstatic\Services\FileManager;
-use Terdelyi\Phanstatic\Support\Output\OutputInterface;
+use Terdelyi\Phanstatic\Services\FileManagerInterface;
+use Terdelyi\Phanstatic\Support\OutputInterface;
 use Throwable;
 
 class CollectionBuilder implements BuilderInterface
 {
-    private string $sourcePath = '/collections';
+    private string $sourcePath = 'collections';
     private Config $config;
     private OutputInterface $output;
-    private FileManager $fileManager;
+    private FileManagerInterface $fileManager;
+
+    public function __construct(BuilderContextInterface $context)
+    {
+        $this->config = $context->getConfig();
+        $this->output = $context->getOutput();
+        $this->fileManager = $context->getFileManager();
+    }
 
     /**
      * @throws Throwable
      */
-    public function build(BuilderContextInterface $context): void
+    public function build(): void
     {
-        $this->config = $context->getConfig();
-        $this->output = $context->getOutput();
-        $this->fileManager = new FileManager();
-
         if (!$this->fileManager->exists($this->getSourcePath())) {
             $this->output->action("Skipping collections: no 'content/collections' directory found");
 
@@ -51,7 +54,7 @@ class CollectionBuilder implements BuilderInterface
                 throw new Exception("Collection must have a single template exist at " . $collection->singleTemplate);
             }
 
-            $this->output->action(ucfirst($collection->basename) . ' collection set. Looking for items...');
+            $this->output->writeln('<fg=yellow>' . ucfirst($collection->basename) . ' collection found. Looking for items...</>');
 
             $collectionContent = $this->fileManager->getFiles($collection->sourceDir, '*.md');
 
@@ -78,6 +81,8 @@ class CollectionBuilder implements BuilderInterface
                 $this->buildIndexPages($collection);
             }
         }
+
+        $this->output->space();
     }
 
     /**
@@ -101,6 +106,7 @@ class CollectionBuilder implements BuilderInterface
 
         return new Page(
             path: $fileData['path'],
+            relativePath: $fileData['relativePath'],
             permalink: $fileData['permalink'],
             url: url($fileData['permalink']),
             title: $title,
@@ -120,14 +126,19 @@ class CollectionBuilder implements BuilderInterface
             $permalink = '/';
         }
 
-        $newPath = $this->getDestinationPath() . "{$permalink}index.html";
+        $permalinkWithoutSlash = substr($permalink, 1);
+
+        $newPath = $this->getDestinationPath($permalinkWithoutSlash . 'index.html');
 
         if ($permalink === '/') {
-            $newPath = $this->getDestinationPath() . "/index.html";
+            $newPath = $this->getDestinationPath('index.html');
         }
+
+        $relativePath = $permalink === '/' ? 'index.html' : $permalinkWithoutSlash . 'index.html';
 
         return [
             'path' => $newPath,
+            'relativePath' => $relativePath,
             'permalink' => $permalink,
         ];
     }
@@ -161,7 +172,9 @@ class CollectionBuilder implements BuilderInterface
         );
 
         if ($this->fileManager->save($page->path, $this->fileManager->render($collection->singleTemplate, $data)) !== false) {
-            $this->output->file($file->getPathname() . ' => ' . $page->path);
+            $outputFrom = $this->getSourcePath($file->getRelativePathname(), true);
+            $outputTo = $this->getDestinationPath($page->relativePath, true);
+            $this->output->file($outputFrom . ' => ' . $outputTo);
         }
 
         return [$page, $data];
@@ -178,15 +191,17 @@ class CollectionBuilder implements BuilderInterface
         for ($page = 1; $page <= $pagesRequired; $page++) {
             $pagination = CollectionPaginator::create($page, $pagesRequired, $collection->slug, $itemsTotal);
             $slugPath = $this->getSlugPath($collection, $page);
-            $targetFile = $this->getTargetFile($slugPath);
+            $targetFile = $this->getDestinationPath($slugPath . '/index.html');
             $current = $this->getCurrent($collection, $page);
-            $pageData = $this->getPageData($targetFile, $current);
+            $pageData = $this->getPageData($targetFile, $slugPath . '/index.html', $current);
             $data = $this->getRenderData($collection, $page, $pageData, $pagination, $pagesRequired);
 
             $html = $this->fileManager->render($collection->indexTemplate, $data);
 
             if ($this->fileManager->save($targetFile, $html) !== false) {
-                $this->output->file($this->getSourcePath() . '/' . $collection->slug . ' => ' . $targetFile);
+                $outputFrom = $this->getSourcePath($collection->slug, true);
+                $outputTo = $this->getDestinationPath($slugPath . '/index.html', true);
+                $this->output->file('Index page: ' . $outputFrom . ' => ' . $outputTo);
             }
         }
     }
@@ -196,20 +211,16 @@ class CollectionBuilder implements BuilderInterface
         return $page > 1 ? $collection->slug . '/page/' . $page : $collection->slug;
     }
 
-    private function getTargetFile(string $slugPath): string
-    {
-        return $this->getDestinationPath() . '/' . $slugPath . '/index.html';
-    }
-
     private function getCurrent(Collection $collection, int $page): string
     {
         return $page != 1 ? $collection->slug . '/page/' . $page : '/' . $collection->slug . '/';
     }
 
-    private function getPageData(string $targetFile, string $current): Page
+    private function getPageData(string $targetFile, string $relativeTargetFile, string $current): Page
     {
         return new Page(
             path: $targetFile,
+            relativePath: $relativeTargetFile,
             permalink: $current,
             url: url($current),
         );
@@ -245,13 +256,15 @@ class CollectionBuilder implements BuilderInterface
         );
     }
 
-    private function getSourcePath(): string
+    private function getSourcePath(?string $path = null, bool $relative = false): string
     {
-        return $this->config->getSourceDir($this->sourcePath);
+        $sourcePath = $path !== null ? $this->sourcePath . '/' . $path : $this->sourcePath;
+
+        return $this->config->getSourceDir($sourcePath, $relative);
     }
 
-    private function getDestinationPath(): string
+    private function getDestinationPath(?string $path = null, bool $relative = false): string
     {
-        return $this->config->getBuildDir();
+        return $this->config->getBuildDir($path, $relative);
     }
 }

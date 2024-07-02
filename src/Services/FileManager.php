@@ -7,7 +7,7 @@ use Symfony\Component\Finder\Finder;
 use Terdelyi\Phanstatic\ContentBuilders\RenderContext;
 use Throwable;
 
-class FileManager
+class FileManager implements FileManagerInterface
 {
     private Filesystem $filesystem;
 

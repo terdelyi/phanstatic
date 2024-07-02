@@ -4,10 +4,12 @@ namespace Terdelyi\Phanstatic\Console;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\OutputInterface as SymfonyOutputInterface;
 use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\Services\ContentBuilderManager;
-use Terdelyi\Phanstatic\Support\Output\Output;
+use Terdelyi\Phanstatic\ContentBuilders\BuilderContext;
+use Terdelyi\Phanstatic\ContentBuilders\ContentBuilderManager;
+use Terdelyi\Phanstatic\Services\FileManager;
+use Terdelyi\Phanstatic\Support\OutputInterface;
 
 class BuildCommand extends Command
 {
@@ -26,16 +28,27 @@ class BuildCommand extends Command
             ->setDescription('Build the static files into the output directory');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int
+     */
+    protected function execute(InputInterface $input, SymfonyOutputInterface $output): int
     {
-        $wrappedOutput = new Output($output);
-        $buildManager = new ContentBuilderManager($wrappedOutput, $this->config);
+        if (!$output instanceof OutputInterface) {
+            throw new \LogicException('This command accepts only an instance of "ConsoleOutputInterface".');
+        }
 
-        $wrappedOutput->header("Build started");
+        $fileSystem = new FileManager();
+        $context = new BuilderContext($output, $this->config, $fileSystem);
+        $builders = $this->config->getBuilders();
+        $buildManager = new ContentBuilderManager($context);
 
-        $buildManager->run();
+        $startTime = microtime(true);
+        $buildManager->run($builders);
+        $executionTime = round(microtime(true) - $startTime, 4);
 
-        $wrappedOutput->time("Build completed in {$buildManager->getExecutionTime()} seconds");
+        $output->time("Build completed in {$executionTime} seconds");
 
         return Command::SUCCESS;
     }

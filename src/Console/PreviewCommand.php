@@ -40,6 +40,9 @@ class PreviewCommand extends Command
             );
     }
 
+    /**
+     * @param OutputInterface&\Terdelyi\Phanstatic\Support\OutputInterface $output
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $options = [
