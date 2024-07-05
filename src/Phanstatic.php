@@ -9,8 +9,8 @@ use Symfony\Component\Console\Command\Command;
 use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\Config\ConfigBuilder;
 use Terdelyi\Phanstatic\Console\BuildCommand;
-use Terdelyi\Phanstatic\Console\PreviewCommand;
 use Terdelyi\Phanstatic\Console\ConfigCommand;
+use Terdelyi\Phanstatic\Console\PreviewCommand;
 use Terdelyi\Phanstatic\Support\Output;
 
 class Phanstatic
