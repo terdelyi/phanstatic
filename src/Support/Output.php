@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\Support;
 
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -23,7 +25,7 @@ class Output extends ConsoleOutput implements OutputInterface
 
     public function action(string $message): void
     {
-        $this->writeln("<info>{$message}</info>");
+        $this->writeln("<info>{$message}</info>", self::VERBOSITY_NORMAL);
     }
 
     public function file(string $message): void

@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic;
 
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
 use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\Config\ConfigBuilder;
 use Terdelyi\Phanstatic\Console\BuildCommand;
 use Terdelyi\Phanstatic\Console\PreviewCommand;
-use Terdelyi\Phanstatic\Console\ShowConfigCommand;
+use Terdelyi\Phanstatic\Console\ConfigCommand;
 use Terdelyi\Phanstatic\Support\Output;
 
 class Phanstatic
@@ -27,7 +30,7 @@ class Phanstatic
             $application->addCommands([
                 new BuildCommand($config),
                 new PreviewCommand($config),
-                new ShowConfigCommand($config),
+                new ConfigCommand($config),
             ]);
             $application->setCatchErrors();
             $application->setCatchExceptions(true);
@@ -37,7 +40,9 @@ class Phanstatic
                 output: new Output()
             );
         } catch (\Throwable $e) {
-            echo 'Error: ' . $e->getMessage() . PHP_EOL;
+            echo 'Error: '.$e->getMessage().PHP_EOL;
+
+            exit(Command::FAILURE);
         }
     }
 
@@ -57,7 +62,7 @@ class Phanstatic
      */
     private function loadConfig(string $file): void
     {
-        $configFile = dirname(__DIR__) . '/' . $file;
+        $configFile = dirname(__DIR__).'/'.$file;
 
         if (file_exists($configFile)) {
             $config = require $configFile;

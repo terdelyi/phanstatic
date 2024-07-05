@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\Console;
 
 use Symfony\Component\Console\Command\Command;
@@ -29,9 +31,7 @@ class BuildCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
      * @param OutputInterface $output
-     * @return int
      */
     protected function execute(InputInterface $input, SymfonyOutputInterface $output): int
     {

@@ -1,16 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\Console;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
-use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\Config\CollectionConfig;
+use Terdelyi\Phanstatic\Config\Config;
 
-class ShowConfigCommand extends Command
+class ConfigCommand extends Command
 {
     private Config $config;
 
@@ -25,7 +26,7 @@ class ShowConfigCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('show-config')
+        $this->setName('config')
             ->setDescription('Show current configuration');
     }
 
@@ -50,10 +51,10 @@ class ShowConfigCommand extends Command
     {
         $title = $this->config->getTitle() ?: '-';
 
-        $this->output->writeln('<bold_yellow>Page title:</bold_yellow> ' . $title);
-        $this->output->writeln('<bold_yellow>Base URL:</bold_yellow> ' . $this->config->getBaseUrl());
-        $this->output->writeln('<bold_yellow>Build directory:</bold_yellow> ' . $this->config->getBuildDir());
-        $this->output->writeln('<bold_yellow>Source directory:</bold_yellow> ' . $this->config->getSourceDir());
+        $this->output->writeln('<bold_yellow>Page title:</bold_yellow> '.$title);
+        $this->output->writeln('<bold_yellow>Base URL:</bold_yellow> '.$this->config->getBaseUrl());
+        $this->output->writeln('<bold_yellow>Build directory:</bold_yellow> '.$this->config->getBuildDir());
+        $this->output->writeln('<bold_yellow>Source directory:</bold_yellow> '.$this->config->getSourceDir());
     }
 
     private function showBuilders(): void
@@ -61,7 +62,7 @@ class ShowConfigCommand extends Command
         $this->output->writeln('');
         $this->output->writeln('<bold_yellow>Content builders (in order):</bold_yellow>');
         foreach ($this->config->getBuilders() as $builder) {
-            $this->output->writeln('- ' . $builder);
+            $this->output->writeln('- '.$builder);
         }
     }
 
@@ -74,7 +75,7 @@ class ShowConfigCommand extends Command
             $this->output->writeln('<bold_yellow>Collections:</bold_yellow>');
 
             foreach ($collections as $collection) {
-                $this->output->writeln('- ' . $collection->title);
+                $this->output->writeln('- '.$collection->title);
             }
         }
     }
@@ -87,7 +88,7 @@ class ShowConfigCommand extends Command
             $this->output->writeln('<bold_yellow>Collections:</bold_yellow>');
 
             foreach ($meta as $key => $value) {
-                $this->output->writeln('- ' . $key . ': ' . $value);
+                $this->output->writeln('- '.$key.': '.$value);
             }
         }
     }

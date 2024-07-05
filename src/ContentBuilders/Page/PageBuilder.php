@@ -1,18 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\ContentBuilders\Page;
 
-use Symfony\Component\Console\Output\ConsoleOutputInterface;
-use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Finder\SplFileInfo;
+use Terdelyi\Phanstatic\Config\Config;
+use Terdelyi\Phanstatic\Config\SiteConfig;
 use Terdelyi\Phanstatic\ContentBuilders\BuilderContextInterface;
 use Terdelyi\Phanstatic\ContentBuilders\BuilderInterface;
 use Terdelyi\Phanstatic\ContentBuilders\RenderContext;
-use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\Config\SiteConfig;
 use Terdelyi\Phanstatic\Services\FileManagerInterface;
 use Terdelyi\Phanstatic\Support\OutputInterface;
-use Throwable;
 
 class PageBuilder implements BuilderInterface
 {
@@ -29,7 +28,7 @@ class PageBuilder implements BuilderInterface
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function build(): void
     {
@@ -39,7 +38,7 @@ class PageBuilder implements BuilderInterface
             return;
         }
 
-        $this->output->action("Looking for pages...");
+        $this->output->action('Looking for pages...');
 
         $pages = $this->fileManager->getFiles($this->getSourcePath(), '*.php');
 
@@ -65,7 +64,7 @@ class PageBuilder implements BuilderInterface
             if ($this->fileManager->save($fileData['path'], $html) !== false) {
                 $outputFrom = $this->getSourcePath($page->getRelativePathname(), true);
                 $outputTo = $this->config->getBuildDir($fileData['relativePath'], true);
-                $this->output->file($outputFrom . ' => ' . $outputTo);
+                $this->output->file($outputFrom.' => '.$outputTo);
             }
         }
 
@@ -78,7 +77,7 @@ class PageBuilder implements BuilderInterface
     private function getFileData(SplFileInfo $file): array
     {
         $basename = $file->getBasename('.php');
-        $permalink = ($basename === 'index') ? '/' : ($file->getRelativePath() !== "" ? "/{$file->getRelativePath()}/$basename/" : "/$basename/");
+        $permalink = ($basename === 'index') ? '/' : ($file->getRelativePath() !== '' ? "/{$file->getRelativePath()}/{$basename}/" : "/{$basename}/");
         $permalinkWithoutSlash = substr($permalink, 1);
         $relativePath = $permalink === '/' ? 'index.html' : "{$permalinkWithoutSlash}index.html";
         $path = $this->config->getBuildDir($relativePath);
@@ -93,7 +92,7 @@ class PageBuilder implements BuilderInterface
 
     private function getSourcePath(?string $path = null, bool $relative = false): string
     {
-        $sourcePath = $path !== null ? $this->sourcePath . '/' . $path : $this->sourcePath;
+        $sourcePath = $path !== null ? $this->sourcePath.'/'.$path : $this->sourcePath;
 
         return $this->config->getSourceDir($sourcePath, $relative);
     }

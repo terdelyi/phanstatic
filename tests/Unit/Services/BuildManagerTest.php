@@ -1,23 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Services;
 
-use Mockery\MockInterface;
-use PHPUnit\Framework\TestCase;
-use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\ContentBuilders\Asset\AssetBuilder;
 use Mockery as m;
+use Mockery\MockInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Terdelyi\Phanstatic\ContentBuilders\Asset\AssetBuilder;
 use Terdelyi\Phanstatic\ContentBuilders\BuilderContextInterface;
 use Terdelyi\Phanstatic\ContentBuilders\ContentBuilderManager;
-use Terdelyi\Phanstatic\Support\OutputInterface;
 
+/**
+ * @internal
+ */
+#[CoversClass(ContentBuilderManager::class)]
 class BuildManagerTest extends TestCase
 {
     private ContentBuilderManager $buildManager;
     private BuilderContextInterface&MockInterface $context;
 
-    /**
-     */
     protected function setUp(): void
     {
         $this->context = m::mock(BuilderContextInterface::class);
@@ -29,7 +32,7 @@ class BuildManagerTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $mockBuilder = m::mock('overload:' . AssetBuilder::class);
+        $mockBuilder = m::mock('overload:'.AssetBuilder::class);
         $mockBuilder
             ->shouldReceive('build')->once();
 

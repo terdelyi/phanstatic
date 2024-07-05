@@ -42,7 +42,7 @@
     "scripts": {
         "style-checks": "php-cs-fixer check",
         "style-fix": "php-cs-fixer fix",
-        "static": "phpstan analyse",
+        "analyse": "phpstan analyse",
         "tests": "phpunit tests/"
     }
 }

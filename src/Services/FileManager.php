@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\Services;
 
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Terdelyi\Phanstatic\ContentBuilders\RenderContext;
-use Throwable;
 
 class FileManager implements FileManagerInterface
 {
@@ -54,8 +55,8 @@ class FileManager implements FileManagerInterface
     }
 
     /**
-     * @param string|string[] $path
-     * @param string|string[]|int $level
+     * @param string|string[]     $path
+     * @param int|string|string[] $level
      */
     public function getDirectories(array|string $path, array|int|string $level = ''): Finder
     {
@@ -72,16 +73,18 @@ class FileManager implements FileManagerInterface
 
         try {
             $this->require($path, $data);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             ob_end_clean();
+
             throw $e;
         }
 
         $output = ob_get_clean();
+
         return $output !== false ? ltrim($output) : '';
     }
 
-    public function require(string $filePath, RenderContext $data): string
+    public function require(string $filePath, RenderContext $data): int
     {
         return (static function () use ($filePath, $data) {
             $dataVars = get_object_vars($data);

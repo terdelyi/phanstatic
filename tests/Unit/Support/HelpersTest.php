@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Support;
 
-use Mockery;
 use PHPUnit\Framework\TestCase;
 use Terdelyi\Phanstatic\Config\ConfigBuilder;
 
+/**
+ * @internal
+ */
 class HelpersTest extends TestCase
 {
     protected function setUp(): void
@@ -16,7 +20,7 @@ class HelpersTest extends TestCase
             ->setBaseUrl('https://example.com')
             ->build();
 
-        Mockery::mock('alias:Terdelyi\Phanstatic\Phanstatic')
+        \Mockery::mock('alias:Terdelyi\Phanstatic\Phanstatic')
             ->shouldReceive('getConfig')
             ->andReturn($config);
     }

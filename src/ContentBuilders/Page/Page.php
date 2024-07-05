@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\ContentBuilders\Page;
 
 class Page
@@ -8,12 +10,12 @@ class Page
      * @param array<string,mixed> $meta
      */
     public function __construct(
-        public string          $path,
-        public string          $relativePath,
-        public string          $permalink,
-        public string          $url,
-        public ?string         $title = null,
-        public ?string         $content = null,
+        public string $path,
+        public string $relativePath,
+        public string $permalink,
+        public string $url,
+        public ?string $title = null,
+        public ?string $content = null,
         private readonly array $meta = [],
     ) {}
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\Config;
 
 class SiteConfig
@@ -13,13 +15,13 @@ class SiteConfig
         private readonly array $meta = []
     ) {}
 
-    public function get(string $key): mixed
-    {
-        return $this->meta[$key] ?? null;
-    }
-
     public function __get(string $key): mixed
     {
         return $this->get($key);
+    }
+
+    public function get(string $key): mixed
+    {
+        return $this->meta[$key] ?? null;
     }
 }

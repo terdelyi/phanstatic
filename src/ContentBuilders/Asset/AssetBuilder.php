@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\ContentBuilders\Asset;
 
+use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\ContentBuilders\BuilderContextInterface;
 use Terdelyi\Phanstatic\ContentBuilders\BuilderInterface;
-use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\Services\FileManagerInterface;
 use Terdelyi\Phanstatic\Support\OutputInterface;
 
@@ -31,7 +33,7 @@ class AssetBuilder implements BuilderInterface
             return;
         }
 
-        $this->output->action("Looking for assets...");
+        $this->output->action('Looking for assets...');
 
         $assets = $this->fileManager->getFiles($this->getSourcePath());
 
@@ -40,7 +42,7 @@ class AssetBuilder implements BuilderInterface
 
             $outputFrom = $this->getSourcePath($asset->getRelativePathname(), true);
             $outputTo = $this->getDestinationPath($asset->getRelativePathname(), true);
-            $this->output->file($outputFrom . ' => ' . $outputTo);
+            $this->output->file($outputFrom.' => '.$outputTo);
         }
 
         $this->output->space();
@@ -48,14 +50,14 @@ class AssetBuilder implements BuilderInterface
 
     private function getSourcePath(?string $path = null, bool $relative = false): string
     {
-        $sourcePath = $path !== null ? $this->sourcePath . '/' . $path : $this->sourcePath;
+        $sourcePath = $path !== null ? $this->sourcePath.'/'.$path : $this->sourcePath;
 
         return $this->config->getSourceDir($sourcePath, $relative);
     }
 
     private function getDestinationPath(?string $path = null, bool $relative = false): string
     {
-        $destinationPath = $path !== null ? $this->destinationPath . '/' . $path : $this->sourcePath;
+        $destinationPath = $path !== null ? $this->destinationPath.'/'.$path : $this->sourcePath;
 
         return $this->config->getBuildDir($destinationPath, $relative);
     }

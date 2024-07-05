@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\ContentBuilders\Collection;
 
 class Collection
 {
-    /** @var CollectionItem[] $items */
+    /** @var CollectionItem[] */
     private array $items;
 
     /**
@@ -16,8 +18,8 @@ class Collection
         public string $slug,
         public string $singleTemplate,
         public string $indexTemplate,
-        array         $items = [],
-        public int    $pageSize = 10,
+        array $items = [],
+        public int $pageSize = 10,
     ) {
         $this->items = $items;
     }

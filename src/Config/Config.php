@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\Config;
 
-use RuntimeException;
 use Terdelyi\Phanstatic\ContentBuilders\Asset\AssetBuilder;
 use Terdelyi\Phanstatic\ContentBuilders\BuilderInterface;
 use Terdelyi\Phanstatic\ContentBuilders\Collection\CollectionBuilder;
@@ -13,12 +14,15 @@ class Config
     private string $workDir;
     private string $sourceDir;
     private string $buildDir;
+
     /** @var CollectionConfig[] */
     private array $collections;
     private string $baseUrl;
     private string $title;
+
     /** @var array<string,mixed> */
     private array $meta;
+
     /**
      * @var class-string<BuilderInterface>[]
      */
@@ -29,9 +33,9 @@ class Config
      */
     public function __construct(array $config)
     {
-        $this->workDir = $config['workDir'] ?? throw new RuntimeException('Working directory must set');
-        $this->sourceDir = $config['sourceDir'] ?? throw new RuntimeException('Source directory is not set');
-        $this->buildDir = $config['buildDir'] ?? throw new RuntimeException('Build directory is not set');
+        $this->workDir = $config['workDir'] ?? throw new \RuntimeException('Working directory must set');
+        $this->sourceDir = $config['sourceDir'] ?? throw new \RuntimeException('Source directory is not set');
+        $this->buildDir = $config['buildDir'] ?? throw new \RuntimeException('Build directory is not set');
         $this->title = $config['title'] ?? '';
         $this->baseUrl = $config['baseUrl'] ?? '';
         $this->meta = $config['meta'] ?? [];
@@ -46,10 +50,10 @@ class Config
 
     public function getSourceDir(?string $path = null, bool $relative = false): string
     {
-        $sourceDir = $relative ? $this->sourceDir : $this->workDir . '/' . $this->sourceDir;
+        $sourceDir = $relative ? $this->sourceDir : $this->workDir.'/'.$this->sourceDir;
 
         if ($path !== null) {
-            return $sourceDir . '/' . $path;
+            return $sourceDir.'/'.$path;
         }
 
         return $sourceDir;
@@ -57,10 +61,10 @@ class Config
 
     public function getBuildDir(?string $path = null, bool $relative = false): string
     {
-        $buildDir = $relative ? $this->buildDir : $this->workDir . '/' . $this->buildDir;
+        $buildDir = $relative ? $this->buildDir : $this->workDir.'/'.$this->buildDir;
 
         if ($path !== null) {
-            return $buildDir . '/' . $path;
+            return $buildDir.'/'.$path;
         }
 
         return $buildDir;
@@ -90,7 +94,7 @@ class Config
     public function getBaseUrl(?string $permalink = null): string
     {
         if ($permalink !== null) {
-            return $this->baseUrl . $permalink;
+            return $this->baseUrl.$permalink;
         }
 
         return $this->baseUrl;
@@ -107,7 +111,7 @@ class Config
     /**
      * @return CollectionConfig|CollectionConfig[]
      */
-    public function getCollections(?string $key = null): CollectionConfig|array
+    public function getCollections(?string $key = null): array|CollectionConfig
     {
         if ($key !== null && isset($this->collections[$key])) {
             return $this->collections[$key];

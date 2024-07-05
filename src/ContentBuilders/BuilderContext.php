@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\ContentBuilders;
 
 use Terdelyi\Phanstatic\Config\Config;
@@ -9,8 +11,8 @@ use Terdelyi\Phanstatic\Support\OutputInterface;
 class BuilderContext implements BuilderContextInterface
 {
     public function __construct(
-        private readonly OutputInterface      $output,
-        private readonly Config               $config,
+        private readonly OutputInterface $output,
+        private readonly Config $config,
         private readonly FileManagerInterface $fileManager,
     ) {}
 

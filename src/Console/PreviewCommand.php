@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\Console;
 
-use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -53,7 +54,7 @@ class PreviewCommand extends Command
         $this->validateOptions($options);
 
         $resultCode = 0;
-        $command = sprintf("php -S %s:%s -t %s", $options['host'], $options['port'], $this->config->getBuildDir());
+        $command = sprintf('php -S %s:%s -t %s', $options['host'], $options['port'], $this->config->getBuildDir());
 
         passthru($command, $resultCode);
 
@@ -61,17 +62,16 @@ class PreviewCommand extends Command
     }
 
     /**
-     * @param array<string,string|int> $options
-     * @return void
+     * @param array<string,int|string> $options
      */
     private function validateOptions(array $options): void
     {
         if (!is_string($options['host'])) {
-            throw new InvalidArgumentException('Host must be a string');
+            throw new \InvalidArgumentException('Host must be a string');
         }
 
         if (!is_int($options['port'])) {
-            throw new InvalidArgumentException('Port must be an integer');
+            throw new \InvalidArgumentException('Port must be an integer');
         }
     }
 }

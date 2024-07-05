@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Terdelyi\Phanstatic\Phanstatic;
 
 function url(string $permalink): string
@@ -7,7 +9,7 @@ function url(string $permalink): string
     $config = Phanstatic::getConfig();
 
     if (!str_starts_with($permalink, '/')) {
-        $permalink = '/' . $permalink;
+        $permalink = '/'.$permalink;
     }
 
     return $config->getBaseUrl($permalink);
@@ -16,10 +18,10 @@ function url(string $permalink): string
 function asset(string $permalink): string
 {
     if (!str_starts_with($permalink, '/')) {
-        $permalink = '/' . $permalink;
+        $permalink = '/'.$permalink;
     }
 
-    $permalink = '/assets' . $permalink;
+    $permalink = '/assets'.$permalink;
 
     return url($permalink);
 }
