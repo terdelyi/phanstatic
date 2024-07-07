@@ -156,6 +156,7 @@ class CollectionBuilder implements BuilderInterface
         $collectionConfig = $this->config->getCollections($directory->getBasename());
 
         return new Collection(
+            title: $collectionConfig->title ?? $directory->getBasename(),
             basename: $directory->getBasename(),
             sourceDir: $directory->getPathname(),
             slug: $collectionConfig->slug ?? $directory->getBasename(),
@@ -178,6 +179,7 @@ class CollectionBuilder implements BuilderInterface
         $data = new RenderContext(
             site: $this->getSite(),
             page: $page,
+            collection: $collection,
         );
 
         if ($this->fileManager->save($page->path, $this->fileManager->render($collection->singleTemplate, $data)) !== false) {

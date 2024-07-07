@@ -71,6 +71,8 @@ class FileManager implements FileManagerInterface
     {
         ob_start();
 
+        set_error_handler($this->customErrorHandler());
+
         try {
             $this->require($path, $data);
         } catch (\Throwable $e) {
@@ -80,6 +82,8 @@ class FileManager implements FileManagerInterface
         }
 
         $output = ob_get_clean();
+
+        restore_error_handler();
 
         return $output !== false ? ltrim($output) : '';
     }
@@ -109,5 +113,12 @@ class FileManager implements FileManagerInterface
     public function copy(string $sourcePath, string $targetPath): void
     {
         $this->filesystem->copy($sourcePath, $targetPath, true);
+    }
+
+    public function customErrorHandler(): \Closure
+    {
+        return function ($errno, $errstr, $errfile, $errline) {
+            throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+        };
     }
 }

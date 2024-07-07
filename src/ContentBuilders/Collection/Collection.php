@@ -13,6 +13,7 @@ class Collection
      * @param CollectionItem[] $items
      */
     public function __construct(
+        public string $title,
         public string $basename,
         public string $sourceDir,
         public string $slug,
