@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Terdelyi\Phanstatic\ContentBuilders;
 
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\Models\BuilderContextInterface;
 use Terdelyi\Phanstatic\Services\FileManagerInterface;
@@ -34,17 +36,27 @@ class AssetBuilder implements BuilderInterface
 
         $this->output->action('Looking for assets...');
 
-        $assets = $this->fileManager->getFiles($this->getSourcePath());
-
-        foreach ($assets as $asset) {
-            $this->fileManager->copy($asset->getPathname(), $this->getDestinationPath($asset->getRelativePathname()));
-
-            $outputFrom = $this->getSourcePath($asset->getRelativePathname(), true);
-            $outputTo = $this->getDestinationPath($asset->getRelativePathname(), true);
-            $this->output->file($outputFrom.' => '.$outputTo);
+        foreach ($this->getAssets() as $asset) {
+            $output = $this->process($asset);
+            $this->output->file($output);
         }
 
         $this->output->space();
+    }
+
+    private function getAssets(): Finder
+    {
+        return $this->fileManager->getFiles($this->getSourcePath());
+    }
+
+    private function process(SplFileInfo $asset): string
+    {
+        $this->fileManager->copy($asset->getPathname(), $this->getDestinationPath($asset->getRelativePathname()));
+
+        $outputFrom = $this->getSourcePath($asset->getRelativePathname(), true);
+        $outputTo = $this->getDestinationPath($asset->getRelativePathname(), true);
+
+        return $outputFrom.' => '.$outputTo;
     }
 
     private function getSourcePath(?string $path = null, bool $relative = false): string

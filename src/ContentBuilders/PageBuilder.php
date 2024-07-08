@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Terdelyi\Phanstatic\ContentBuilders;
 
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\Config\SiteConfig;
 use Terdelyi\Phanstatic\Models\BuilderContextInterface;
 use Terdelyi\Phanstatic\Models\Page;
 use Terdelyi\Phanstatic\Models\RenderContext;
+use Terdelyi\Phanstatic\Models\Site;
 use Terdelyi\Phanstatic\Services\FileManagerInterface;
 use Terdelyi\Phanstatic\Support\OutputInterface;
 
@@ -27,9 +28,6 @@ class PageBuilder implements BuilderInterface
         $this->fileManager = $context->getFileManager();
     }
 
-    /**
-     * @throws \Throwable
-     */
     public function build(): void
     {
         if (!$this->fileManager->exists($this->getSourcePath())) {
@@ -40,35 +38,51 @@ class PageBuilder implements BuilderInterface
 
         $this->output->action('Looking for pages...');
 
-        $pages = $this->fileManager->getFiles($this->getSourcePath(), '*.php');
+        foreach ($this->getPages() as $page) {
+            $output = $this->process($page);
 
-        foreach ($pages as $page) {
-            $fileData = $this->getFileData($page);
-
-            $data = new RenderContext(
-                site: new SiteConfig(
-                    title: $this->config->getTitle(),
-                    baseUrl: $this->config->getBaseUrl(),
-                    meta: $this->config->getMeta()
-                ),
-                page: new Page(
-                    path: $fileData['path'],
-                    relativePath: $fileData['relativePath'],
-                    permalink: $fileData['permalink'],
-                    url: url($fileData['permalink'])
-                )
-            );
-
-            $html = $this->fileManager->render($page->getPathname(), $data);
-
-            if ($this->fileManager->save($fileData['path'], $html) !== false) {
-                $outputFrom = $this->getSourcePath($page->getRelativePathname(), true);
-                $outputTo = $this->config->getBuildDir($fileData['relativePath'], true);
-                $this->output->file($outputFrom.' => '.$outputTo);
+            if ($output !== null) {
+                $this->output->file($output);
             }
         }
 
         $this->output->space();
+    }
+
+    private function getPages(): Finder
+    {
+        return $this->fileManager->getFiles($this->getSourcePath(), '*.php');
+    }
+
+    private function process(SplFileInfo $page): ?string
+    {
+        $fileData = $this->getFileData($page);
+
+        $data = new RenderContext(
+            site: new Site(
+                title: $this->config->getTitle(),
+                baseUrl: $this->config->getBaseUrl(),
+                meta: $this->config->getMeta()
+            ),
+            page: new Page(
+                path: $fileData['path'],
+                relativePath: $fileData['relativePath'],
+                permalink: $fileData['permalink'],
+                url: url($fileData['permalink'])
+            )
+        );
+
+        $html = $this->fileManager->render($page->getPathname(), $data);
+        $file = $this->fileManager->save($fileData['path'], $html);
+
+        if (!$file) {
+            return null;
+        }
+
+        $outputFrom = $this->getSourcePath($page->getRelativePathname(), true);
+        $outputTo = $this->config->getBuildDir($fileData['relativePath'], true);
+
+        return $outputFrom.' => '.$outputTo;
     }
 
     /**

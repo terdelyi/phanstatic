@@ -7,15 +7,16 @@ namespace Terdelyi\Phanstatic\ContentBuilders;
 use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\Exception\CommonMarkException;
 use Spatie\YamlFrontMatter\YamlFrontMatter;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\Config\SiteConfig;
 use Terdelyi\Phanstatic\Models\BuilderContextInterface;
 use Terdelyi\Phanstatic\Models\Collection;
 use Terdelyi\Phanstatic\Models\CollectionItem;
 use Terdelyi\Phanstatic\Models\CollectionPaginator;
 use Terdelyi\Phanstatic\Models\Page;
 use Terdelyi\Phanstatic\Models\RenderContext;
+use Terdelyi\Phanstatic\Models\Site;
 use Terdelyi\Phanstatic\Services\FileManagerInterface;
 use Terdelyi\Phanstatic\Support\OutputInterface;
 
@@ -46,62 +47,89 @@ class CollectionBuilder implements BuilderInterface
 
         $this->output->action('Looking for collections...');
 
-        $collectionDirectories = $this->fileManager->getDirectories($this->getSourcePath(), '== 0');
-
-        foreach ($collectionDirectories as $directory) {
-            $collection = $this->createCollection($directory);
+        foreach ($this->getCollections() as $directory) {
+            $collection = $this->parseCollection($directory);
 
             if (!$this->fileManager->exists($collection->singleTemplate)) {
                 throw new \Exception('Collection must have a single template exist at '.$collection->singleTemplate);
             }
 
-            $this->output->writeln('<fg=yellow>'.ucfirst($collection->basename).' collection found. Looking for items...</>');
+            $this->output->writeln('<fg=yellow>Collection '.ucfirst($collection->basename).' found. Looking for items...</>');
 
-            $collectionContent = $this->fileManager->getFiles($collection->sourceDir, '*.md');
+            $collectionFiles = $this->getFilesByCollection($collection->sourceDir);
 
-            if ($collectionContent->count() === 0) {
+            if ($collectionFiles->count() === 0) {
                 $this->output->warning('No items available in this collection.');
 
                 continue;
             }
 
-            foreach ($collectionContent as $file) {
-                [$page, $data] = $this->buildPages($file, $collection);
-
-                $item = new CollectionItem(
-                    title: $page->title ?? '',
-                    link: $page->url ?? '',
-                    excerpt: $data->page->description ?? '',
-                    date: $data->page->date ?? date(\DateTimeInterface::ATOM, $file->getMTime())
-                );
-
-                $collection->add($item);
+            foreach ($collectionFiles as $file) {
+                $output = $this->processPage($file, $collection);
+                $this->output->action($output);
             }
 
-            if ($this->fileManager->exists($collection->indexTemplate)) {
-                $this->buildIndexPages($collection);
+            if (!$this->fileManager->exists($collection->indexTemplate)) {
+                continue;
+            }
+
+            $output = $this->generateIndexPages($collection);
+
+            foreach ($output as $line) {
+                $this->output->action($line);
             }
         }
 
         $this->output->space();
     }
 
-    public function getSite(): SiteConfig
+    private function getCollections(): Finder
     {
-        return new SiteConfig(
-            title: $this->config->getTitle(),
-            baseUrl: $this->config->getBaseUrl(),
-            meta: $this->config->getMeta(),
-        );
+        return $this->fileManager->getDirectories($this->getSourcePath(), '== 0');
+    }
+
+    private function getFilesByCollection(string $directory): Finder
+    {
+        return $this->fileManager->getFiles($directory, '*.md');
     }
 
     /**
      * @throws CommonMarkException
      * @throws \Exception
      */
-    private function getPage(SplFileInfo $file, string $collectionSlug): Page
+    private function processPage(SplFileInfo $file, Collection $collection): string
     {
-        $fileData = $this->getFileData($file->getBasename('.md'), $collectionSlug);
+        $page = $this->loadPage($file, $collection->slug);
+        $context = $this->makeRenderContext($page, $collection);
+        $fileContent = $this->fileManager->render($collection->singleTemplate, $context);
+
+        $savedFile = $this->fileManager->save($page->path, $fileContent);
+
+        if (!$savedFile) {
+            throw new \Exception('Failed to save file: '.$page->path);
+        }
+
+        $collectionItem = $this->makeCollectionItem(
+            $page->title ?? '',
+            $page->url ?? '',
+            $page->description ?? '',
+            $page->date ?? date(\DateTimeInterface::ATOM, $file->getMTime())
+        );
+        $collection->add($collectionItem);
+
+        $outputFrom = $this->getSourcePath($file->getRelativePathname(), true);
+        $outputTo = $this->getDestinationPath($page->relativePath, true);
+
+        return $outputFrom.' => '.$outputTo;
+    }
+
+    /**
+     * @throws CommonMarkException
+     * @throws \Exception
+     */
+    private function loadPage(SplFileInfo $file, string $collectionSlug): Page
+    {
+        $page = $this->buildPage($file->getBasename('.md'), $collectionSlug);
         $fileContent = file_get_contents($file->getPathname());
 
         if (!$fileContent) {
@@ -114,21 +142,14 @@ class CollectionBuilder implements BuilderInterface
         $body = (new CommonMarkConverter())->convert($parsedFile->body());
         unset($meta['title']);
 
-        return new Page(
-            path: $fileData['path'],
-            relativePath: $fileData['relativePath'],
-            permalink: $fileData['permalink'],
-            url: url($fileData['permalink']),
-            title: $title,
-            content: $body->getContent(),
-            meta: $meta
-        );
+        $page->title = $title;
+        $page->content = $body->getContent();
+        $page->meta = $meta;
+
+        return $page;
     }
 
-    /**
-     * @return array<string,string>
-     */
-    private function getFileData(string $basename, string $collectionSlug): array
+    private function buildPage(string $basename, string $collectionSlug): Page
     {
         $permalink = "/{$collectionSlug}/{$basename}/";
 
@@ -146,14 +167,15 @@ class CollectionBuilder implements BuilderInterface
 
         $relativePath = $permalink === '/' ? 'index.html' : $permalinkWithoutSlash.'index.html';
 
-        return [
-            'path' => $newPath,
-            'relativePath' => $relativePath,
-            'permalink' => $permalink,
-        ];
+        return $this->makePage(
+            $newPath,
+            $relativePath,
+            $permalink,
+            url($permalink)
+        );
     }
 
-    private function createCollection(SplFileInfo $directory): Collection
+    private function parseCollection(SplFileInfo $directory): Collection
     {
         $collectionConfig = $this->config->getCollections($directory->getBasename());
 
@@ -170,56 +192,40 @@ class CollectionBuilder implements BuilderInterface
     }
 
     /**
-     * @return array{Page, RenderContext}
+     * @return string[]
      *
-     * @throws CommonMarkException
-     * @throws \Exception|\Throwable
-     */
-    private function buildPages(SplFileInfo $file, Collection $collection): array
-    {
-        $page = $this->getPage($file, $collection->slug);
-        $data = new RenderContext(
-            site: $this->getSite(),
-            page: $page,
-            collection: $collection,
-        );
-
-        if ($this->fileManager->save($page->path, $this->fileManager->render($collection->singleTemplate, $data)) !== false) {
-            $outputFrom = $this->getSourcePath($file->getRelativePathname(), true);
-            $outputTo = $this->getDestinationPath($page->relativePath, true);
-            $this->output->file($outputFrom.' => '.$outputTo);
-        }
-
-        return [$page, $data];
-    }
-
-    /**
      * @throws \Throwable
      */
-    private function buildIndexPages(Collection $collection): void
+    private function generateIndexPages(Collection $collection): array
     {
         $itemsTotal = $collection->count();
         $pagesRequired = (int) ceil($itemsTotal / $collection->pageSize);
+        $output = [];
 
         for ($page = 1; $page <= $pagesRequired; ++$page) {
             $pagination = CollectionPaginator::create($page, $pagesRequired, $collection->slug, $itemsTotal);
-            $slugPath = $this->getSlugPath($collection, $page);
-            $targetFile = $this->getDestinationPath($slugPath.'/index.html');
+            $indexSlug = $this->getIndexSlug($collection, $page);
+            $targetFile = $this->getDestinationPath($indexSlug.'/index.html');
             $current = $this->getCurrent($collection, $page);
-            $pageData = $this->getPageData($targetFile, $slugPath.'/index.html', $current);
-            $data = $this->getRenderData($collection, $page, $pageData, $pagination, $pagesRequired);
+            $pageData = $this->makePage($targetFile, $indexSlug.'/index.html', $current, url($current));
+            $data = $this->getRenderContext($collection, $page, $pageData, $pagination, $pagesRequired);
 
             $html = $this->fileManager->render($collection->indexTemplate, $data);
+            $savedFile = $this->fileManager->save($targetFile, $html);
 
-            if ($this->fileManager->save($targetFile, $html) !== false) {
-                $outputFrom = $this->getSourcePath($collection->slug, true);
-                $outputTo = $this->getDestinationPath($slugPath.'/index.html', true);
-                $this->output->file('Index page: '.$outputFrom.' => '.$outputTo);
+            if (!$savedFile) {
+                throw new \Exception('Failed to save file: '.$targetFile);
             }
+
+            $outputFrom = $this->getSourcePath($collection->slug, true);
+            $outputTo = $this->getDestinationPath($indexSlug.'/index.html', true);
+            $output[] = 'Index page: '.$outputFrom.' => '.$outputTo;
         }
+
+        return $output;
     }
 
-    private function getSlugPath(Collection $collection, int $page): string
+    private function getIndexSlug(Collection $collection, int $page): string
     {
         return $page > 1 ? $collection->slug.'/page/'.$page : $collection->slug;
     }
@@ -229,17 +235,7 @@ class CollectionBuilder implements BuilderInterface
         return $page != 1 ? $collection->slug.'/page/'.$page : '/'.$collection->slug.'/';
     }
 
-    private function getPageData(string $targetFile, string $relativeTargetFile, string $current): Page
-    {
-        return new Page(
-            path: $targetFile,
-            relativePath: $relativeTargetFile,
-            permalink: $current,
-            url: url($current),
-        );
-    }
-
-    private function getRenderData(Collection $collection, int $page, Page $pageData, CollectionPaginator $pagination, int $pagesRequired): RenderContext
+    private function getRenderContext(Collection $collection, int $page, Page $pageData, CollectionPaginator $paginator, int $pagesRequired): RenderContext
     {
         $items = $collection->items();
 
@@ -248,12 +244,50 @@ class CollectionBuilder implements BuilderInterface
         });
 
         $collection = $collection->setItems($items)->slice(($page - 1) * $collection->pageSize, $collection->pageSize);
+        $pagination = $pagesRequired > 1 ? $paginator : null;
+
+        return $this->makeRenderContext($pageData, $collection, $pagination);
+    }
+
+    private function makeCollectionItem(string $title, string $link, string $excerpt, string $date): CollectionItem
+    {
+        return new CollectionItem(
+            title: $title,
+            link: $link,
+            excerpt: $excerpt,
+            date: $date
+        );
+    }
+
+    /**
+     * @param array<string,mixed> $meta
+     */
+    private function makePage(string $targetFile, string $relativeTargetFile, string $current, string $url, ?string $title = null, ?string $content = null, array $meta = []): Page
+    {
+        return new Page(
+            path: $targetFile,
+            relativePath: $relativeTargetFile,
+            permalink: $current,
+            url: $url,
+            title: $title,
+            content: $content,
+            meta: $meta
+        );
+    }
+
+    private function makeRenderContext(Page $page, Collection $collection, ?CollectionPaginator $pagination = null): RenderContext
+    {
+        $site = new Site(
+            title: $this->config->getTitle(),
+            baseUrl: $this->config->getBaseUrl(),
+            meta: $this->config->getMeta()
+        );
 
         return new RenderContext(
-            site: $this->getSite(),
-            page: $pageData,
+            site: $site,
+            page: $page,
             collection: $collection,
-            pagination: $pagesRequired > 1 ? $pagination : null
+            pagination: $pagination,
         );
     }
 

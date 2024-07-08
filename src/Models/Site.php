@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\Config;
+namespace Terdelyi\Phanstatic\Models;
 
-class SiteConfig
+class Site
 {
     /**
      * @param array<string,mixed> $meta

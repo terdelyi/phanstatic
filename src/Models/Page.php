@@ -16,7 +16,7 @@ class Page
         public string $url,
         public ?string $title = null,
         public ?string $content = null,
-        private readonly array $meta = [],
+        public array $meta = [],
     ) {}
 
     public function __get(string $key): mixed
