@@ -48,7 +48,6 @@ class BuildCommand extends Command
         $buildManager->run($builders);
         $executionTime = round(microtime(true) - $startTime, 4);
 
-        $output->writeln('');
         $output->time("Build completed in {$executionTime} seconds");
 
         return Command::SUCCESS;

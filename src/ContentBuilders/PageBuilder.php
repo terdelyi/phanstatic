@@ -32,6 +32,7 @@ class PageBuilder implements BuilderInterface
     {
         if (!$this->fileManager->exists($this->getSourcePath())) {
             $this->output->action("Skipping pages: no 'content/pages' directory found");
+            $this->output->space();
 
             return;
         }
