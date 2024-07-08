@@ -48,7 +48,7 @@ class Phanstatic
     public static function getConfig(): Config
     {
         if (self::$config === null) {
-            return (new ConfigBuilder())
+            return ConfigBuilder::make()
                 ->build();
         }
 
@@ -63,7 +63,6 @@ class Phanstatic
         $currentDirectory = getcwd();
         $configFile = $currentDirectory.'/'.$this->defaultConfigFile;
 
-        var_dump($configFile);
         if (file_exists($configFile)) {
             $config = require $configFile;
 

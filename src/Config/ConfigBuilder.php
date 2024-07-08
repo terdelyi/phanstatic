@@ -11,7 +11,7 @@ class ConfigBuilder
      */
     private array $config;
 
-    public function __construct()
+    private function __construct()
     {
         $this->config = [
             'baseUrl' => 'http://localhost:8000',
@@ -19,6 +19,11 @@ class ConfigBuilder
             'buildDir' => 'dist',
             'workDir' => $this->getWorkDir(),
         ];
+    }
+
+    public static function make(): ConfigBuilder
+    {
+        return new self();
     }
 
     public function setSourceDir(string $sourceDir): self
