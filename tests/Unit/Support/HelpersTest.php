@@ -16,7 +16,7 @@ class HelpersTest extends TestCase
     {
         parent::setUp();
 
-        $config = (new ConfigBuilder())
+        $config = ConfigBuilder::make()
             ->setBaseUrl('https://example.com')
             ->build();
 
