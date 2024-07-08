@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\ContentBuilders\Collection;
+namespace Terdelyi\Phanstatic\ContentBuilders;
 
 use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\Exception\CommonMarkException;
@@ -10,10 +10,12 @@ use Spatie\YamlFrontMatter\YamlFrontMatter;
 use Symfony\Component\Finder\SplFileInfo;
 use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\Config\SiteConfig;
-use Terdelyi\Phanstatic\ContentBuilders\BuilderContextInterface;
-use Terdelyi\Phanstatic\ContentBuilders\BuilderInterface;
-use Terdelyi\Phanstatic\ContentBuilders\Page\Page;
-use Terdelyi\Phanstatic\ContentBuilders\RenderContext;
+use Terdelyi\Phanstatic\Models\BuilderContextInterface;
+use Terdelyi\Phanstatic\Models\Collection;
+use Terdelyi\Phanstatic\Models\CollectionItem;
+use Terdelyi\Phanstatic\Models\CollectionPaginator;
+use Terdelyi\Phanstatic\Models\Page;
+use Terdelyi\Phanstatic\Models\RenderContext;
 use Terdelyi\Phanstatic\Services\FileManagerInterface;
 use Terdelyi\Phanstatic\Support\OutputInterface;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\ContentBuilders\Collection;
+namespace Terdelyi\Phanstatic\Models;
 
 // TODO: Convert most properties into methods and only keep int $currentPage, int $totalPages, string $collectionSlug, int $itemsTotal
 // TODO: Make $path ans class property

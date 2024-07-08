@@ -8,9 +8,9 @@ use Mockery as m;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Terdelyi\Phanstatic\ContentBuilders\Asset\AssetBuilder;
-use Terdelyi\Phanstatic\ContentBuilders\BuilderContextInterface;
+use Terdelyi\Phanstatic\ContentBuilders\AssetBuilder;
 use Terdelyi\Phanstatic\ContentBuilders\ContentBuilderManager;
+use Terdelyi\Phanstatic\Models\BuilderContextInterface;
 
 /**
  * @internal

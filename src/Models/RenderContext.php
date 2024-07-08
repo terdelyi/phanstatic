@@ -2,12 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\ContentBuilders;
+namespace Terdelyi\Phanstatic\Models;
 
 use Terdelyi\Phanstatic\Config\SiteConfig;
-use Terdelyi\Phanstatic\ContentBuilders\Collection\Collection;
-use Terdelyi\Phanstatic\ContentBuilders\Collection\CollectionPaginator;
-use Terdelyi\Phanstatic\ContentBuilders\Page\Page;
 
 class RenderContext
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Terdelyi\Phanstatic\Services;
 
 use Symfony\Component\Finder\Finder;
-use Terdelyi\Phanstatic\ContentBuilders\RenderContext;
+use Terdelyi\Phanstatic\Models\RenderContext;
 
 interface FileManagerInterface
 {

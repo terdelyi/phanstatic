@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\ContentBuilders\Collection;
+namespace Terdelyi\Phanstatic\Models;
 
 class Collection
 {

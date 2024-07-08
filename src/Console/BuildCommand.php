@@ -8,8 +8,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface as SymfonyOutputInterface;
 use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\ContentBuilders\BuilderContext;
 use Terdelyi\Phanstatic\ContentBuilders\ContentBuilderManager;
+use Terdelyi\Phanstatic\Models\BuilderContext;
 use Terdelyi\Phanstatic\Services\FileManager;
 use Terdelyi\Phanstatic\Support\OutputInterface;
 

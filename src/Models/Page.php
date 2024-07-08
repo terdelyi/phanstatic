@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\ContentBuilders\Page;
+namespace Terdelyi\Phanstatic\Models;
 
 class Page
 {

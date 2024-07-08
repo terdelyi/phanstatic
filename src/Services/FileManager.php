@@ -6,7 +6,7 @@ namespace Terdelyi\Phanstatic\Services;
 
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
-use Terdelyi\Phanstatic\ContentBuilders\RenderContext;
+use Terdelyi\Phanstatic\Models\RenderContext;
 
 class FileManager implements FileManagerInterface
 {

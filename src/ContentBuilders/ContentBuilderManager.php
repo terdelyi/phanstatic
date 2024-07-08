@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Terdelyi\Phanstatic\ContentBuilders;
 
+use Terdelyi\Phanstatic\Models\BuilderContextInterface;
+
 class ContentBuilderManager
 {
     public function __construct(

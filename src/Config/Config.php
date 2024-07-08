@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Terdelyi\Phanstatic\Config;
 
-use Terdelyi\Phanstatic\ContentBuilders\Asset\AssetBuilder;
+use Terdelyi\Phanstatic\ContentBuilders\AssetBuilder;
 use Terdelyi\Phanstatic\ContentBuilders\BuilderInterface;
-use Terdelyi\Phanstatic\ContentBuilders\Collection\CollectionBuilder;
-use Terdelyi\Phanstatic\ContentBuilders\Page\PageBuilder;
+use Terdelyi\Phanstatic\ContentBuilders\CollectionBuilder;
+use Terdelyi\Phanstatic\ContentBuilders\PageBuilder;
 
 class Config
 {

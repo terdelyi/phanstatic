@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\ContentBuilders\Asset;
+namespace Terdelyi\Phanstatic\ContentBuilders;
 
 use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\ContentBuilders\BuilderContextInterface;
-use Terdelyi\Phanstatic\ContentBuilders\BuilderInterface;
+use Terdelyi\Phanstatic\Models\BuilderContextInterface;
 use Terdelyi\Phanstatic\Services\FileManagerInterface;
 use Terdelyi\Phanstatic\Support\OutputInterface;
 

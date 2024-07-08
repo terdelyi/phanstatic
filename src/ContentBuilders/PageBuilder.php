@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\ContentBuilders\Page;
+namespace Terdelyi\Phanstatic\ContentBuilders;
 
 use Symfony\Component\Finder\SplFileInfo;
 use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\Config\SiteConfig;
-use Terdelyi\Phanstatic\ContentBuilders\BuilderContextInterface;
-use Terdelyi\Phanstatic\ContentBuilders\BuilderInterface;
-use Terdelyi\Phanstatic\ContentBuilders\RenderContext;
+use Terdelyi\Phanstatic\Models\BuilderContextInterface;
+use Terdelyi\Phanstatic\Models\Page;
+use Terdelyi\Phanstatic\Models\RenderContext;
 use Terdelyi\Phanstatic\Services\FileManagerInterface;
 use Terdelyi\Phanstatic\Support\OutputInterface;
 
