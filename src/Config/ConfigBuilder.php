@@ -14,7 +14,7 @@ class ConfigBuilder
     public function __construct()
     {
         $this->config = [
-            'baseUrl' => 'http://localhost',
+            'baseUrl' => 'http://localhost:8000',
             'sourceDir' => 'content',
             'buildDir' => 'dist',
             'workDir' => $this->getWorkDir(),

@@ -23,8 +23,7 @@ class Phanstatic
     public function init(): void
     {
         try {
-            $this->loadConfig($this->defaultConfigFile);
-            $config = $this->getConfig();
+            $config = $this->loadConfig();
 
             $application = new Application($this->name, $this->version);
             $application->addCommands([
@@ -50,7 +49,6 @@ class Phanstatic
     {
         if (self::$config === null) {
             return (new ConfigBuilder())
-                ->setBaseUrl('http://localhost')
                 ->build();
         }
 
@@ -60,15 +58,19 @@ class Phanstatic
     /**
      * @throws \RuntimeException
      */
-    private function loadConfig(string $file): void
+    private function loadConfig(): Config
     {
-        $configFile = dirname(__DIR__).'/'.$file;
+        $currentDirectory = getcwd();
+        $configFile = $currentDirectory.'/'.$this->defaultConfigFile;
 
+        var_dump($configFile);
         if (file_exists($configFile)) {
             $config = require $configFile;
 
             self::setConfig($config);
         }
+
+        return self::getConfig();
     }
 
     private static function setConfig(Config $config): void
