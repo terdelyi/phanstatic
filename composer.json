@@ -1,5 +1,6 @@
 {
     "name": "terdelyi/phanstatic",
+    "description": "A simple, lightweight and CLI based static site generator written in PHP",
     "type": "package",
     "license": "MIT",
     "authors": [
