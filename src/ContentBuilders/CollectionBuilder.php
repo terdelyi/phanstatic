@@ -139,6 +139,11 @@ class CollectionBuilder implements BuilderInterface
 
         $parsedFile = YamlFrontMatter::parse($fileContent);
         $meta = $parsedFile->matter();
+
+        if (!isset($meta['date'])) {
+            $meta['date'] = date(\DateTimeInterface::ATOM, $file->getMTime());
+        }
+
         $title = $parsedFile->matter('title');
         $body = (new CommonMarkConverter())->convert($parsedFile->body());
         unset($meta['title']);
