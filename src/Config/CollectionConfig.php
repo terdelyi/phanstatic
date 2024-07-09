@@ -1,14 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\Config;
 
-class Collection
+class CollectionConfig
 {
     public function __construct(
         public readonly ?string $title,
         public readonly ?string $slug,
-        public readonly ?string $pageSize,
-    )
-    {
-    }
+        public readonly ?int $pageSize,
+    ) {}
 }

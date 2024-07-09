@@ -1,6 +1,8 @@
 {
     "name": "terdelyi/phanstatic",
+    "description": "A simple, lightweight and CLI based static site generator written in PHP",
     "type": "package",
+    "license": "MIT",
     "authors": [
         {
             "name": "Tamas Erdelyi",
@@ -8,26 +10,26 @@
         }
     ],
     "require": {
-        "php": ">=8.1",
-        "ext-json": "*",
-        "symfony/finder": "^7.0",
-        "symfony/filesystem": "^7.0",
-        "symfony/console": "^7.0",
+        "php": ">=8.2",
+        "league/commonmark": "^2.4",
         "spatie/yaml-front-matter": "^2.0",
-        "league/commonmark": "^2.4"
+        "symfony/console": "^7.1",
+        "symfony/filesystem": "^7.0",
+        "symfony/finder": "^7.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.5",
+        "friendsofphp/php-cs-fixer": "^3.0",
         "mockery/mockery": "^1.6",
         "phpstan/phpstan": "^1.10",
-        "friendsofphp/php-cs-fixer": "^3.0"
+        "phpunit/phpunit": "^11.0",
+        "phpstan/phpstan-mockery": "^1.1"
     },
     "autoload": {
         "psr-4": {
             "Terdelyi\\Phanstatic\\": "src/"
         },
         "files": [
-            "src/helpers.php"
+            "src/Support/HelperFunctions.php"
         ]
     },
     "autoload-dev": {
@@ -37,5 +39,11 @@
     },
     "bin": [
         "bin/phanstatic"
-    ]
+    ],
+    "scripts": {
+        "style-checks": "php-cs-fixer check --config .php-cs-fixer.php",
+        "style-fix": "php-cs-fixer fix --config .php-cs-fixer.php",
+        "analyse": "phpstan analyse -c phpstan.neon",
+        "tests": "phpunit tests/"
+    }
 }

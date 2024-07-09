@@ -1,39 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\Services;
 
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
-use Terdelyi\Phanstatic\Data\RenderData;
+use Terdelyi\Phanstatic\Models\RenderContext;
 
-class FileManager
+class FileManager implements FileManagerInterface
 {
-    private string $sourceFolder = 'content';
-    private string $destinationFolder = 'dist';
+    private Filesystem $filesystem;
 
-    public function __construct(
-        private Filesystem $filesystem,
-        private Finder     $finder,
-    )
+    private Finder $finder;
+
+    public function __construct()
     {
+        $this->filesystem = new Filesystem();
+        $this->finder = new Finder();
     }
 
-    public function getSourceFolder(string $path = ''): string
+    public function cleanDirectory(string $path): bool
     {
-        return $this->sourceFolder . $path;
-    }
-
-    public function getDestinationFolder(string $path = ''): string
-    {
-        return $this->destinationFolder . $path;
-    }
-
-    public function cleanDestinationFolder(): bool
-    {
-        $destinationFolder = $this->getDestinationFolder();
-
-        if ($this->filesystem->exists($destinationFolder)) {
-            $this->filesystem->remove($destinationFolder);
+        if ($this->filesystem->exists($path)) {
+            $this->filesystem->remove($path);
 
             return true;
         }
@@ -41,11 +31,14 @@ class FileManager
         return false;
     }
 
-    public function exists($path): bool
+    public function exists(string $path): bool
     {
         return $this->filesystem->exists($path);
     }
 
+    /**
+     * @param string|string[] $path
+     */
     public function getFiles(array|string $path, ?string $pattern = null): Finder
     {
         $files = $this->finder::create()
@@ -61,6 +54,10 @@ class FileManager
         return $files;
     }
 
+    /**
+     * @param string|string[]     $path
+     * @param int|string|string[] $level
+     */
     public function getDirectories(array|string $path, array|int|string $level = ''): Finder
     {
         return $this->finder::create()
@@ -70,29 +67,32 @@ class FileManager
             ->depth($level);
     }
 
-    public function render(string $path, RenderData $data): string
+    public function render(string $path, RenderContext $data): string
     {
-        $obLevel = ob_get_level();
-
         ob_start();
+
+        set_error_handler($this->customErrorHandler());
 
         try {
             $this->require($path, $data);
         } catch (\Throwable $e) {
-            while (ob_get_level() > $obLevel) {
-                ob_end_clean();
-            }
+            ob_end_clean();
 
             throw $e;
         }
 
-        return ltrim(ob_get_clean());
+        $output = ob_get_clean();
+
+        restore_error_handler();
+
+        return $output !== false ? ltrim($output) : '';
     }
 
-    public function require(string $filePath, RenderData $data): string
+    public function require(string $filePath, RenderContext $data): int
     {
         return (static function () use ($filePath, $data) {
-            extract(get_object_vars($data), EXTR_SKIP);
+            $dataVars = get_object_vars($data);
+            extract($dataVars, EXTR_SKIP);
             unset($data);
 
             return require $filePath;
@@ -104,14 +104,21 @@ class FileManager
         $outputDir = \dirname($path);
 
         if (!is_dir($outputDir)) {
-            mkdir($outputDir, 0755, true);
+            mkdir($outputDir, 0o755, true);
         }
 
         return file_put_contents($path, $data) !== false;
     }
 
-    public function copy($sourcePath, $targetPath): void
+    public function copy(string $sourcePath, string $targetPath): void
     {
         $this->filesystem->copy($sourcePath, $targetPath, true);
+    }
+
+    public function customErrorHandler(): \Closure
+    {
+        return function ($errno, $errstr, $errfile, $errline) {
+            throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+        };
     }
 }

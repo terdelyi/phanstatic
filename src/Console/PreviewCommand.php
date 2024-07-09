@@ -1,22 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\Console;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\Services\FileManager;
 
 class PreviewCommand extends Command
 {
+    private Config $config;
+
+    public function __construct(Config $config)
+    {
+        parent::__construct();
+
+        $this->config = $config;
+    }
+
     protected function configure(): void
     {
         $this->setName('preview')
-            ->setDescription('Launches built-in PHP server to preview the dist directory')
+            ->setDescription('Start built-in PHP server to preview the output directory')
             ->addOption(
                 'host',
                 null,
@@ -33,16 +41,37 @@ class PreviewCommand extends Command
             );
     }
 
+    /**
+     * @param OutputInterface&\Terdelyi\Phanstatic\Support\OutputInterface $output
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $fileManager = new FileManager(new Filesystem(), new Finder());
-        $documentRoot = $fileManager->getDestinationFolder();
+        $options = [
+            'host' => $input->getOption('host') ?? 'localhost',
+            'port' => $input->getOption('port') ?? 8000,
+        ];
 
-        $host = $input->getOption('host');
-        $port = $input->getOption('port');
+        $this->validateOptions($options);
 
-        passthru("php -S {$host}:{$port} -t {$documentRoot}");
+        $resultCode = 0;
+        $command = sprintf('php -S %s:%s -t %s', $options['host'], $options['port'], $this->config->getBuildDir());
 
-        return Command::SUCCESS;
+        passthru($command, $resultCode);
+
+        return $resultCode === 0 ? Command::SUCCESS : Command::FAILURE;
+    }
+
+    /**
+     * @param array<string,int|string> $options
+     */
+    private function validateOptions(array $options): void
+    {
+        if (!is_string($options['host'])) {
+            throw new \InvalidArgumentException('Host must be a string');
+        }
+
+        if (!is_int($options['port'])) {
+            throw new \InvalidArgumentException('Port must be an integer');
+        }
     }
 }

@@ -1,87 +1,117 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Terdelyi\Phanstatic\Config;
 
-use RuntimeException;
+use Terdelyi\Phanstatic\ContentBuilders\AssetBuilder;
+use Terdelyi\Phanstatic\ContentBuilders\BuilderInterface;
+use Terdelyi\Phanstatic\ContentBuilders\CollectionBuilder;
+use Terdelyi\Phanstatic\ContentBuilders\PageBuilder;
 
 class Config
 {
-    private static ?Config $instance = null;
-    private string $workingDirectory;
+    private string $workDir;
+    private string $sourceDir;
+    private string $buildDir;
 
-    private Site $site;
-
+    /** @var CollectionConfig[] */
     private array $collections;
+    private string $baseUrl;
+    private string $title;
 
-    public static function getInstance(): Config
+    /** @var array<string,mixed> */
+    private array $meta;
+
+    /**
+     * @var class-string<BuilderInterface>[]
+     */
+    private array $builders;
+
+    /**
+     * @param array<string,mixed> $config
+     */
+    public function __construct(array $config)
     {
-        if (self::$instance === null) {
-            self::$instance = new Config();
-        }
-
-        return self::$instance;
-    }
-
-    public function setWorkDir(string $path): void
-    {
-        $this->workingDirectory = $path;
-    }
-
-    public function loadFromFile(string $configFile): void
-    {
-        if (!file_exists($configFile)) {
-            throw new RuntimeException('Config file not found');
-        }
-
-        $config = require $configFile;
-
-        if (!is_array($config)) {
-            throw new RuntimeException('Config variables are not in an array');
-        }
-
-        if (isset($config['site'])) {
-            $this->setSite($config['site']);
-        }
-
-        if (isset($config['collections'])) {
-            $this->setCollections($config['collections']);
-        }
+        $this->workDir = $config['workDir'] ?? throw new \RuntimeException('Working directory must set');
+        $this->sourceDir = $config['sourceDir'] ?? throw new \RuntimeException('Source directory is not set');
+        $this->buildDir = $config['buildDir'] ?? throw new \RuntimeException('Build directory is not set');
+        $this->title = $config['title'] ?? '';
+        $this->baseUrl = $config['baseUrl'] ?? '';
+        $this->meta = $config['meta'] ?? [];
+        $this->collections = $config['collections'] ?? [];
+        $this->builders = $config['builders'] ?? [];
     }
 
     public function getWorkDir(): string
     {
-        return $this->workingDirectory;
+        return $this->workDir;
     }
 
-    public function setSite(array $site): void
+    public function getSourceDir(?string $path = null, bool $relative = false): string
     {
-        $this->site = new Site($site);
-    }
+        $sourceDir = $relative ? $this->sourceDir : $this->workDir.'/'.$this->sourceDir;
 
-    public function getSite(): Site
-    {
-        return $this->site;
-    }
-
-    public function setCollections(array $collections): void
-    {
-        $parsedCollection = [];
-
-        foreach ($collections as $collection) {
-            $parsedCollection[] = new Collection(
-                $collection['title'] ?? null,
-                $collection['slug'] ?? null,
-                $collection['pageSize'] ?? null
-            );
+        if ($path !== null) {
+            return $sourceDir.'/'.$path;
         }
 
-        $this->collections = $parsedCollection;
+        return $sourceDir;
+    }
+
+    public function getBuildDir(?string $path = null, bool $relative = false): string
+    {
+        $buildDir = $relative ? $this->buildDir : $this->workDir.'/'.$this->buildDir;
+
+        if ($path !== null) {
+            return $buildDir.'/'.$path;
+        }
+
+        return $buildDir;
     }
 
     /**
-     * @return Collection|Collection[]
+     * @return class-string<BuilderInterface>[]
      */
-    public function getCollections(string $key = null): Collection|array
+    public function getBuilders(): array
+    {
+        if (count($this->builders) > 0) {
+            return $this->builders;
+        }
+
+        return [
+            PageBuilder::class,
+            AssetBuilder::class,
+            CollectionBuilder::class,
+        ];
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function getBaseUrl(?string $permalink = null): string
+    {
+        if ($permalink !== null) {
+            return $this->baseUrl.$permalink;
+        }
+
+        return $this->baseUrl;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getMeta(): array
+    {
+        return $this->meta;
+    }
+
+    /**
+     * @return CollectionConfig|CollectionConfig[]
+     */
+    public function getCollections(?string $key = null): array|CollectionConfig
     {
         if ($key !== null && isset($this->collections[$key])) {
             return $this->collections[$key];

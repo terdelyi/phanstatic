@@ -1,36 +1,37 @@
 <?php
 
-namespace Tests\Unit;
+declare(strict_types=1);
+
+namespace Tests\Unit\Support;
 
 use PHPUnit\Framework\TestCase;
-use Mockery as m;
-use stdClass;
-use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\Config\Site;
+use Terdelyi\Phanstatic\Config\ConfigBuilder;
 
+/**
+ * @internal
+ */
 class HelpersTest extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
 
-        Config::getInstance([
-            'site' => [
-                'baseUrl' => 'https://example.com',
-            ],
-            'workingDirectory' => '../'
-        ]);
+        $config = ConfigBuilder::make()
+            ->setBaseUrl('https://example.com')
+            ->build();
+
+        \Mockery::mock('alias:Terdelyi\Phanstatic\Phanstatic')
+            ->shouldReceive('getConfig')
+            ->andReturn($config);
     }
 
-    /** @test */
-    public function permalinkReturnsFullUrl()
+    public function testPermalinkReturnsFullUrl(): void
     {
         $this->assertEquals('https://example.com/test-url', url('test-url'));
         $this->assertEquals('https://example.com/test-url-with-slash', url('/test-url-with-slash'));
     }
 
-    /** @test */
-    public function assetReturnsFullUrl()
+    public function testAssetReturnsFullUrl(): void
     {
         $this->assertEquals('https://example.com/assets/image/test.jpg', asset('image/test.jpg'));
         $this->assertEquals('https://example.com/assets/css/test-with-slash.css', asset('/css/test-with-slash.css'));

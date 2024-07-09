@@ -1,11 +1,11 @@
 #!/usr/bin/env php
 <?php
 
+declare(strict_types=1);
+
 use Terdelyi\Phanstatic\Phanstatic;
 
-include $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
+include $_composer_autoload_path ?? __DIR__.'/../vendor/autoload.php';
 
-$workDir = getcwd();
-
-$app = new Phanstatic($workDir);
+$app = new Phanstatic();
 $app->init();
