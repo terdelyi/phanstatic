@@ -9,7 +9,7 @@ use Terdelyi\Phanstatic\Models\RenderContext;
 
 interface FileManagerInterface
 {
-    public function cleanFolder(string $path): bool;
+    public function cleanDirectory(string $path): bool;
 
     public function exists(string $path): bool;
 

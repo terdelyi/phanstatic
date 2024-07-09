@@ -33,11 +33,18 @@ class Collection
     /**
      * @param CollectionItem[] $items
      */
-    public function setItems(array $items): Collection
+    public function cloneWithItems(array $items): Collection
     {
-        $this->items = $items;
-
-        return $this;
+        return new Collection(
+            $this->title,
+            $this->basename,
+            $this->sourceDir,
+            $this->slug,
+            $this->singleTemplate,
+            $this->indexTemplate,
+            $items,
+            $this->pageSize
+        );
     }
 
     /**
@@ -46,13 +53,6 @@ class Collection
     public function items(): array
     {
         return $this->items;
-    }
-
-    public function slice(int $from, int $to): Collection
-    {
-        $result = array_slice($this->items, $from, $to);
-
-        return $this->setItems($result);
     }
 
     public function count(): int

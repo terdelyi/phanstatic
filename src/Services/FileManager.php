@@ -20,7 +20,7 @@ class FileManager implements FileManagerInterface
         $this->finder = new Finder();
     }
 
-    public function cleanFolder(string $path): bool
+    public function cleanDirectory(string $path): bool
     {
         if ($this->filesystem->exists($path)) {
             $this->filesystem->remove($path);

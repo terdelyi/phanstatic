@@ -6,6 +6,7 @@ namespace Terdelyi\Phanstatic\Console;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface as SymfonyOutputInterface;
 use Terdelyi\Phanstatic\Config\Config;
 use Terdelyi\Phanstatic\ContentBuilders\ContentBuilderManager;
@@ -27,7 +28,13 @@ class BuildCommand extends Command
     protected function configure(): void
     {
         $this->setName('build')
-            ->setDescription('Build the static files into the output directory');
+            ->setDescription('Build the static files into the output directory')
+            ->addOption(
+                'no-clean',
+                null,
+                InputOption::VALUE_NONE,
+                'Do not clean the build directory before building'
+            );
     }
 
     /**
@@ -40,6 +47,12 @@ class BuildCommand extends Command
         }
 
         $fileSystem = new FileManager();
+
+        if (!$input->getOption('no-clean')) {
+            $fileSystem->cleanDirectory($this->config->getBuildDir());
+            $output->writeln(['Build directory has been wiped out.', '']);
+        }
+
         $context = new BuilderContext($output, $this->config, $fileSystem);
         $builders = $this->config->getBuilders();
         $buildManager = new ContentBuilderManager($context);

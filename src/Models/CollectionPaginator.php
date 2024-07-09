@@ -18,15 +18,14 @@ class CollectionPaginator
 
     public static function create(int $currentPage, int $totalPages, string $collectionSlug, int $itemsTotal): CollectionPaginator
     {
-        $paginationUrlPath = $collectionSlug.($currentPage > 1 ? '/page' : '');
-
         $shouldHaveNextPage = $currentPage < $totalPages;
         $nextPage = $currentPage + 1;
-        $nextSlug = "{$paginationUrlPath}/{$nextPage}";
+        $nextSlug = "{$collectionSlug}/page/{$nextPage}";
 
         $shouldHavePreviousPage = $currentPage > 1;
         $previousPage = $currentPage - 1;
-        $previousSlug = "{$paginationUrlPath}/{$previousPage}";
+        $previousPageUrl = $previousPage !== 1 ? '/page/'.$previousPage : '/';
+        $previousSlug = $collectionSlug.$previousPageUrl;
 
         return new CollectionPaginator(
             next: $shouldHaveNextPage ? url($nextSlug) : null,

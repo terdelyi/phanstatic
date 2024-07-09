@@ -55,7 +55,7 @@ class CollectionBuilder implements BuilderInterface
                 throw new \Exception('Collection must have a single template exist at '.$collection->singleTemplate);
             }
 
-            $this->output->writeln('<fg=yellow>Collection '.ucfirst($collection->basename).' found. Looking for items...</>');
+            $this->output->writeln('Collection '.ucfirst($collection->basename).' found. Looking for items...');
 
             $collectionFiles = $this->getFilesByCollection($collection->sourceDir);
 
@@ -67,7 +67,7 @@ class CollectionBuilder implements BuilderInterface
 
             foreach ($collectionFiles as $file) {
                 $output = $this->processPage($file, $collection);
-                $this->output->action($output);
+                $this->output->file($output);
             }
 
             if (!$this->fileManager->exists($collection->indexTemplate)) {
@@ -77,7 +77,7 @@ class CollectionBuilder implements BuilderInterface
             $output = $this->generateIndexPages($collection);
 
             foreach ($output as $line) {
-                $this->output->action($line);
+                $this->output->file($line);
             }
         }
 
@@ -110,11 +110,17 @@ class CollectionBuilder implements BuilderInterface
             throw new \Exception('Failed to save file: '.$page->path);
         }
 
+        $meta = $page->meta;
+        if (isset($meta['date'])) {
+            unset($meta['date']);
+        }
+
         $collectionItem = $this->makeCollectionItem(
             $page->title ?? '',
             $page->url ?? '',
             $page->description ?? '',
-            $page->date ?? date(\DateTimeInterface::ATOM, $file->getMTime())
+            $page->date ?? date(\DateTimeInterface::ATOM, $file->getMTime()),
+            $meta
         );
         $collection->add($collectionItem);
 
@@ -146,6 +152,7 @@ class CollectionBuilder implements BuilderInterface
 
         $title = $parsedFile->matter('title');
         $body = (new CommonMarkConverter())->convert($parsedFile->body());
+
         unset($meta['title']);
 
         $page->title = $title;
@@ -157,7 +164,7 @@ class CollectionBuilder implements BuilderInterface
 
     private function buildPage(string $basename, string $collectionSlug): Page
     {
-        $permalink = "/{$collectionSlug}/{$basename}/";
+        $permalink = $collectionSlug !== '' ? "/{$collectionSlug}/{$basename}/" : "/{$basename}/";
 
         if ($basename === 'index') {
             $permalink = '/';
@@ -210,10 +217,10 @@ class CollectionBuilder implements BuilderInterface
 
         for ($page = 1; $page <= $pagesRequired; ++$page) {
             $pagination = CollectionPaginator::create($page, $pagesRequired, $collection->slug, $itemsTotal);
-            $indexSlug = $this->getIndexSlug($collection, $page);
-            $targetFile = $this->getDestinationPath($indexSlug.'/index.html');
-            $current = $this->getCurrent($collection, $page);
-            $pageData = $this->makePage($targetFile, $indexSlug.'/index.html', $current, url($current));
+            $indexPagePath = $this->getIndexPagePath($collection, $page);
+            $current = $indexPagePath ? $indexPagePath.'/index.html' : 'index.html';
+            $targetFile = $this->getDestinationPath($current);
+            $pageData = $this->makePage($targetFile, $current, $indexPagePath.'/', url($indexPagePath.'/'));
             $data = $this->getRenderContext($collection, $page, $pageData, $pagination, $pagesRequired);
 
             $html = $this->fileManager->render($collection->indexTemplate, $data);
@@ -223,22 +230,18 @@ class CollectionBuilder implements BuilderInterface
                 throw new \Exception('Failed to save file: '.$targetFile);
             }
 
-            $outputFrom = $this->getSourcePath($collection->slug, true);
-            $outputTo = $this->getDestinationPath($indexSlug.'/index.html', true);
-            $output[] = 'Index page: '.$outputFrom.' => '.$outputTo;
+            $outputTo = $this->getDestinationPath($current, true);
+            $output[] = 'Index page created ('.$page.'/'.$pagesRequired.'): '.$outputTo;
         }
 
         return $output;
     }
 
-    private function getIndexSlug(Collection $collection, int $page): string
+    private function getIndexPagePath(Collection $collection, int $page): string
     {
-        return $page > 1 ? $collection->slug.'/page/'.$page : $collection->slug;
-    }
+        $slug = $collection->slug === '' ? 'page/'.$page : $collection->slug.'/page/'.$page;
 
-    private function getCurrent(Collection $collection, int $page): string
-    {
-        return $page != 1 ? $collection->slug.'/page/'.$page : '/'.$collection->slug.'/';
+        return $page > 1 ? $slug : $collection->slug;
     }
 
     private function getRenderContext(Collection $collection, int $page, Page $pageData, CollectionPaginator $paginator, int $pagesRequired): RenderContext
@@ -249,19 +252,22 @@ class CollectionBuilder implements BuilderInterface
             return $b->date <=> $a->date;
         });
 
-        $collection = $collection->setItems($items)->slice(($page - 1) * $collection->pageSize, $collection->pageSize);
+        $slicedItems = array_slice($items, ($page - 1) * $collection->pageSize, $collection->pageSize);
+        $newCollection = $collection->cloneWithItems($slicedItems);
         $pagination = $pagesRequired > 1 ? $paginator : null;
 
-        return $this->makeRenderContext($pageData, $collection, $pagination);
+        return $this->makeRenderContext($pageData, $newCollection, $pagination);
     }
 
-    private function makeCollectionItem(string $title, string $link, string $excerpt, string $date): CollectionItem
+    /** @param array<string,mixed> $meta */
+    private function makeCollectionItem(string $title, string $link, string $excerpt, string $date, array $meta): CollectionItem
     {
         return new CollectionItem(
             title: $title,
             link: $link,
             excerpt: $excerpt,
-            date: $date
+            date: $date,
+            meta: $meta,
         );
     }
 
