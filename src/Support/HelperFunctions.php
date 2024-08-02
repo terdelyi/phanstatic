@@ -2,11 +2,18 @@
 
 declare(strict_types=1);
 
-use Terdelyi\Phanstatic\Phanstatic;
+use Terdelyi\Phanstatic\Config\Config;
+use Terdelyi\Phanstatic\Support\Container;
 
+/**
+ * @throws Exception
+ */
 function url(string $permalink): string
 {
-    $config = Phanstatic::getConfig();
+    $container = Container::getInstance();
+
+    /** @var Config $config */
+    $config = $container->get('config');
 
     if (!str_starts_with($permalink, '/')) {
         $permalink = '/'.$permalink;
@@ -15,6 +22,9 @@ function url(string $permalink): string
     return $config->getBaseUrl($permalink);
 }
 
+/**
+ * @throws Exception
+ */
 function asset(string $permalink): string
 {
     if (!str_starts_with($permalink, '/')) {
