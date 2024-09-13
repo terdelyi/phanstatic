@@ -1,0 +1,17 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Terdelyi\Phanstatic\New\Phanstatic;
+
+include $_composer_autoload_path ?? __DIR__.'/../vendor/autoload.php';
+
+$workingDir = getcwd();
+
+if (!$workingDir) {
+    throw new RuntimeException('Cannot identify the working directory.');
+}
+
+$app = new Phanstatic($workingDir);
+$app->init();
