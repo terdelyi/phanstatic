@@ -8,8 +8,7 @@ use Symfony\Component\Console\Application as SymfonyConsole;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
-use Terdelyi\Phanstatic\Console\BuildCommand;
-use Terdelyi\Phanstatic\Console\PreviewCommand;
+use Terdelyi\Phanstatic\New\Commands\PreviewCommand;
 use Terdelyi\Phanstatic\New\Commands\ConfigCommand;
 use Terdelyi\Phanstatic\New\Models\Config;
 use Terdelyi\Phanstatic\New\Support\ConfigLoader;
@@ -71,7 +70,9 @@ class Phanstatic
     {
         $commands = [
             // BuildCommand::class,
-            // PreviewCommand::class,
+            PreviewCommand::class => [
+                new Reference(Helpers::class),
+            ],
             ConfigCommand::class => [
                 new Reference(Config::class),
                 new Reference(Helpers::class),
