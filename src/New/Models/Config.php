@@ -18,41 +18,4 @@ class Config
         /** @var array<int,string> */
         public readonly array $generators,
     ) {}
-
-    // TODO: Should be moved to a helper
-    /*
-    public function getSourceDir(?string $path = null, bool $relative = false): string
-    {
-        $sourceDir = $relative ? $this->sourceDir : $this->workDir.'/'.$this->sourceDir;
-
-        if ($path !== null) {
-            return $sourceDir.'/'.$path;
-        }
-
-        return $sourceDir;
-    }
-
-    public function getBuildDir(?string $path = null, bool $relative = false): string
-    {
-        $buildDir = $relative ? $this->buildDir : $this->workDir.'/'.$this->buildDir;
-
-        if ($path !== null) {
-            return $buildDir.'/'.$path;
-        }
-
-        return $buildDir;
-    }
-    */
-
-    // TODO: Should be moved to a helper
-    /**
-    public function getBaseUrl(?string $permalink = null): string
-    {
-        if ($permalink !== null) {
-            return $this->baseUrl.$permalink;
-        }
-
-        return $this->baseUrl;
-    }**/
-
 }

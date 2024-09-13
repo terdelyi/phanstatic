@@ -1,12 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\New\Models;
 
+use PHPUnit\Framework\TestCase;
 use Terdelyi\Phanstatic\New\Models\CollectionConfig;
 use Terdelyi\Phanstatic\New\Models\Config;
-use PHPUnit\Framework\TestCase;
 
-class SiteConfigTest extends TestCase
+/**
+ * @internal
+ */
+class ConfigTest extends TestCase
 {
     public function testItCanCreateInstance(): void
     {

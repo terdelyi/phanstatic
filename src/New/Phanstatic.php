@@ -9,25 +9,31 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 use Terdelyi\Phanstatic\Console\BuildCommand;
-use Terdelyi\Phanstatic\Console\ConfigCommand;
 use Terdelyi\Phanstatic\Console\PreviewCommand;
+use Terdelyi\Phanstatic\New\Commands\ConfigCommand;
 use Terdelyi\Phanstatic\New\Models\Config;
 use Terdelyi\Phanstatic\New\Support\ConfigLoader;
+use Terdelyi\Phanstatic\New\Support\Helpers;
 
 class Phanstatic
 {
+    public static string $workingDir;
     private string $name = 'Phanstatic';
     private string $version = '1.0.0';
-    private string $defaultConfigFile = 'content/config.php';
     private static ?ContainerBuilder $container = null;
+    private string $defaultConfigFile = 'content/config.php';
 
-    public function __construct(public readonly string $workingDir) {}
+    public function __construct(string $workingDir)
+    {
+        self::$workingDir = $workingDir;
+    }
 
     public function init(): void
     {
         try {
             $container = self::getContainer();
             $this->registerServices($container);
+            $this->registerHelpers($container);
             $this->registerCommands($container);
             $this->loadConsoleApplication($container);
         } catch (\Throwable $e) {
@@ -39,36 +45,46 @@ class Phanstatic
 
     public static function getContainer(): ContainerBuilder
     {
-        if (self::$container !== null) {
-            return self::$container;
-        }
-
-        return self::$container = new ContainerBuilder();
+        return self::$container ??= new ContainerBuilder();
     }
 
     private function registerServices(ContainerBuilder $container): void
     {
-        $configFile = $this->workingDir.'/'.$this->defaultConfigFile;
+        $defaultConfigFile = self::$workingDir.'/'.$this->defaultConfigFile;
+        $configFile = file_exists($defaultConfigFile) ? $defaultConfigFile : null;
         $config = new ConfigLoader($configFile);
 
-        $container->set(Config::class, $config);
+        $container->set(Config::class, $config->load());
         $container->register(SymfonyConsole::class, SymfonyConsole::class)
             ->addArgument($this->name)
             ->addArgument($this->version);
     }
 
+    private function registerHelpers(ContainerBuilder $container): void
+    {
+        $container->register(Helpers::class, Helpers::class)
+            ->addArgument(new Reference(Config::class))
+            ->addArgument(self::$workingDir);
+    }
+
     private function registerCommands(ContainerBuilder $container): void
     {
         $commands = [
-            BuildCommand::class,
-            PreviewCommand::class,
-            ConfigCommand::class,
+            // BuildCommand::class,
+            // PreviewCommand::class,
+            ConfigCommand::class => [
+                new Reference(Config::class),
+                new Reference(Helpers::class),
+            ],
         ];
 
-        foreach ($commands as $command) {
-            $container->register($command, $command)
-                ->addArgument(new Reference(Config::class))
+        foreach ($commands as $command => $arguments) {
+            $registeredCommand = $container->register($command, $command)
                 ->addTag('command');
+
+            foreach ($arguments as $argument) {
+                $registeredCommand->addArgument($argument);
+            }
         }
     }
 
@@ -84,6 +100,9 @@ class Phanstatic
         return array_keys($commands);
     }
 
+    /**
+     * @throws \Exception
+     */
     private function loadConsoleApplication(ContainerBuilder $container): void
     {
         $commands = [];
