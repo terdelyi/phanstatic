@@ -8,11 +8,14 @@ use Symfony\Component\Console\Application as SymfonyConsole;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
+use Terdelyi\Phanstatic\New\Commands\BuildCommand;
 use Terdelyi\Phanstatic\New\Commands\PreviewCommand;
 use Terdelyi\Phanstatic\New\Commands\ConfigCommand;
 use Terdelyi\Phanstatic\New\Models\Config;
 use Terdelyi\Phanstatic\New\Support\ConfigLoader;
+use Terdelyi\Phanstatic\New\Support\FileManager;
 use Terdelyi\Phanstatic\New\Support\Helpers;
+use Terdelyi\Phanstatic\New\Support\Time;
 
 class Phanstatic
 {
@@ -57,6 +60,10 @@ class Phanstatic
         $container->register(SymfonyConsole::class, SymfonyConsole::class)
             ->addArgument($this->name)
             ->addArgument($this->version);
+
+        $container->register(Time::class, Time::class);
+
+        $container->register(FileManager::class, FileManager::class);
     }
 
     private function registerHelpers(ContainerBuilder $container): void
@@ -69,7 +76,12 @@ class Phanstatic
     private function registerCommands(ContainerBuilder $container): void
     {
         $commands = [
-            // BuildCommand::class,
+            BuildCommand::class => [
+                new Reference(Config::class),
+                new Reference(Helpers::class),
+                new Reference(FileManager::class),
+                new Reference(Time::class),
+            ],
             PreviewCommand::class => [
                 new Reference(Helpers::class),
             ],

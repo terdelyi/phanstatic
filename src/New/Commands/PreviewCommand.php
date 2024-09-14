@@ -44,7 +44,7 @@ class PreviewCommand extends Command
 
     private function runCommand(string $command): ?bool
     {
-        return passthru($command, $resultCode);
+        return passthru($command);
     }
 
     /**
