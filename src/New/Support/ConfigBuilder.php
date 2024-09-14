@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Terdelyi\Phanstatic\New\Support;
 
+use Terdelyi\Phanstatic\New\Generators\AssetGenerator;
+use Terdelyi\Phanstatic\New\Models\CollectionConfig;
 use Terdelyi\Phanstatic\New\Models\Config;
 
 class ConfigBuilder
@@ -21,6 +23,19 @@ class ConfigBuilder
     public static function make(): ConfigBuilder
     {
         return new self();
+    }
+
+    public function build(): Config
+    {
+        return new Config(
+            $this->config['sourceDir'],
+            $this->config['buildDir'],
+            $this->config['baseUrl'],
+            $this->config['title'],
+            $this->config['meta'],
+            $this->config['collections'],
+            $this->config['generators'],
+        );
     }
 
     public function setSourceDir(string $sourceDir): self
@@ -62,26 +77,27 @@ class ConfigBuilder
     }
 
     /**
-     * @param array<int,string> $builders
+     * @param array<int,string> $generators
      */
-    public function setBuilders(array $builders): self
+    public function setGenerators(array $generators): self
     {
-        $this->config['builders'] = $builders;
+        $this->config['generators'] = $generators;
 
         return $this;
     }
 
-    public function build(): Config
+    public function addGenerator(string $generator): self
     {
-        return new Config(
-            $this->config['sourceDir'],
-            $this->config['buildDir'],
-            $this->config['baseUrl'],
-            $this->config['title'],
-            $this->config['meta'],
-            $this->config['collections'],
-            $this->config['generators'],
-        );
+        $this->config['generators'][] = $generator;
+
+        return $this;
+    }
+
+    public function addCollection(string $directory, ?string $title, ?string $slug, ?int $pageSize): self
+    {
+        $this->config['collections'][$directory] = new CollectionConfig($title, $slug, $pageSize);
+
+        return $this;
     }
 
     /**
@@ -96,7 +112,9 @@ class ConfigBuilder
             'title' => '',
             'meta' => [],
             'collections' => [],
-            'generators' => [],
+            'generators' => [
+                AssetGenerator::class,
+            ],
         ];
     }
 }

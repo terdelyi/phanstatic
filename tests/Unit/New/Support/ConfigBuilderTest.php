@@ -28,7 +28,7 @@ class ConfigBuilderTest extends TestCase
         $configBuilder->setTitle('Test title');
         $configBuilder->setBaseUrl('http://localhost');
         $configBuilder->setMeta(['meta' => 'value']);
-        $configBuilder->setBuilders(['generatorA', 'generatorB']);
+        $configBuilder->setGenerators(['generatorA', 'generatorB']);
         $config = $configBuilder->build();
 
         $this->assertInstanceOf(Config::class, $config);
