@@ -12,6 +12,7 @@ use Terdelyi\Phanstatic\New\Commands\BuildCommand;
 use Terdelyi\Phanstatic\New\Commands\PreviewCommand;
 use Terdelyi\Phanstatic\New\Commands\ConfigCommand;
 use Terdelyi\Phanstatic\New\Models\Config;
+use Terdelyi\Phanstatic\New\Support\CommandLineExecutor;
 use Terdelyi\Phanstatic\New\Support\ConfigLoader;
 use Terdelyi\Phanstatic\New\Support\FileManager;
 use Terdelyi\Phanstatic\New\Support\Helpers;
@@ -83,6 +84,7 @@ class Phanstatic
                 new Reference(Time::class),
             ],
             PreviewCommand::class => [
+                new Reference(CommandLineExecutor::class),
                 new Reference(Helpers::class),
             ],
             ConfigCommand::class => [

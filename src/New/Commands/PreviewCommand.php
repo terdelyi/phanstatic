@@ -8,11 +8,15 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Terdelyi\Phanstatic\New\Support\CommandLineExecutor;
 use Terdelyi\Phanstatic\New\Support\Helpers;
 
 class PreviewCommand extends Command
 {
-    public function __construct(private Helpers $helpers)
+    public function __construct(
+        private CommandLineExecutor $executor,
+        private Helpers $helpers,
+    )
     {
         parent::__construct();
     }
@@ -37,14 +41,9 @@ class PreviewCommand extends Command
 
         $options = $this->validate($input);
         $command = "php -S {$options['host']}:{$options['port']} -t {$this->helpers->getBuildDir()}";
-        $outcome = $this->runCommand($command);
+        $outcome = $this->executor->run($command);
 
         return $outcome === false ? Command::FAILURE : Command::SUCCESS;
-    }
-
-    private function runCommand(string $command): ?bool
-    {
-        return passthru($command);
     }
 
     /**
