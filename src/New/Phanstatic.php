@@ -6,12 +6,17 @@ namespace Terdelyi\Phanstatic\New;
 
 use Symfony\Component\Console\Application as SymfonyConsole;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Output\Output;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Terdelyi\Phanstatic\New\Commands\BuildCommand;
-use Terdelyi\Phanstatic\New\Commands\PreviewCommand;
 use Terdelyi\Phanstatic\New\Commands\ConfigCommand;
+use Terdelyi\Phanstatic\New\Commands\PreviewCommand;
 use Terdelyi\Phanstatic\New\Models\Config;
+use Terdelyi\Phanstatic\New\Readers\FileReader;
 use Terdelyi\Phanstatic\New\Support\CommandLineExecutor;
 use Terdelyi\Phanstatic\New\Support\ConfigLoader;
 use Terdelyi\Phanstatic\New\Support\FileManager;
@@ -35,9 +40,13 @@ class Phanstatic
     {
         try {
             $container = self::getContainer();
+
             $this->registerServices($container);
-            $this->registerHelpers($container);
             $this->registerCommands($container);
+            $this->registerGenerators($container);
+
+            $container->compile();
+
             $this->loadConsoleApplication($container);
         } catch (\Throwable $e) {
             echo 'Error: '.$e->getMessage().PHP_EOL;
@@ -55,64 +64,62 @@ class Phanstatic
     {
         $defaultConfigFile = self::$workingDir.'/'.$this->defaultConfigFile;
         $configFile = file_exists($defaultConfigFile) ? $defaultConfigFile : null;
-        $config = new ConfigLoader($configFile);
 
-        $container->set(Config::class, $config->load());
+        $container->register(ConfigLoader::class, ConfigLoader::class)
+            ->setArgument('$configFile', $configFile);
+
+        $container->register(Config::class, Config::class)
+            ->setFactory([new Reference(ConfigLoader::class), 'load']);
+
         $container->register(SymfonyConsole::class, SymfonyConsole::class)
             ->addArgument($this->name)
-            ->addArgument($this->version);
+            ->addArgument($this->version)
+            ->setPublic(true);
 
         $container->register(Time::class, Time::class);
+        $container->register(CommandLineExecutor::class, CommandLineExecutor::class);
+        $container->register(Finder::class, Finder::class);
+        $container->register(OutputInterface::class, Output::class)->setAutowired(true);
 
-        $container->register(FileManager::class, FileManager::class);
-    }
-
-    private function registerHelpers(ContainerBuilder $container): void
-    {
-        $container->register(Helpers::class, Helpers::class)
+        $container->autowire(FileManager::class, FileManager::class);
+        $container->autowire(FileReader::class, FileReader::class);
+        $container->autowire(Filesystem::class, Filesystem::class);
+        $container->autowire(Helpers::class, Helpers::class)
             ->addArgument(new Reference(Config::class))
             ->addArgument(self::$workingDir);
     }
 
     private function registerCommands(ContainerBuilder $container): void
     {
-        $commands = [
-            BuildCommand::class => [
-                new Reference(Config::class),
-                new Reference(Helpers::class),
-                new Reference(FileManager::class),
-                new Reference(Time::class),
-            ],
-            PreviewCommand::class => [
-                new Reference(CommandLineExecutor::class),
-                new Reference(Helpers::class),
-            ],
-            ConfigCommand::class => [
-                new Reference(Config::class),
-                new Reference(Helpers::class),
-            ],
-        ];
-
-        foreach ($commands as $command => $arguments) {
-            $registeredCommand = $container->register($command, $command)
+        foreach ($this->getCommands() as $command) {
+            $container->autowire($command, $command)
+                ->setPublic(true)
                 ->addTag('command');
-
-            foreach ($arguments as $argument) {
-                $registeredCommand->addArgument($argument);
-            }
         }
     }
 
     /**
      * @return array<int, string>
-     *
-     * @throws \Exception
      */
     private function getCommands(): array
     {
-        $commands = self::getContainer()->findTaggedServiceIds('command');
+        return [
+            BuildCommand::class,
+            PreviewCommand::class,
+            ConfigCommand::class,
+        ];
+    }
 
-        return array_keys($commands);
+    private function registerGenerators(ContainerBuilder $container): void
+    {
+        /** @var Config $config */
+        $config = $container->get(Config::class);
+
+        foreach ($config->generators as $generator) {
+            $container->autowire($generator, $generator)
+                ->setPublic(true)
+                ->addTag('command');
+        }
     }
 
     /**

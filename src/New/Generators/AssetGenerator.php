@@ -43,10 +43,10 @@ class AssetGenerator implements GeneratorInterface
 
     private function process(SplFileInfo $asset): string
     {
-        $this->fileManager->copy($asset->getPathname(), $this->helpers->getBuildDir($asset->getRelativePathname()));
+        $this->fileManager->copy($asset->getPathname(), $this->helpers->getBuildDir("{$this->destinationPath}/{$asset->getRelativePathname()}"));
 
-        $outputFrom = $this->helpers->getSourceDir($asset->getRelativePathname(), true);
-        $outputTo = $this->helpers->getBuildDir($asset->getRelativePathname(), true);
+        $outputFrom = $this->helpers->getSourceDir("{$this->destinationPath}/{$asset->getRelativePathname()}", true);
+        $outputTo = $this->helpers->getBuildDir("{$this->destinationPath}/{$asset->getRelativePathname()}", true);
 
         return $outputFrom.' => '.$outputTo;
     }

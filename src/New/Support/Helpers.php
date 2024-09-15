@@ -8,7 +8,10 @@ use Terdelyi\Phanstatic\New\Models\Config;
 
 class Helpers
 {
-    public function __construct(private Config $config, private string $workingDir) {}
+    public function __construct(
+        private Config $config,
+        private string $workingDir,
+    ) {}
 
     public function getBaseUrl(?string $permalink = null): string
     {
