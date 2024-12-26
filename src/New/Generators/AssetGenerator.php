@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Terdelyi\Phanstatic\New\Generators;
 
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\SplFileInfo;
 use Terdelyi\Phanstatic\New\Readers\FileReader;
-use Terdelyi\Phanstatic\New\Support\FileManager;
 use Terdelyi\Phanstatic\New\Support\Helpers;
 
 class AssetGenerator implements GeneratorInterface
@@ -19,12 +19,12 @@ class AssetGenerator implements GeneratorInterface
         private OutputInterface $output,
         private Helpers $helpers,
         private FileReader $fileReader,
-        private FileManager $fileManager,
+        private Filesystem $filesystem,
     ) {}
 
     public function run(): void
     {
-        if (!$this->fileManager->exists($this->helpers->getSourceDir($this->sourcePath))) {
+        if (!$this->filesystem->exists($this->helpers->getSourceDir($this->sourcePath))) {
             $this->output->writeln(["Skipping assets: no 'content/assets' directory found", '']);
 
             return;
@@ -34,6 +34,8 @@ class AssetGenerator implements GeneratorInterface
 
         $in = $this->helpers->getSourceDir($this->sourcePath);
         foreach ($this->fileReader->findFiles($in) as $asset) {
+            var_dump($asset);
+            die();
             $output = $this->process($asset);
             $this->output->writeln($output);
         }
@@ -43,10 +45,13 @@ class AssetGenerator implements GeneratorInterface
 
     private function process(SplFileInfo $asset): string
     {
-        $this->fileManager->copy($asset->getPathname(), $this->helpers->getBuildDir("{$this->destinationPath}/{$asset->getRelativePathname()}"));
+        $source = "{$this->sourcePath}/{$asset->getRelativePathname()}";
+        $destination = "{$this->destinationPath}/{$asset->getRelativePathname()}";
 
-        $outputFrom = $this->helpers->getSourceDir("{$this->destinationPath}/{$asset->getRelativePathname()}", true);
-        $outputTo = $this->helpers->getBuildDir("{$this->destinationPath}/{$asset->getRelativePathname()}", true);
+        $this->filesystem->copy($asset->getPathname(), $this->helpers->getBuildDir($destination), true);
+
+        $outputFrom = $this->helpers->getSourceDir($source, true);
+        $outputTo = $this->helpers->getBuildDir($destination, true);
 
         return $outputFrom.' => '.$outputTo;
     }

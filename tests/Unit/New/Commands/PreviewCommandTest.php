@@ -6,7 +6,8 @@ namespace Tests\Unit\New\Commands;
 
 use Mockery as m;
 use Mockery\MockInterface;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\Unit\New\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Terdelyi\Phanstatic\New\Commands\PreviewCommand;
 use Terdelyi\Phanstatic\New\Support\CommandLineExecutor;
@@ -20,7 +21,7 @@ class PreviewCommandTest extends TestCase
     private CommandTester $commandTester;
 
     /** @var Helpers|MockInterface */
-    private Helpers $helpers;
+    private Helpers|MockInterface $helpers;
 
     protected function setUp(): void
     {
@@ -36,7 +37,8 @@ class PreviewCommandTest extends TestCase
         $this->commandTester = new CommandTester($command);
     }
 
-    public function testItHasOutput(): void
+    #[Test]
+    public function itHasOutput(): void
     {
         $this->helpers->shouldReceive('getBuildDir')
             ->andReturn('./tests/data/dist');
@@ -45,7 +47,8 @@ class PreviewCommandTest extends TestCase
         $this->commandTester->assertCommandIsSuccessful();
     }
 
-    public function testItFailsWhenPublicPathNotFound(): void
+    #[Test]
+    public function itFailsWhenPublicPathNotFound(): void
     {
         $this->helpers->shouldReceive('getBuildDir')
             ->andReturn('invalid-path');

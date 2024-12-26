@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Tests\Unit\New\Commands;
 
 use Mockery as m;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\Unit\New\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
 use Terdelyi\Phanstatic\New\Commands\BuildCommand;
-use Terdelyi\Phanstatic\New\Commands\ConfigCommand;
 use Terdelyi\Phanstatic\New\Models\CollectionConfig;
 use Terdelyi\Phanstatic\New\Models\Config;
-use Terdelyi\Phanstatic\New\Support\FileManager;
 use Terdelyi\Phanstatic\New\Support\Helpers;
 use Terdelyi\Phanstatic\New\Support\Time;
 
@@ -40,8 +40,8 @@ class BuildCommandTest extends TestCase
         $helpers->shouldReceive('getBuildDir')
             ->andReturn('base-url');
 
-        $fileManager = m::mock(FileManager::class);
-        $fileManager->shouldReceive('cleanDirectory')
+        $fileManager = m::mock(Filesystem::class);
+        $fileManager->shouldReceive('remove')
             ->andReturn(true);
 
         $time = m::mock(Time::class);
@@ -53,7 +53,8 @@ class BuildCommandTest extends TestCase
         $this->commandTester = new CommandTester($command);
     }
 
-    public function testItHasOutput(): void
+    #[Test]
+    public function itHasOutput(): void
     {
         $this->commandTester->execute([]);
         $display = trim($this->commandTester->getDisplay());
@@ -68,7 +69,8 @@ class BuildCommandTest extends TestCase
         $this->assertEquals($expected, $display);
     }
 
-    public function testItHasOutputWithoutCleanBuildDir(): void
+    #[Test]
+    public function itHasOutputWithoutCleanBuildDir(): void
     {
         $this->commandTester->execute(['--no-clean' => true]);
         $display = trim($this->commandTester->getDisplay());

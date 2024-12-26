@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\New\Commands;
 
 use Mockery as m;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\Unit\New\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Terdelyi\Phanstatic\New\Commands\ConfigCommand;
 use Terdelyi\Phanstatic\New\Models\CollectionConfig;
@@ -41,7 +42,8 @@ class ConfigCommandTest extends TestCase
         $this->commandTester = new CommandTester($command);
     }
 
-    public function testItHasOutput(): void
+    #[Test]
+    public function itHasOutput(): void
     {
         $this->commandTester->execute([]);
         $display = trim($this->commandTester->getDisplay());

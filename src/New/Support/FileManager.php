@@ -6,6 +6,7 @@ namespace Terdelyi\Phanstatic\New\Support;
 
 use Symfony\Component\Filesystem\Filesystem;
 
+// TODO: Just replace it with FileManager
 class FileManager
 {
     public function __construct(
@@ -28,15 +29,9 @@ class FileManager
         return $this->filesystem->exists($path);
     }
 
-    public function save(string $path, string $data): bool
+    public function save(string $path, string $data): void
     {
-        $outputDir = \dirname($path);
-
-        if (!is_dir($outputDir)) {
-            mkdir($outputDir, 0o755, true);
-        }
-
-        return file_put_contents($path, $data) !== false;
+        $this->filesystem->dumpFile($path, $data);
     }
 
     public function copy(string $sourcePath, string $targetPath): void

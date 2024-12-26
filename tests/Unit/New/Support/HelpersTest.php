@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\New\Support;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\Unit\New\TestCase;
 use Terdelyi\Phanstatic\New\Models\CollectionConfig;
 use Terdelyi\Phanstatic\New\Models\Config;
 use Terdelyi\Phanstatic\New\Support\Helpers;
@@ -34,37 +35,44 @@ class HelpersTest extends TestCase
         $this->helpers = new Helpers($config, $workingDir);
     }
 
-    public function testItCanReturnBaseUrl(): void
+    #[Test]
+    public function itCanReturnBaseUrl(): void
     {
         $this->assertEquals('base-url', $this->helpers->getBaseUrl());
     }
 
-    public function testItCanReturnBaseUrlWithCustomUrl(): void
+    #[Test]
+    public function itCanReturnBaseUrlWithCustomUrl(): void
     {
         $this->assertEquals('base-url/test', $this->helpers->getBaseUrl('test'));
     }
 
-    public function testItCanReturnBaseUrlWithCustomUrlStartsWithSlash(): void
+    #[Test]
+    public function itCanReturnBaseUrlWithCustomUrlStartsWithSlash(): void
     {
         $this->assertEquals('base-url/test', $this->helpers->getBaseUrl('/test'));
     }
 
-    public function testItCanReturnBuildDir(): void
+    #[Test]
+    public function itCanReturnBuildDir(): void
     {
         $this->assertEquals('test/working-dir/build-dir', $this->helpers->getBuildDir());
     }
 
-    public function testItCanReturnBuildDirWithCustomPath(): void
+    #[Test]
+    public function itCanReturnBuildDirWithCustomPath(): void
     {
         $this->assertEquals('test/working-dir/build-dir/custom-path', $this->helpers->getBuildDir('custom-path'));
     }
 
-    public function testItCanReturnSourceDir(): void
+    #[Test]
+    public function itCanReturnSourceDir(): void
     {
         $this->assertEquals('test/working-dir/source-dir', $this->helpers->getSourceDir());
     }
 
-    public function testItCanReturnSourceDirWithCustomPath(): void
+    #[Test]
+    public function itCanReturnSourceDirWithCustomPath(): void
     {
         $this->assertEquals('test/working-dir/source-dir/custom-path', $this->helpers->getSourceDir('custom-path'));
     }

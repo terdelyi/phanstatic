@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\New\Support;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\Unit\New\TestCase;
 use Terdelyi\Phanstatic\New\Models\Config;
 use Terdelyi\Phanstatic\New\Support\ConfigLoader;
 
@@ -13,7 +14,8 @@ use Terdelyi\Phanstatic\New\Support\ConfigLoader;
  */
 class ConfigLoaderTest extends TestCase
 {
-    public function testItCanLoadDefaultConfig(): void
+    #[Test]
+    public function itCanLoadDefaultConfig(): void
     {
         $configLoader = new ConfigLoader();
         $config = $configLoader->load();
@@ -21,7 +23,8 @@ class ConfigLoaderTest extends TestCase
         $this->assertInstanceOf(Config::class, $config);
     }
 
-    public function testItCanLoadCustomConfig(): void
+    #[Test]
+    public function itCanLoadCustomConfig(): void
     {
         $customConfig = './tests/data/config/sample-config.php';
         $configLoader = new ConfigLoader($customConfig);
@@ -30,7 +33,8 @@ class ConfigLoaderTest extends TestCase
         $this->assertInstanceOf(Config::class, $config);
     }
 
-    public function testInvalidCustomConfig(): void
+    #[Test]
+    public function itHandlesInvalidCustomConfig(): void
     {
         $this->expectException(\TypeError::class);
         $this->expectsOutput();
@@ -48,7 +52,8 @@ class ConfigLoaderTest extends TestCase
         $this->assertEquals('This is an invalid config file.', $output);
     }
 
-    public function testItThrowsErrorIfConfigDoesntExist(): void
+    #[Test]
+    public function itThrowsErrorIfConfigDoesntExist(): void
     {
         $this->expectException(\RuntimeException::class);
 

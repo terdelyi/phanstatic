@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\New\Support;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\Unit\New\TestCase;
 use Terdelyi\Phanstatic\New\Models\Config;
 use Terdelyi\Phanstatic\New\Support\ConfigBuilder;
 
@@ -13,14 +14,16 @@ use Terdelyi\Phanstatic\New\Support\ConfigBuilder;
  */
 class ConfigBuilderTest extends TestCase
 {
-    public function testItCanCreateAConfigInstance(): void
+    #[Test]
+    public function itCanCreateAConfigInstance(): void
     {
         $configBuilder = ConfigBuilder::make();
 
         $this->assertInstanceOf(ConfigBuilder::class, $configBuilder);
     }
 
-    public function testItCanBuildConfig(): void
+    #[Test]
+    public function itCanBuildConfig(): void
     {
         $configBuilder = ConfigBuilder::make();
         $configBuilder->setSourceDir('/test/source-dir');

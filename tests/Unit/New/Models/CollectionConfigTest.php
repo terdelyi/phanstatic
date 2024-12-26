@@ -2,12 +2,14 @@
 
 namespace Tests\Unit\New\Models;
 
+use PHPUnit\Framework\Attributes\Test;
 use Terdelyi\Phanstatic\New\Models\CollectionConfig;
-use PHPUnit\Framework\TestCase;
+use Tests\Unit\New\TestCase;
 
 class CollectionConfigTest extends TestCase
 {
-    public function testItCanCreateInstance(): void
+    #[Test]
+    public function itCanCreateInstance(): void
     {
         $collectionConfig = new CollectionConfig(
             'Test Title',

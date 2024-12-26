@@ -19,7 +19,6 @@ use Terdelyi\Phanstatic\New\Models\Config;
 use Terdelyi\Phanstatic\New\Readers\FileReader;
 use Terdelyi\Phanstatic\New\Support\CommandLineExecutor;
 use Terdelyi\Phanstatic\New\Support\ConfigLoader;
-use Terdelyi\Phanstatic\New\Support\FileManager;
 use Terdelyi\Phanstatic\New\Support\Helpers;
 use Terdelyi\Phanstatic\New\Support\Time;
 
@@ -81,9 +80,8 @@ class Phanstatic
         $container->register(Finder::class, Finder::class);
         $container->register(OutputInterface::class, Output::class)->setAutowired(true);
 
-        $container->autowire(FileManager::class, FileManager::class);
-        $container->autowire(FileReader::class, FileReader::class);
         $container->autowire(Filesystem::class, Filesystem::class);
+        $container->autowire(FileReader::class, FileReader::class);
         $container->autowire(Helpers::class, Helpers::class)
             ->addArgument(new Reference(Config::class))
             ->addArgument(self::$workingDir);

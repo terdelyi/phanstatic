@@ -5,11 +5,24 @@ declare(strict_types=1);
 use Terdelyi\Phanstatic\New\Phanstatic;
 use Terdelyi\Phanstatic\New\Support\Helpers;
 
-if (!function_exists('base_url')) {
-    function base_url(?string $permalink = null): string
+if (!function_exists('url')) {
+    function url(?string $permalink = null): string
     {
         /** @var Helpers $helper */
         $helper = Phanstatic::getContainer()->get(Helpers::class);
+
+        return $helper->getBaseUrl($permalink);
+    }
+}
+
+if (!function_exists('asset')) {
+    function asset(string $permalink): string
+    {
+        /** @var Helpers $helper */
+        $helper = Phanstatic::getContainer()->get(Helpers::class);
+
+        $permalink = !\str_starts_with($permalink, '/') ? "/{$permalink}" : $permalink;
+        $permalink = '/assets'.$permalink;
 
         return $helper->getBaseUrl($permalink);
     }

@@ -33,15 +33,15 @@ class FileReader
 
     /**
      * @param string|string[]     $path
-     * @param int|string|string[] $level
+     * @param int|string|string[] $reader
      * @return Finder
      */
-    public function findDirectories(array|string $path, array|int|string $level = ''): iterable
+    public function findDirectories(array|string $path, array|int|string $reader = ''): iterable
     {
         return $this->finder::create()
             ->directories()
             ->in($path)
             ->notPath('/^_.*$/')
-            ->depth($level);
+            ->depth($reader);
     }
 }

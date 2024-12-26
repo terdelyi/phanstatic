@@ -30,7 +30,6 @@
             "Terdelyi\\Phanstatic\\": "src/"
         },
         "files": [
-            "src/Support/HelperFunctions.php",
             "src/New/Support/functions.php"
         ]
     },
