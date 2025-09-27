@@ -35,7 +35,8 @@ class AssetGenerator implements GeneratorInterface
         $in = $this->helpers->getSourceDir($this->sourcePath);
         foreach ($this->fileReader->findFiles($in) as $asset) {
             var_dump($asset);
-            die();
+
+            exit;
             $output = $this->process($asset);
             $this->output->writeln($output);
         }

@@ -54,9 +54,9 @@ class BuildCommand extends Command
         $container = Phanstatic::getContainer();
 
         foreach ($this->config->generators as $generator) {
-            ///** @var GeneratorInterface $generatorInstance */
-            //$generatorInstance = $container->get($generator);
-            //$generatorInstance->run();
+            // /** @var GeneratorInterface $generatorInstance */
+            // $generatorInstance = $container->get($generator);
+            // $generatorInstance->run();
             // Run builder
             $output->writeln($generator);
         }

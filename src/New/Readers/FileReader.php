@@ -14,6 +14,7 @@ class FileReader
 
     /**
      * @param string|string[] $path
+     *
      * @return Finder
      */
     public function findFiles(array|string $path, ?string $pattern = null): iterable
@@ -34,6 +35,7 @@ class FileReader
     /**
      * @param string|string[]     $path
      * @param int|string|string[] $reader
+     *
      * @return Finder
      */
     public function findDirectories(array|string $path, array|int|string $reader = ''): iterable

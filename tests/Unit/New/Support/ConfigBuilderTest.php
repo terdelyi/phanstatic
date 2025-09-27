@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit\New\Support;
 
 use PHPUnit\Framework\Attributes\Test;
-use Tests\Unit\New\TestCase;
 use Terdelyi\Phanstatic\New\Models\Config;
 use Terdelyi\Phanstatic\New\Support\ConfigBuilder;
+use Tests\Unit\New\TestCase;
 
 /**
  * @internal

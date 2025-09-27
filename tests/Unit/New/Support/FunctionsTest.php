@@ -6,8 +6,6 @@ namespace Tests\Unit\New\Support;
 
 use Mockery as m;
 use Mockery\MockInterface;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Terdelyi\Phanstatic\New\Phanstatic;
 use Terdelyi\Phanstatic\New\Support\Helpers;
 use Tests\Unit\New\TestCase;
@@ -17,7 +15,6 @@ use Tests\Unit\New\TestCase;
  */
 class FunctionsTest extends TestCase
 {
-    /** @var Helpers|MockInterface */
     private Helpers|MockInterface $helperMock;
 
     protected function setUp(): void

@@ -7,17 +7,16 @@ namespace Tests\Unit\New\Readers;
 use Mockery as m;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\Unit\New\TestCase;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Terdelyi\Phanstatic\New\Readers\FileReader;
+use Tests\Unit\New\TestCase;
 
 /**
  * @internal
  */
 class FileReaderTest extends TestCase
 {
-    /** @var Finder|MockInterface */
     private Finder|MockInterface $finder;
     private FileReader $fileReader;
 

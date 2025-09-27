@@ -1,10 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\New;
 
 use Mockery as m;
 use PHPUnit\Framework\TestCase as UnitTestCase;
 
+/**
+ * @internal
+ */
 class TestCase extends UnitTestCase
 {
     protected function tearDown(): void

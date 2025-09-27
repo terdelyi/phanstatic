@@ -50,9 +50,9 @@ class ConfigCommand extends Command
 
     private function showGenericConfig(): void
     {
-        $configMessage = $this->config->path ?
-            'This configuration is loaded from '.$this->helpers->getBaseDir($this->config->path) :
-            'No config file set, this is the default configuration.';
+        $configMessage = $this->config->path
+            ? 'This configuration is loaded from '.$this->helpers->getBaseDir($this->config->path)
+            : 'No config file set, this is the default configuration.';
 
         $this->output->writeln($configMessage);
 

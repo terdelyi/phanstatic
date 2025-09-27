@@ -16,8 +16,7 @@ class PreviewCommand extends Command
     public function __construct(
         private CommandLineExecutor $executor,
         private Helpers $helpers,
-    )
-    {
+    ) {
         parent::__construct();
     }
 

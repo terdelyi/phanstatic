@@ -10,6 +10,9 @@ $finder = (new Finder())
         'bin',
         'src',
         'tests',
+    ])
+    ->exclude([
+        'data',
     ]);
 
 return (new Config())

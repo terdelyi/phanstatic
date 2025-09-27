@@ -6,7 +6,6 @@ namespace Tests\Unit\New\Commands;
 
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\Unit\New\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 use Terdelyi\Phanstatic\New\Commands\BuildCommand;
@@ -14,6 +13,7 @@ use Terdelyi\Phanstatic\New\Models\CollectionConfig;
 use Terdelyi\Phanstatic\New\Models\Config;
 use Terdelyi\Phanstatic\New\Support\Helpers;
 use Terdelyi\Phanstatic\New\Support\Time;
+use Tests\Unit\New\TestCase;
 
 /**
  * @internal

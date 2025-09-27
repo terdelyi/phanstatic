@@ -7,11 +7,11 @@ namespace Tests\Unit\New\Commands;
 use Mockery as m;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\Unit\New\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Terdelyi\Phanstatic\New\Commands\PreviewCommand;
 use Terdelyi\Phanstatic\New\Support\CommandLineExecutor;
 use Terdelyi\Phanstatic\New\Support\Helpers;
+use Tests\Unit\New\TestCase;
 
 /**
  * @internal
@@ -20,7 +20,6 @@ class PreviewCommandTest extends TestCase
 {
     private CommandTester $commandTester;
 
-    /** @var Helpers|MockInterface */
     private Helpers|MockInterface $helpers;
 
     protected function setUp(): void

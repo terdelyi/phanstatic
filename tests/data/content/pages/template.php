@@ -1,4 +1,7 @@
-<?php /** @var Terdelyi\Phanstatic\Models\Page $page */ ?>
+<?php
+use Terdelyi\Phanstatic\Models\Page;
+
+/** @var Page $page */ ?>
 Page path: <?php echo $page->path; ?>
 
 Page relative path: <?php echo $page->relativePath; ?>

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Unit\New\Compilers;
 
 use PHPUnit\Framework\Attributes\Test;
-use Tests\Unit\New\TestCase;
 use Terdelyi\Phanstatic\Models\Page;
 use Terdelyi\Phanstatic\Models\RenderContext;
 use Terdelyi\Phanstatic\New\Compilers\PhpCompiler;
+use Tests\Unit\New\TestCase;
 
 /**
  * @internal
