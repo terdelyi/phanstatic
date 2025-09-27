@@ -133,6 +133,7 @@ class Phanstatic
         /** @var SymfonyConsole $application */
         $application = $container->get(SymfonyConsole::class);
         $application->addCommands($commands);
+        $application->setDefaultCommand('config');
         $application->setCatchErrors();
         $application->setCatchExceptions(true);
         $application->run();

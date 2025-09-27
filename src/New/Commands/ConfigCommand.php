@@ -38,6 +38,7 @@ class ConfigCommand extends Command
     {
         $this->output = $output;
 
+        $this->logo();
         $this->lines();
         $this->showGenericConfig();
         $this->showGenerators();
@@ -61,7 +62,7 @@ class ConfigCommand extends Command
         $title = $this->config->title ?: 'N/A';
 
         $this->text('→ <options=bold>Page title:</>        '.$title);
-        $this->text('→ <options=bold>Base URL:</>          '.$this->helpers->getBaseUrl());
+        $this->text('→ <options=bold>Base url:</>          '.$this->helpers->getBaseUrl());
         $this->text('→ <options=bold>Build directory:</>   '.$this->helpers->getBuildDir());
         $this->text('→ <options=bold>Source directory:</>  '.$this->helpers->getSourceDir());
     }
@@ -71,7 +72,7 @@ class ConfigCommand extends Command
         $generators = $this->config->generators;
         if (count($generators) > 0) {
             $this->lines();
-            $this->text('<options=bold>Content generators (in runtime order):</>');
+            $this->text('<options=bold>Loaded content generators (in runtime order):</>');
             foreach ($generators as $generator) {
                 $this->item($generator);
             }

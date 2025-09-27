@@ -14,7 +14,6 @@ class ConfigLoader
 
     public function load(): Config
     {
-        var_dump(file_exists($this->configPath));
         $configFile = file_exists($this->configPath) ? $this->configPath : null;
 
         if (!$configFile) {
