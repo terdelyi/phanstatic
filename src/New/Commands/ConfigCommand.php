@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace Terdelyi\Phanstatic\New\Commands;
 
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Terdelyi\Phanstatic\New\Models\Config;
 use Terdelyi\Phanstatic\New\Support\Helpers;
+use Terdelyi\Phanstatic\New\Support\OutputHelper;
 
 class ConfigCommand extends Command
 {
+    use OutputHelper;
+
     private Config $config;
     private Helpers $helpers;
 
@@ -36,41 +38,42 @@ class ConfigCommand extends Command
     {
         $this->output = $output;
 
-        $this->setStyles();
+        $this->lines();
         $this->showGenericConfig();
         $this->showGenerators();
         $this->showCollections();
         $this->showMeta();
+        $this->lines();
 
         return Command::SUCCESS;
     }
 
-    private function setStyles(): void
-    {
-        $style = new OutputFormatterStyle(null, null, ['bold']);
-        $this->output->getFormatter()->setStyle('bold_yellow', $style);
-    }
-
     private function showGenericConfig(): void
     {
-        $title = $this->config->title;
+        $configMessage = $this->config->path ?
+            'This configuration is loaded from '.$this->helpers->getBaseDir($this->config->path) :
+            'No config file set, this is the default configuration.';
 
-        $this->output->writeln('');
-        $this->output->writeln('<bold_yellow>Page title:</bold_yellow> '.$title);
-        $this->output->writeln('<bold_yellow>Base URL:</bold_yellow> '.$this->helpers->getBaseUrl());
-        $this->output->writeln('<bold_yellow>Build directory:</bold_yellow> '.$this->helpers->getBaseUrl());
-        $this->output->writeln('<bold_yellow>Source directory:</bold_yellow> '.$this->helpers->getBaseUrl());
-        $this->output->writeln('');
+        $this->output->writeln($configMessage);
+
+        $this->lines();
+
+        $title = $this->config->title ?: 'N/A';
+
+        $this->text('→ <options=bold>Page title:</>        '.$title);
+        $this->text('→ <options=bold>Base URL:</>          '.$this->helpers->getBaseUrl());
+        $this->text('→ <options=bold>Build directory:</>   '.$this->helpers->getBuildDir());
+        $this->text('→ <options=bold>Source directory:</>  '.$this->helpers->getSourceDir());
     }
 
     private function showGenerators(): void
     {
         $generators = $this->config->generators;
         if (count($generators) > 0) {
-            $this->output->writeln('');
-            $this->output->writeln('<bold_yellow>Content generators in runtime order:</bold_yellow>');
+            $this->lines();
+            $this->text('<options=bold>Content generators (in runtime order):</>');
             foreach ($generators as $generator) {
-                $this->output->writeln('- '.$generator);
+                $this->item($generator);
             }
         }
     }
@@ -79,11 +82,11 @@ class ConfigCommand extends Command
     {
         $collections = $this->config->collections;
         if (count($collections) > 0) {
-            $this->output->writeln('');
-            $this->output->writeln('<bold_yellow>Collections configuration:</bold_yellow>');
+            $this->lines();
+            $this->text('<options=bold>Collections:</>');
 
             foreach ($collections as $collection) {
-                $this->output->writeln('- '.$collection->title);
+                $this->item($collection->title);
             }
         }
     }
@@ -92,11 +95,11 @@ class ConfigCommand extends Command
     {
         $meta = $this->config->meta;
         if (count($meta) > 0) {
-            $this->output->writeln('');
-            $this->output->writeln('<bold_yellow>Site meta data:</bold_yellow>');
+            $this->lines();
+            $this->text('<options=bold>Site meta data:</>');
 
             foreach ($meta as $key => $value) {
-                $this->output->writeln('- '.$key.': '.$value);
+                $this->item('- '.$key.': '.$value);
             }
         }
     }

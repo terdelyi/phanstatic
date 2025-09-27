@@ -37,6 +37,8 @@ class ConfigCommandTest extends TestCase
         $helpers = m::mock(Helpers::class);
         $helpers->shouldReceive('getBaseUrl')
             ->andReturn('base-url');
+        $helpers->shouldReceive('getBuildDir')
+            ->andReturn('build-dir');
         $command = new ConfigCommand($config, $helpers);
 
         $this->commandTester = new CommandTester($command);

@@ -9,8 +9,8 @@ use Terdelyi\Phanstatic\New\Models\Config;
 class Helpers
 {
     public function __construct(
-        private Config $config,
-        private string $workingDir,
+        private readonly Config $config,
+        private readonly string $workingDir,
     ) {}
 
     public function getBaseUrl(?string $permalink = null): string
@@ -22,6 +22,25 @@ class Helpers
         }
 
         return $this->config->baseUrl;
+    }
+
+    public function getAsset(string $permalink): string
+    {
+        $permalink = !\str_starts_with($permalink, '/') ? "/{$permalink}" : $permalink;
+        $permalink = '/assets'.$permalink;
+
+        return $this->getBaseUrl($permalink);
+    }
+
+    public function getBaseDir(?string $path = null): string
+    {
+        $workingDir = $this->workingDir;
+
+        if ($path !== null) {
+            return "{$workingDir}/{$path}";
+        }
+
+        return $workingDir;
     }
 
     public function getSourceDir(?string $path = null, bool $relative = false): string

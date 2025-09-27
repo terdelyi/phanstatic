@@ -18,6 +18,7 @@ use Terdelyi\Phanstatic\New\Commands\PreviewCommand;
 use Terdelyi\Phanstatic\New\Models\Config;
 use Terdelyi\Phanstatic\New\Readers\FileReader;
 use Terdelyi\Phanstatic\New\Support\CommandLineExecutor;
+use Terdelyi\Phanstatic\New\Support\ConfigBuilder;
 use Terdelyi\Phanstatic\New\Support\ConfigLoader;
 use Terdelyi\Phanstatic\New\Support\Helpers;
 use Terdelyi\Phanstatic\New\Support\Time;
@@ -28,7 +29,6 @@ class Phanstatic
     private string $name = 'Phanstatic';
     private string $version = '1.0.0';
     private static ?ContainerBuilder $container = null;
-    private string $defaultConfigFile = 'content/config.php';
 
     public function __construct(string $workingDir)
     {
@@ -61,11 +61,9 @@ class Phanstatic
 
     private function registerServices(ContainerBuilder $container): void
     {
-        $defaultConfigFile = self::$workingDir.'/'.$this->defaultConfigFile;
-        $configFile = file_exists($defaultConfigFile) ? $defaultConfigFile : null;
-
+        $configFilePath = self::$workingDir.'/'.ConfigBuilder::$defaultPath;
         $container->register(ConfigLoader::class, ConfigLoader::class)
-            ->setArgument('$configFile', $configFile);
+            ->addArgument($configFilePath);
 
         $container->register(Config::class, Config::class)
             ->setFactory([new Reference(ConfigLoader::class), 'load']);

@@ -17,5 +17,6 @@ class Config
         public readonly array $collections,
         /** @var array<int,string> */
         public readonly array $generators,
+        public readonly ?string $path = null,
     ) {}
 }

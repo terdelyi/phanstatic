@@ -48,7 +48,7 @@ class HelpersTest extends TestCase
     }
 
     #[Test]
-    public function itCanReturnBaseUrlWithCustomUrlStartsWithSlash(): void
+    public function itCanReturnBaseUrlWhenCustomUrlHasLeadingSlash(): void
     {
         $this->assertEquals('base-url/test', $this->helpers->getBaseUrl('/test'));
     }
@@ -75,5 +75,17 @@ class HelpersTest extends TestCase
     public function itCanReturnSourceDirWithCustomPath(): void
     {
         $this->assertEquals('test/working-dir/source-dir/custom-path', $this->helpers->getSourceDir('custom-path'));
+    }
+
+    #[Test]
+    public function itReturnsAssetUrlWithoutLeadingSlash(): void
+    {
+        $this->assertEquals('base-url/assets/some-asset.jpg', $this->helpers->getAsset('some-asset.jpg'));
+    }
+
+    #[Test]
+    public function itReturnsAssetUrlWithLeadingSlash(): void
+    {
+        $this->assertEquals('base-url/assets/some-asset.jpg', $this->helpers->getAsset('/some-asset.jpg'));
     }
 }

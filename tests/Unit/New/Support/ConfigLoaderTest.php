@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\New\Support;
 
 use PHPUnit\Framework\Attributes\Test;
-use Tests\Unit\New\TestCase;
-use Terdelyi\Phanstatic\New\Models\Config;
 use Terdelyi\Phanstatic\New\Support\ConfigLoader;
+use Tests\Unit\New\TestCase;
 
 /**
  * @internal
@@ -17,10 +16,11 @@ class ConfigLoaderTest extends TestCase
     #[Test]
     public function itCanLoadDefaultConfig(): void
     {
-        $configLoader = new ConfigLoader();
+        $configLoader = new ConfigLoader('');
         $config = $configLoader->load();
 
-        $this->assertInstanceOf(Config::class, $config);
+        $this->assertEquals(null, $config->path);
+        $this->assertEquals('http://localhost:8000', $config->baseUrl);
     }
 
     #[Test]
@@ -30,7 +30,8 @@ class ConfigLoaderTest extends TestCase
         $configLoader = new ConfigLoader($customConfig);
         $config = $configLoader->load();
 
-        $this->assertInstanceOf(Config::class, $config);
+        $this->assertEquals($customConfig, $config->path);
+        $this->assertEquals('This is a custom config', $config->title);
     }
 
     #[Test]
@@ -43,6 +44,7 @@ class ConfigLoaderTest extends TestCase
         $configLoader = new ConfigLoader($customConfig);
 
         ob_start();
+
         try {
             $configLoader->load();
         } finally {

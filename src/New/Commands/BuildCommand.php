@@ -63,7 +63,7 @@ class BuildCommand extends Command
 
         $executionTime = round($this->time->getCurrentTime() - $startTime, 4);
 
-        $output->writeln("<green>Build completed in {$executionTime} seconds</green>");
+        $output->writeln("Build completed in {$executionTime} seconds");
 
         return Command::SUCCESS;
     }

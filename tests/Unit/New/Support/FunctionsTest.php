@@ -50,7 +50,7 @@ class FunctionsTest extends TestCase
         $file = 'image/test.jpg';
         $expectedUrl = 'https://example.com/assets/image/test.jpg';
 
-        $this->helperMock->shouldReceive('getBaseUrl')
+        $this->helperMock->shouldReceive('getAsset')
             ->with('/assets/'.$file)
             ->andReturn($expectedUrl);
 

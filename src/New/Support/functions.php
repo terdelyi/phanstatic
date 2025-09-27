@@ -21,10 +21,7 @@ if (!function_exists('asset')) {
         /** @var Helpers $helper */
         $helper = Phanstatic::getContainer()->get(Helpers::class);
 
-        $permalink = !\str_starts_with($permalink, '/') ? "/{$permalink}" : $permalink;
-        $permalink = '/assets'.$permalink;
-
-        return $helper->getBaseUrl($permalink);
+        return $helper->getAsset($permalink);
     }
 }
 

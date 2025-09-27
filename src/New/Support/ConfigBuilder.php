@@ -10,6 +10,8 @@ use Terdelyi\Phanstatic\New\Models\Config;
 
 class ConfigBuilder
 {
+    public static string $defaultPath = 'content/config.php';
+
     /**
      * @var array<string,mixed>
      */
@@ -35,6 +37,7 @@ class ConfigBuilder
             $this->config['meta'],
             $this->config['collections'],
             $this->config['generators'],
+            $this->config['path'],
         );
     }
 
@@ -100,6 +103,13 @@ class ConfigBuilder
         return $this;
     }
 
+    public function setNoConfig(): self
+    {
+        $this->config['path'] = null;
+
+        return $this;
+    }
+
     /**
      * @return array<string,mixed>
      */
@@ -115,6 +125,7 @@ class ConfigBuilder
             'generators' => [
                 AssetGenerator::class,
             ],
+            'path' => self::$defaultPath,
         ];
     }
 }
