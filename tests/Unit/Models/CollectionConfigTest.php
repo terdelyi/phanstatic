@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\New\Models;
+namespace Tests\Unit\Models;
 
 use PHPUnit\Framework\Attributes\Test;
 use Terdelyi\Phanstatic\Models\CollectionConfig;
-use Tests\Unit\New\TestCase;
+use Tests\Unit\TestCase;
 
 /**
  * @internal

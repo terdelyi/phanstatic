@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\New\Readers;
+namespace Tests\Unit\Readers;
 
 use Mockery as m;
 use Mockery\MockInterface;
@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Terdelyi\Phanstatic\Readers\FileReader;
-use Tests\Unit\New\TestCase;
+use Tests\Unit\TestCase;
 
 /**
  * @internal

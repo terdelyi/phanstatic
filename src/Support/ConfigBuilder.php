@@ -103,9 +103,9 @@ class ConfigBuilder
         return $this;
     }
 
-    public function setNoConfig(): self
+    public function setPath(?string $path): self
     {
-        $this->config['path'] = null;
+        $this->config['path'] = $path;
 
         return $this;
     }

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\New\Support;
+namespace Tests\Unit\Support;
 
 use Mockery as m;
 use Mockery\MockInterface;
 use Terdelyi\Phanstatic\Phanstatic;
 use Terdelyi\Phanstatic\Support\Helpers;
-use Tests\Unit\New\TestCase;
+use Tests\Unit\TestCase;
 
 /**
  * @internal
@@ -48,7 +48,7 @@ class FunctionsTest extends TestCase
         $expectedUrl = 'https://example.com/assets/image/test.jpg';
 
         $this->helperMock->shouldReceive('getAsset')
-            ->with('/assets/'.$file)
+            ->with($file)
             ->andReturn($expectedUrl);
 
         $this->assertEquals($expectedUrl, asset($file));

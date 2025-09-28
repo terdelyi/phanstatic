@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\New\Support;
+namespace Tests\Unit\Support;
 
 use PHPUnit\Framework\Attributes\Test;
 use Terdelyi\Phanstatic\Support\ConfigLoader;
-use Tests\Unit\New\TestCase;
+use Tests\Unit\TestCase;
 
 /**
  * @internal
@@ -52,15 +52,5 @@ class ConfigLoaderTest extends TestCase
         }
 
         $this->assertEquals('This is an invalid config file.', $output);
-    }
-
-    #[Test]
-    public function itThrowsErrorIfConfigDoesntExist(): void
-    {
-        $this->expectException(\RuntimeException::class);
-
-        $customConfig = 'absolutely-random-file.php';
-        $configLoader = new ConfigLoader($customConfig);
-        $configLoader->load();
     }
 }

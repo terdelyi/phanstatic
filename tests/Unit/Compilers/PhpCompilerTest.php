@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\New\Compilers;
+namespace Tests\Unit\Compilers;
 
 use PHPUnit\Framework\Attributes\Test;
-use Terdelyi\Phanstatic\Models\Page;
-use Terdelyi\Phanstatic\Models\RenderContext;
 use Terdelyi\Phanstatic\Compilers\PhpCompiler;
-use Tests\Unit\New\TestCase;
+use Terdelyi\Phanstatic\Models\CompilerContext;
+use Terdelyi\Phanstatic\Models\Page;
+use Tests\Unit\TestCase;
 
 /**
  * @internal
@@ -27,7 +27,7 @@ class PhpCompilerTest extends TestCase
     public function canRenderATemplate(): void
     {
         $path = './tests/data/content/pages/template.php';
-        $data = new RenderContext(
+        $data = new CompilerContext(
             null,
             new Page(
                 'path-to-page',
@@ -55,7 +55,7 @@ class PhpCompilerTest extends TestCase
         $this->expectException(\ParseError::class);
 
         $path = './tests/data/content/pages/template-with-error.php';
-        $data = new RenderContext(
+        $data = new CompilerContext(
             null,
             new Page(
                 'path-to-page',
@@ -79,7 +79,7 @@ class PhpCompilerTest extends TestCase
 
         $path = './tests/data/content/pages/template.php';
 
-        $data = new RenderContext(
+        $data = new CompilerContext(
             null,
             new Page(
                 'path-to-page',

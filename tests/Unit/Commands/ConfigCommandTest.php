@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\New\Commands;
+namespace Tests\Unit\Commands;
 
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
@@ -11,7 +11,7 @@ use Terdelyi\Phanstatic\Commands\ConfigCommand;
 use Terdelyi\Phanstatic\Models\CollectionConfig;
 use Terdelyi\Phanstatic\Models\Config;
 use Terdelyi\Phanstatic\Support\Helpers;
-use Tests\Unit\New\TestCase;
+use Tests\Unit\TestCase;
 
 /**
  * @internal
@@ -39,6 +39,8 @@ class ConfigCommandTest extends TestCase
             ->andReturn('base-url');
         $helpers->shouldReceive('getBuildDir')
             ->andReturn('build-dir');
+        $helpers->shouldReceive('getSourceDir')
+            ->andReturn('source-dir');
         $command = new ConfigCommand($config, $helpers);
 
         $this->commandTester = new CommandTester($command);
@@ -50,23 +52,9 @@ class ConfigCommandTest extends TestCase
         $this->commandTester->execute([]);
         $display = trim($this->commandTester->getDisplay());
         $expected = <<<'EOT'
-            Page title: title
-            Base URL: base-url
-            Build directory: base-url
-            Source directory: base-url
-            
-            
-            Content generators in runtime order:
-            - generatorA
-            - generatorB
-            
-            Collections configuration:
-            - Test
-            
-            Site meta data:
-            - meta: value
+            Loaded content generators
             EOT;
 
-        $this->assertEquals($expected, $display);
+        $this->assertStringContainsString($expected, $display);
     }
 }

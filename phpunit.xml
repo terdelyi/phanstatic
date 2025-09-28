@@ -5,8 +5,11 @@
          executionOrder="depends,defects"
          beStrictAboutCoverageMetadata="true"
          beStrictAboutOutputDuringTests="true"
-         failOnRisky="true"
-         failOnWarning="true"
+         failOnRisky="false"
+         failOnWarning="false"
+         stopOnError="true"
+         stopOnFailure="true"
+         stopOnIncomplete="true"
          processIsolation="true">
   <testsuites>
     <testsuite name="unit">

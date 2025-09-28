@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\New\Commands;
+namespace Tests\Unit\Commands;
 
 use Mockery as m;
 use Mockery\MockInterface;
@@ -11,7 +11,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Terdelyi\Phanstatic\Commands\PreviewCommand;
 use Terdelyi\Phanstatic\Support\CommandLineExecutor;
 use Terdelyi\Phanstatic\Support\Helpers;
-use Tests\Unit\New\TestCase;
+use Tests\Unit\TestCase;
 
 /**
  * @internal

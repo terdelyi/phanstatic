@@ -18,10 +18,19 @@ class ConfigLoader
 
         if (!$configFile) {
             return ConfigBuilder::make()
-                ->setNoConfig()
+                ->setPath($configFile)
                 ->build();
         }
 
-        return require $configFile;
+        /** @var ConfigBuilder $builder */
+        $builder = require $configFile;
+
+        if (!method_exists($builder, 'build')) {
+            throw new \RuntimeException('Invalid config file content. Please return a ConfigBuilder.');
+        }
+
+        $builder->setPath($configFile);
+
+        return $builder->build();
     }
 }

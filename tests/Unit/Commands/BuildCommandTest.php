@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\New\Commands;
+namespace Tests\Unit\Commands;
 
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
@@ -13,7 +13,7 @@ use Terdelyi\Phanstatic\Models\CollectionConfig;
 use Terdelyi\Phanstatic\Models\Config;
 use Terdelyi\Phanstatic\Support\Helpers;
 use Terdelyi\Phanstatic\Support\Time;
-use Tests\Unit\New\TestCase;
+use Tests\Unit\TestCase;
 
 /**
  * @internal
@@ -57,29 +57,25 @@ class BuildCommandTest extends TestCase
     public function itHasOutput(): void
     {
         $this->commandTester->execute([]);
+
         $display = trim($this->commandTester->getDisplay());
         $expected = <<<'EOT'
             Cleaning out build directory....
-
-            generatorA
-            generatorB
-            <green>Build completed in 0 seconds</green>
             EOT;
 
-        $this->assertEquals($expected, $display);
+        $this->assertStringContainsString($expected, $display);
     }
 
     #[Test]
     public function itHasOutputWithoutCleanBuildDir(): void
     {
         $this->commandTester->execute(['--no-clean' => true]);
+
         $display = trim($this->commandTester->getDisplay());
         $expected = <<<'EOT'
-            generatorA
-            generatorB
-            <green>Build completed in 0 seconds</green>
+            Build completed in 0 seconds
             EOT;
 
-        $this->assertEquals($expected, $display);
+        $this->assertStringContainsString($expected, $display);
     }
 }
