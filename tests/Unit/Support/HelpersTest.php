@@ -2,38 +2,90 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Support;
+namespace Tests\Unit\New\Support;
 
-use PHPUnit\Framework\TestCase;
-use Terdelyi\Phanstatic\Config\ConfigBuilder;
+use PHPUnit\Framework\Attributes\Test;
+use Terdelyi\Phanstatic\New\Models\CollectionConfig;
+use Terdelyi\Phanstatic\New\Models\Config;
+use Terdelyi\Phanstatic\New\Support\Helpers;
+use Tests\Unit\New\TestCase;
 
 /**
  * @internal
  */
 class HelpersTest extends TestCase
 {
+    private Helpers $helpers;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $config = ConfigBuilder::make()
-            ->setBaseUrl('https://example.com')
-            ->build();
+        $config = new Config(
+            'source-dir',
+            'build-dir',
+            'base-url',
+            'title',
+            ['meta' => 'value'],
+            [new CollectionConfig('Test', 'test', 5)],
+            ['generatorA', 'generatorB'],
+        );
+        $workingDir = 'test/working-dir';
 
-        \Mockery::mock('alias:Terdelyi\Phanstatic\Phanstatic')
-            ->shouldReceive('getConfig')
-            ->andReturn($config);
+        $this->helpers = new Helpers($config, $workingDir);
     }
 
-    public function testPermalinkReturnsFullUrl(): void
+    #[Test]
+    public function itCanReturnBaseUrl(): void
     {
-        $this->assertEquals('https://example.com/test-url', url('test-url'));
-        $this->assertEquals('https://example.com/test-url-with-slash', url('/test-url-with-slash'));
+        $this->assertEquals('base-url', $this->helpers->getBaseUrl());
     }
 
-    public function testAssetReturnsFullUrl(): void
+    #[Test]
+    public function itCanReturnBaseUrlWithCustomUrl(): void
     {
-        $this->assertEquals('https://example.com/assets/image/test.jpg', asset('image/test.jpg'));
-        $this->assertEquals('https://example.com/assets/css/test-with-slash.css', asset('/css/test-with-slash.css'));
+        $this->assertEquals('base-url/test', $this->helpers->getBaseUrl('test'));
+    }
+
+    #[Test]
+    public function itCanReturnBaseUrlWhenCustomUrlHasLeadingSlash(): void
+    {
+        $this->assertEquals('base-url/test', $this->helpers->getBaseUrl('/test'));
+    }
+
+    #[Test]
+    public function itCanReturnBuildDir(): void
+    {
+        $this->assertEquals('test/working-dir/build-dir', $this->helpers->getBuildDir());
+    }
+
+    #[Test]
+    public function itCanReturnBuildDirWithCustomPath(): void
+    {
+        $this->assertEquals('test/working-dir/build-dir/custom-path', $this->helpers->getBuildDir('custom-path'));
+    }
+
+    #[Test]
+    public function itCanReturnSourceDir(): void
+    {
+        $this->assertEquals('test/working-dir/source-dir', $this->helpers->getSourceDir());
+    }
+
+    #[Test]
+    public function itCanReturnSourceDirWithCustomPath(): void
+    {
+        $this->assertEquals('test/working-dir/source-dir/custom-path', $this->helpers->getSourceDir('custom-path'));
+    }
+
+    #[Test]
+    public function itReturnsAssetUrlWithoutLeadingSlash(): void
+    {
+        $this->assertEquals('base-url/assets/some-asset.jpg', $this->helpers->getAsset('some-asset.jpg'));
+    }
+
+    #[Test]
+    public function itReturnsAssetUrlWithLeadingSlash(): void
+    {
+        $this->assertEquals('base-url/assets/some-asset.jpg', $this->helpers->getAsset('/some-asset.jpg'));
     }
 }
