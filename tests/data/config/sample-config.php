@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Terdelyi\Phanstatic\New\Support\ConfigBuilder;
+use Terdelyi\Phanstatic\Support\ConfigBuilder;
 
 return ConfigBuilder::make()
     ->setTitle('This is a custom config')

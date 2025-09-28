@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\New\Commands;
+namespace Terdelyi\Phanstatic\Commands;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Terdelyi\Phanstatic\New\Models\Config;
-use Terdelyi\Phanstatic\New\Support\Helpers;
-use Terdelyi\Phanstatic\New\Support\OutputHelper;
+use Terdelyi\Phanstatic\Models\Config;
+use Terdelyi\Phanstatic\Support\Helpers;
+use Terdelyi\Phanstatic\Support\OutputHelper;
 
 class ConfigCommand extends Command
 {

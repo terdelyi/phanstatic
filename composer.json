@@ -30,7 +30,7 @@
             "Terdelyi\\Phanstatic\\": "src/"
         },
         "files": [
-            "src/New/Support/functions.php"
+            "src/Support/functions.php"
         ]
     },
     "autoload-dev": {

@@ -8,11 +8,11 @@ use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
-use Terdelyi\Phanstatic\New\Commands\BuildCommand;
-use Terdelyi\Phanstatic\New\Models\CollectionConfig;
-use Terdelyi\Phanstatic\New\Models\Config;
-use Terdelyi\Phanstatic\New\Support\Helpers;
-use Terdelyi\Phanstatic\New\Support\Time;
+use Terdelyi\Phanstatic\Commands\BuildCommand;
+use Terdelyi\Phanstatic\Models\CollectionConfig;
+use Terdelyi\Phanstatic\Models\Config;
+use Terdelyi\Phanstatic\Support\Helpers;
+use Terdelyi\Phanstatic\Support\Time;
 use Tests\Unit\New\TestCase;
 
 /**

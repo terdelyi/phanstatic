@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\New\Support;
+namespace Terdelyi\Phanstatic\Support;
 
 use Symfony\Component\Console\Output\OutputInterface;
 

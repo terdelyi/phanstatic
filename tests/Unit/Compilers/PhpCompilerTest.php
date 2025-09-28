@@ -7,7 +7,7 @@ namespace Tests\Unit\New\Compilers;
 use PHPUnit\Framework\Attributes\Test;
 use Terdelyi\Phanstatic\Models\Page;
 use Terdelyi\Phanstatic\Models\RenderContext;
-use Terdelyi\Phanstatic\New\Compilers\PhpCompiler;
+use Terdelyi\Phanstatic\Compilers\PhpCompiler;
 use Tests\Unit\New\TestCase;
 
 /**

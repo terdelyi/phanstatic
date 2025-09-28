@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\New;
+namespace Terdelyi\Phanstatic;
 
 use Symfony\Component\Console\Application as SymfonyConsole;
 use Symfony\Component\Console\Command\Command;
@@ -12,16 +12,16 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
-use Terdelyi\Phanstatic\New\Commands\BuildCommand;
-use Terdelyi\Phanstatic\New\Commands\ConfigCommand;
-use Terdelyi\Phanstatic\New\Commands\PreviewCommand;
-use Terdelyi\Phanstatic\New\Models\Config;
-use Terdelyi\Phanstatic\New\Readers\FileReader;
-use Terdelyi\Phanstatic\New\Support\CommandLineExecutor;
-use Terdelyi\Phanstatic\New\Support\ConfigBuilder;
-use Terdelyi\Phanstatic\New\Support\ConfigLoader;
-use Terdelyi\Phanstatic\New\Support\Helpers;
-use Terdelyi\Phanstatic\New\Support\Time;
+use Terdelyi\Phanstatic\Commands\BuildCommand;
+use Terdelyi\Phanstatic\Commands\ConfigCommand;
+use Terdelyi\Phanstatic\Commands\PreviewCommand;
+use Terdelyi\Phanstatic\Models\Config;
+use Terdelyi\Phanstatic\Readers\FileReader;
+use Terdelyi\Phanstatic\Support\CommandLineExecutor;
+use Terdelyi\Phanstatic\Support\ConfigBuilder;
+use Terdelyi\Phanstatic\Support\ConfigLoader;
+use Terdelyi\Phanstatic\Support\Helpers;
+use Terdelyi\Phanstatic\Support\Time;
 
 class Phanstatic
 {

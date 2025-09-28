@@ -8,9 +8,9 @@ use Mockery as m;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Console\Tester\CommandTester;
-use Terdelyi\Phanstatic\New\Commands\PreviewCommand;
-use Terdelyi\Phanstatic\New\Support\CommandLineExecutor;
-use Terdelyi\Phanstatic\New\Support\Helpers;
+use Terdelyi\Phanstatic\Commands\PreviewCommand;
+use Terdelyi\Phanstatic\Support\CommandLineExecutor;
+use Terdelyi\Phanstatic\Support\Helpers;
 use Tests\Unit\New\TestCase;
 
 /**

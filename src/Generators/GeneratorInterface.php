@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\New\Generators;
+namespace Terdelyi\Phanstatic\Generators;
 
 interface GeneratorInterface
 {

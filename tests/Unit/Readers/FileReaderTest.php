@@ -9,7 +9,7 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use Terdelyi\Phanstatic\New\Readers\FileReader;
+use Terdelyi\Phanstatic\Readers\FileReader;
 use Tests\Unit\New\TestCase;
 
 /**

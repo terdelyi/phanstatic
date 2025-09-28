@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Terdelyi\Phanstatic\New\Phanstatic;
-use Terdelyi\Phanstatic\New\Support\Helpers;
+use Terdelyi\Phanstatic\Phanstatic;
+use Terdelyi\Phanstatic\Support\Helpers;
 
 if (!function_exists('url')) {
     function url(?string $permalink = null): string

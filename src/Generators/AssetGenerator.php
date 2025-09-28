@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\New\Generators;
+namespace Terdelyi\Phanstatic\Generators;
 
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\SplFileInfo;
-use Terdelyi\Phanstatic\New\Readers\FileReader;
-use Terdelyi\Phanstatic\New\Support\Helpers;
+use Terdelyi\Phanstatic\Readers\FileReader;
+use Terdelyi\Phanstatic\Support\Helpers;
 
 class AssetGenerator implements GeneratorInterface
 {

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\New\Support;
+namespace Terdelyi\Phanstatic\Support;
 
-use Terdelyi\Phanstatic\New\Generators\AssetGenerator;
-use Terdelyi\Phanstatic\New\Models\CollectionConfig;
-use Terdelyi\Phanstatic\New\Models\Config;
+use Terdelyi\Phanstatic\Generators\AssetGenerator;
+use Terdelyi\Phanstatic\Models\CollectionConfig;
+use Terdelyi\Phanstatic\Models\Config;
 
 class ConfigBuilder
 {

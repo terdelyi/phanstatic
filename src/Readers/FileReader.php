@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\New\Readers;
+namespace Terdelyi\Phanstatic\Readers;
 
 use Symfony\Component\Finder\Finder;
 

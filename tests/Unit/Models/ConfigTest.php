@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\New\Models;
 
 use PHPUnit\Framework\Attributes\Test;
-use Terdelyi\Phanstatic\New\Models\CollectionConfig;
-use Terdelyi\Phanstatic\New\Models\Config;
+use Terdelyi\Phanstatic\Models\CollectionConfig;
+use Terdelyi\Phanstatic\Models\Config;
 use Tests\Unit\New\TestCase;
 
 /**

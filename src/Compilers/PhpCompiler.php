@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\New\Compilers;
+namespace Terdelyi\Phanstatic\Compilers;
 
-use Terdelyi\Phanstatic\Models\RenderContext;
+use Terdelyi\Phanstatic\Models\CompilerContext;
 
 class PhpCompiler
 {
-    public function render(string $path, RenderContext $data): string
+    public function render(string $path, CompilerContext $data): string
     {
         ob_start();
 
@@ -29,7 +29,7 @@ class PhpCompiler
         return $output === false ? '' : ltrim($output);
     }
 
-    public function require(string $filePath, RenderContext $data): int
+    public function require(string $filePath, CompilerContext $data): int
     {
         return (static function () use ($filePath, $data) {
             $dataVars = get_object_vars($data);

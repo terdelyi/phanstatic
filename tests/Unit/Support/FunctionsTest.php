@@ -6,8 +6,8 @@ namespace Tests\Unit\New\Support;
 
 use Mockery as m;
 use Mockery\MockInterface;
-use Terdelyi\Phanstatic\New\Phanstatic;
-use Terdelyi\Phanstatic\New\Support\Helpers;
+use Terdelyi\Phanstatic\Phanstatic;
+use Terdelyi\Phanstatic\Support\Helpers;
 use Tests\Unit\New\TestCase;
 
 /**

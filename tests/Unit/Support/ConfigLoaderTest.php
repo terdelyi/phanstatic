@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\New\Support;
 
 use PHPUnit\Framework\Attributes\Test;
-use Terdelyi\Phanstatic\New\Support\ConfigLoader;
+use Terdelyi\Phanstatic\Support\ConfigLoader;
 use Tests\Unit\New\TestCase;
 
 /**

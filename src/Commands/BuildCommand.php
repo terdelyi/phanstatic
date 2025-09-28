@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\New\Commands;
+namespace Terdelyi\Phanstatic\Commands;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use Terdelyi\Phanstatic\New\Generators\GeneratorInterface;
-use Terdelyi\Phanstatic\New\Models\Config;
-use Terdelyi\Phanstatic\New\Phanstatic;
-use Terdelyi\Phanstatic\New\Support\Helpers;
-use Terdelyi\Phanstatic\New\Support\Time;
+use Terdelyi\Phanstatic\Generators\GeneratorInterface;
+use Terdelyi\Phanstatic\Models\Config;
+use Terdelyi\Phanstatic\Phanstatic;
+use Terdelyi\Phanstatic\Support\Helpers;
+use Terdelyi\Phanstatic\Support\Time;
 
 class BuildCommand extends Command
 {
