@@ -16,7 +16,7 @@ class Helpers
     public function getBaseUrl(?string $permalink = null): string
     {
         if ($permalink !== null) {
-            $permalink = !\str_starts_with($permalink, '/') ? "/{$permalink}" : $permalink;
+            $permalink = ! \str_starts_with($permalink, '/') ? "/{$permalink}" : $permalink;
 
             return $this->config->baseUrl.$permalink;
         }
@@ -26,7 +26,7 @@ class Helpers
 
     public function getAsset(string $permalink): string
     {
-        $permalink = !\str_starts_with($permalink, '/') ? "/{$permalink}" : $permalink;
+        $permalink = ! \str_starts_with($permalink, '/') ? "/{$permalink}" : $permalink;
         $permalink = '/assets'.$permalink;
 
         return $this->getBaseUrl($permalink);

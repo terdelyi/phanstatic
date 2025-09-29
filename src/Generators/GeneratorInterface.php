@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Terdelyi\Phanstatic\Generators;
 
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
 interface GeneratorInterface
 {
-    public function run(): void;
+    public function run(InputInterface $input, OutputInterface $output): void;
 }

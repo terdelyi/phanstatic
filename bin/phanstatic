@@ -3,15 +3,16 @@
 
 declare(strict_types=1);
 
+use Symfony\Component\Console\Command\Command;
 use Terdelyi\Phanstatic\Phanstatic;
 
 include $_composer_autoload_path ?? __DIR__.'/../vendor/autoload.php';
 
-$workingDir = getcwd();
+try {
+    $application = Phanstatic::init();
+    $application->run();
+} catch (Throwable $e) {
+    echo 'Error: '.$e->getMessage().' in '.$e->getFile().' (Line: '.$e->getLine().')';
 
-if (!$workingDir) {
-    throw new RuntimeException('Cannot identify the working directory.');
+    exit(Command::FAILURE);
 }
-
-$app = new Phanstatic($workingDir);
-$app->init();

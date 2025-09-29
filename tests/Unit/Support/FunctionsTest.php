@@ -15,19 +15,17 @@ use Tests\Unit\TestCase;
  */
 class FunctionsTest extends TestCase
 {
-    private Helpers|MockInterface $helperMock;
+    private Helpers&MockInterface $helperMock;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->helperMock = m::mock('alias:'.Helpers::class);
+        $this->helperMock = m::mock(Helpers::class);
         $containerMock = m::mock('alias:'.Phanstatic::class);
-        $containerMock->shouldReceive('getContainer')
-            ->andReturn($containerMock);
         $containerMock->shouldReceive('get')
-            ->with(Helpers::class)
-            ->andReturn($this->helperMock);
+            ->set('helpers', $this->helperMock)
+            ->andReturnSelf();
     }
 
     public function testPermalinkReturnsFullUrl(): void

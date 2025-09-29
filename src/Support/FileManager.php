@@ -15,7 +15,7 @@ class FileManager
 
     public function cleanDirectory(string $path): bool
     {
-        if (!$this->filesystem->exists($path)) {
+        if ( ! $this->filesystem->exists($path)) {
             return false;
         }
 

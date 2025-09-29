@@ -3,44 +3,31 @@
 declare(strict_types=1);
 
 use Terdelyi\Phanstatic\Phanstatic;
-use Terdelyi\Phanstatic\Support\Helpers;
 
-if (!function_exists('url')) {
+if ( ! function_exists('url')) {
     function url(?string $permalink = null): string
     {
-        /** @var Helpers $helper */
-        $helper = Phanstatic::getContainer()->get(Helpers::class);
-
-        return $helper->getBaseUrl($permalink);
+        return Phanstatic::get()->helpers->getBaseUrl($permalink);
     }
 }
 
-if (!function_exists('asset')) {
+if ( ! function_exists('asset')) {
     function asset(string $permalink): string
     {
-        /** @var Helpers $helper */
-        $helper = Phanstatic::getContainer()->get(Helpers::class);
-
-        return $helper->getAsset($permalink);
+        return Phanstatic::get()->helpers->getAsset($permalink);
     }
 }
 
-if (!function_exists('source_dir')) {
+if ( ! function_exists('source_dir')) {
     function source_dir(?string $path = null, bool $relative = false): string
     {
-        /** @var Helpers $helper */
-        $helper = Phanstatic::getContainer()->get(Helpers::class);
-
-        return $helper->getSourceDir($path, $relative);
+        return Phanstatic::get()->helpers->getSourceDir($path, $relative);
     }
 }
 
-if (!function_exists('build_dir')) {
+if ( ! function_exists('build_dir')) {
     function build_dir(?string $path = null, bool $relative = false): string
     {
-        /** @var Helpers $helper */
-        $helper = Phanstatic::getContainer()->get(Helpers::class);
-
-        return $helper->getBuildDir($path, $relative);
+        return Phanstatic::get()->helpers->getBuildDir($path, $relative);
     }
 }

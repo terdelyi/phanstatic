@@ -25,5 +25,7 @@ return (new Config())
         'yoda_style' => false,
         'multiline_whitespace_before_semicolons' => false,
         'php_unit_test_class_requires_covers' => false,
+        'unary_operator_spaces' => false,
+        'not_operator_with_space' => true,
     ])
     ->setFinder($finder);

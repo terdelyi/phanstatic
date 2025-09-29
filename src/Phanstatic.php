@@ -6,17 +6,11 @@ namespace Terdelyi\Phanstatic;
 
 use Symfony\Component\Console\Application as SymfonyConsole;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Output\Output;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 use Terdelyi\Phanstatic\Commands\BuildCommand;
 use Terdelyi\Phanstatic\Commands\ConfigCommand;
 use Terdelyi\Phanstatic\Commands\PreviewCommand;
 use Terdelyi\Phanstatic\Models\Config;
-use Terdelyi\Phanstatic\Readers\FileReader;
 use Terdelyi\Phanstatic\Support\CommandLineExecutor;
 use Terdelyi\Phanstatic\Support\ConfigBuilder;
 use Terdelyi\Phanstatic\Support\ConfigLoader;
@@ -25,117 +19,71 @@ use Terdelyi\Phanstatic\Support\Time;
 
 class Phanstatic
 {
-    public static string $workingDir;
+    public string $workingDir;
+    public readonly Config $config;
+    public readonly Helpers $helpers;
     private string $name = 'Phanstatic';
     private string $version = '1.0.0';
-    private static ?ContainerBuilder $container = null;
+    private static ?Phanstatic $instance = null;
 
-    public function __construct(string $workingDir)
+    public function __construct(string $workingDir, Config $config, Helpers $helpers)
     {
-        self::$workingDir = $workingDir;
+        $this->workingDir = $workingDir;
+        $this->config = $config;
+        $this->helpers = $helpers;
     }
 
-    public function init(): void
+    public static function init(?string $workingDir = null, ?Config $config = null, ?Helpers $helpers = null): self
     {
-        try {
-            $container = self::getContainer();
+        $workingDir ??= getcwd();
 
-            $this->registerServices($container);
-            $this->registerCommands($container);
-            $this->registerGenerators($container);
-
-            $container->compile();
-
-            $this->loadConsoleApplication($container);
-        } catch (\Throwable $e) {
-            echo 'Error: '.$e->getMessage().PHP_EOL;
-
-            exit(Command::FAILURE);
+        if ( ! $workingDir) {
+            throw new \RuntimeException('Working directory cannot be read');
         }
-    }
 
-    public static function getContainer(): ContainerBuilder
-    {
-        return self::$container ??= new ContainerBuilder();
-    }
-
-    private function registerServices(ContainerBuilder $container): void
-    {
-        $configFilePath = self::$workingDir.'/'.ConfigBuilder::$defaultPath;
-        $container->register(ConfigLoader::class, ConfigLoader::class)
-            ->addArgument($configFilePath);
-
-        $container->register(Config::class, Config::class)
-            ->setFactory([new Reference(ConfigLoader::class), 'load']);
-
-        $container->register(SymfonyConsole::class, SymfonyConsole::class)
-            ->addArgument($this->name)
-            ->addArgument($this->version)
-            ->setPublic(true);
-
-        $container->register(Time::class, Time::class);
-        $container->register(CommandLineExecutor::class, CommandLineExecutor::class);
-        $container->register(Finder::class, Finder::class);
-        $container->register(OutputInterface::class, Output::class)->setAutowired(true);
-
-        $container->autowire(Filesystem::class, Filesystem::class);
-        $container->autowire(FileReader::class, FileReader::class);
-        $container->autowire(Helpers::class, Helpers::class)
-            ->addArgument(new Reference(Config::class))
-            ->addArgument(self::$workingDir);
-    }
-
-    private function registerCommands(ContainerBuilder $container): void
-    {
-        foreach ($this->getCommands() as $command) {
-            $container->autowire($command, $command)
-                ->setPublic(true)
-                ->addTag('command');
+        if ($config === null) {
+            $configFilePath = $workingDir.'/'.ConfigBuilder::$defaultPath;
+            $config = (new ConfigLoader($configFilePath))->load();
         }
-    }
 
-    /**
-     * @return array<int, string>
-     */
-    private function getCommands(): array
-    {
-        return [
-            BuildCommand::class,
-            PreviewCommand::class,
-            ConfigCommand::class,
-        ];
-    }
-
-    private function registerGenerators(ContainerBuilder $container): void
-    {
-        /** @var Config $config */
-        $config = $container->get(Config::class);
-
-        foreach ($config->generators as $generator) {
-            $container->autowire($generator, $generator)
-                ->setPublic(true)
-                ->addTag('command');
+        if ($helpers === null) {
+            $helpers = new Helpers($config, $workingDir);
         }
+
+        return self::$instance = new self($workingDir, $config, $helpers);
+    }
+
+    public static function get(): self
+    {
+        if (self::$instance === null) {
+            throw new \RuntimeException('Phanstatic not initialized. Call Phanstatic::init() first.');
+        }
+
+        return self::$instance;
     }
 
     /**
      * @throws \Exception
      */
-    private function loadConsoleApplication(ContainerBuilder $container): void
+    public function run(): void
     {
-        $commands = [];
-        foreach ($this->getCommands() as $commandId) {
-            /** @var Command $command */
-            $command = $container->get($commandId);
-            $commands[] = $command;
-        }
-
-        /** @var SymfonyConsole $application */
-        $application = $container->get(SymfonyConsole::class);
-        $application->addCommands($commands);
+        $application = new SymfonyConsole($this->name, $this->version);
+        $application->addCommands($this->commands());
         $application->setDefaultCommand('config');
         $application->setCatchErrors();
         $application->setCatchExceptions(true);
         $application->run();
+    }
+
+    /**
+     * @return array<int, Command>
+     */
+    private function commands(): array
+    {
+        return [
+            new BuildCommand(self::get()->config, self::get()->helpers, new Filesystem(), new Time()),
+            new PreviewCommand(new CommandLineExecutor(), self::get()->helpers),
+            new ConfigCommand(self::get()->config, self::get()->helpers),
+        ];
     }
 }

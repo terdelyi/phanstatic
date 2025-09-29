@@ -37,7 +37,7 @@ class ConfigLoaderTest extends TestCase
     #[Test]
     public function itHandlesInvalidCustomConfig(): void
     {
-        $this->expectException(\TypeError::class);
+        $this->expectException(\RuntimeException::class);
         $this->expectsOutput();
 
         $customConfig = './tests/data/config/invalid-config.php';

@@ -16,16 +16,16 @@ class ConfigLoader
     {
         $configFile = file_exists($this->configPath) ? $this->configPath : null;
 
-        if (!$configFile) {
+        if ( ! $configFile) {
             return ConfigBuilder::make()
                 ->setPath($configFile)
                 ->build();
         }
 
-        /** @var ConfigBuilder $builder */
+        /** @var ?ConfigBuilder $builder */
         $builder = require $configFile;
 
-        if (!method_exists($builder, 'build')) {
+        if ( ! is_object($builder)) {
             throw new \RuntimeException('Invalid config file content. Please return a ConfigBuilder.');
         }
 

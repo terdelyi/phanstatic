@@ -9,9 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use Terdelyi\Phanstatic\Generators\GeneratorInterface;
 use Terdelyi\Phanstatic\Models\Config;
-use Terdelyi\Phanstatic\Phanstatic;
 use Terdelyi\Phanstatic\Support\Helpers;
 use Terdelyi\Phanstatic\Support\Time;
 
@@ -45,20 +43,15 @@ class BuildCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$input->getOption('no-clean')) {
+        if ( ! $input->getOption('no-clean') && $this->filesystem->exists($this->helpers->getBuildDir())) {
             $output->writeln(['Cleaning out build directory....', '']);
             $this->filesystem->remove($this->helpers->getBuildDir());
         }
 
         $startTime = $this->time->getCurrentTime();
-        $container = Phanstatic::getContainer();
 
         foreach ($this->config->generators as $generator) {
-            // /** @var GeneratorInterface $generatorInstance */
-            // $generatorInstance = $container->get($generator);
-            // $generatorInstance->run();
-            // Run builder
-            $output->writeln($generator);
+            (new $generator())->run($input, $output);
         }
 
         $executionTime = round($this->time->getCurrentTime() - $startTime, 4);

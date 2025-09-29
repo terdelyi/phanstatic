@@ -32,7 +32,7 @@ class PreviewCommand extends Command
     {
         $publicDir = $this->helpers->getBuildDir();
 
-        if (!file_exists($publicDir)) {
+        if ( ! file_exists($publicDir)) {
             $output->writeln("<error>Directory {$publicDir} does not exist. Have you run build before?</error>");
 
             return Command::FAILURE;
@@ -55,11 +55,11 @@ class PreviewCommand extends Command
             'port' => $input->getOption('port') ?? 8000,
         ];
 
-        if (!is_string($options['host'])) {
+        if ( ! is_string($options['host'])) {
             throw new \InvalidArgumentException('Host must be a string');
         }
 
-        if (!is_int($options['port'])) {
+        if ( ! is_int($options['port'])) {
             throw new \InvalidArgumentException('Port must be an integer');
         }
 

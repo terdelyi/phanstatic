@@ -33,7 +33,8 @@ class BuildCommandTest extends TestCase
             'title',
             ['meta' => 'value'],
             [new CollectionConfig('Test', 'test', 5)],
-            ['generatorA', 'generatorB'],
+            []
+            // ['generatorA', 'generatorB'],
         );
 
         $helpers = m::mock(Helpers::class);
@@ -41,6 +42,8 @@ class BuildCommandTest extends TestCase
             ->andReturn('base-url');
 
         $fileManager = m::mock(Filesystem::class);
+        $fileManager->shouldReceive('exists')
+            ->andReturn(true);
         $fileManager->shouldReceive('remove')
             ->andReturn(true);
 

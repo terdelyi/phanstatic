@@ -4,44 +4,49 @@ declare(strict_types=1);
 
 namespace Terdelyi\Phanstatic\Generators;
 
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use Terdelyi\Phanstatic\Phanstatic;
 use Terdelyi\Phanstatic\Readers\FileReader;
 use Terdelyi\Phanstatic\Support\Helpers;
+use Terdelyi\Phanstatic\Support\OutputHelper;
 
 class AssetGenerator implements GeneratorInterface
 {
+    use OutputHelper;
+
     private string $sourcePath = 'assets';
     private string $destinationPath = 'assets';
+    private FileReader $fileReader;
+    private Filesystem $filesystem;
+    private Helpers $helpers;
 
-    public function __construct(
-        private OutputInterface $output,
-        private Helpers $helpers,
-        private FileReader $fileReader,
-        private Filesystem $filesystem,
-    ) {}
-
-    public function run(): void
+    public function __construct()
     {
-        if (!$this->filesystem->exists($this->helpers->getSourceDir($this->sourcePath))) {
-            $this->output->writeln(["Skipping assets: no 'content/assets' directory found", '']);
+        $this->fileReader = new FileReader(new Finder());
+        $this->filesystem = new Filesystem();
+        $this->helpers = Phanstatic::get()->helpers;
+    }
+
+    public function run(InputInterface $input, OutputInterface $output): void
+    {
+        if ( ! $this->filesystem->exists($this->getAssetsDir())) {
+            $output->writeln(sprintf('Skipping assets: %s doesn\'t exist', $this->getAssetsDir()));
 
             return;
         }
 
-        $this->output->writeln('Looking for assets...');
+        $output->writeln('Looking for assets...');
 
-        $in = $this->helpers->getSourceDir($this->sourcePath);
-        foreach ($this->fileReader->findFiles($in) as $asset) {
-            var_dump($asset);
-
-            exit;
-            $output = $this->process($asset);
-            $this->output->writeln($output);
+        foreach ($this->fileReader->findFiles($this->getAssetsDir()) as $asset) {
+            $log = $this->process($asset);
+            $output->writeln($log);
         }
 
-        $this->output->writeln('');
+        $this->lines();
     }
 
     private function process(SplFileInfo $asset): string
@@ -55,5 +60,10 @@ class AssetGenerator implements GeneratorInterface
         $outputTo = $this->helpers->getBuildDir($destination, true);
 
         return $outputFrom.' => '.$outputTo;
+    }
+
+    private function getAssetsDir(): string
+    {
+        return $this->helpers->getSourceDir($this->sourcePath);
     }
 }
