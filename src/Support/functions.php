@@ -31,3 +31,12 @@ if ( ! function_exists('build_dir')) {
         return Phanstatic::get()->helpers->getBuildDir($path, $relative);
     }
 }
+
+if ( ! function_exists('dd')) {
+    function dd(...$arg): string
+    {
+        var_dump($arg);
+
+        exit;
+    }
+}

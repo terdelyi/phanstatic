@@ -8,9 +8,12 @@ use Symfony\Component\Finder\Finder;
 
 class FileReader
 {
-    public function __construct(
-        private Finder $finder
-    ) {}
+    private readonly Finder $finder;
+
+    public function __construct(?Finder $finder = null)
+    {
+        $this->finder = $finder ?? new Finder();
+    }
 
     /**
      * @param string|string[] $path
@@ -23,7 +26,8 @@ class FileReader
             ->files()
             ->in($path)
             ->notName('/^_/')
-            ->notPath('/^_.*$/');
+            ->notPath('/^_.*$/')
+            ->sortByName();
 
         if ($pattern !== null) {
             return $files->name($pattern);

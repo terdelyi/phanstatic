@@ -17,7 +17,7 @@ use Tests\Unit\TestCase;
  */
 class FileReaderTest extends TestCase
 {
-    private Finder|MockInterface $finder;
+    private Finder&MockInterface $finder;
     private FileReader $fileReader;
 
     protected function setUp(): void
@@ -36,6 +36,7 @@ class FileReaderTest extends TestCase
         $this->finder->expects('in')->andReturn($this->finder);
         $this->finder->expects('notName')->andReturn($this->finder);
         $this->finder->expects('NotPath')->andReturn($this->finder);
+        $this->finder->expects('sortByName')->andReturn($this->finder);
 
         $relativePath = 'tests/data/config/sample-config.php';
         $iteratorMock = new \ArrayIterator([

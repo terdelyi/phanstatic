@@ -19,6 +19,7 @@ class BuildCommand extends Command
     private Helpers $helpers;
     private Filesystem $filesystem;
     private Time $time;
+    private float $startedAt;
 
     public function __construct(
         Config $config,
@@ -38,23 +39,55 @@ class BuildCommand extends Command
     {
         $this->setName('build')
             ->setDescription('Build static files into the output directory')
-            ->addOption('no-clean', null, InputOption::VALUE_NONE, 'Do not clean the build directory before building');
+            ->addOption(
+                'no-clean',
+                null,
+                InputOption::VALUE_NONE,
+                'Do not clean the build directory before building'
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ( ! $input->getOption('no-clean') && $this->filesystem->exists($this->helpers->getBuildDir())) {
+        $this->startBuild($input, $output);
+
+        $this->runGenerators($input, $output);
+
+        return $this->completeBuild($output);
+    }
+
+    private function startBuild(InputInterface $input, OutputInterface $output): void
+    {
+        if ( ! $input->getOption('no-clean')
+            && $this->filesystem->exists($this->helpers->getBuildDir())
+        ) {
             $output->writeln(['Cleaning out build directory....', '']);
             $this->filesystem->remove($this->helpers->getBuildDir());
         }
 
-        $startTime = $this->time->getCurrentTime();
+        $this->startTimer();
+    }
 
+    private function startTimer(): void
+    {
+        $this->startedAt = $this->time->getCurrentTime();
+    }
+
+    private function runGenerators(InputInterface $input, OutputInterface $output): void
+    {
         foreach ($this->config->generators as $generator) {
             (new $generator())->run($input, $output);
         }
+    }
 
-        $executionTime = round($this->time->getCurrentTime() - $startTime, 4);
+    private function stopTimer(): float
+    {
+        return round($this->time->getCurrentTime() - $this->startedAt, 4);
+    }
+
+    private function completeBuild(OutputInterface $output): int
+    {
+        $executionTime = $this->stopTimer();
 
         $output->writeln("Build completed in {$executionTime} seconds");
 

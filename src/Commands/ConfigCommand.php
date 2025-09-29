@@ -52,7 +52,7 @@ class ConfigCommand extends Command
     private function showGenericConfig(): void
     {
         $configMessage = $this->config->path
-            ? 'This configuration is loaded from '.$this->helpers->getBaseDir($this->config->path)
+            ? 'This configuration is loaded from '.$this->config->path
             : 'No config file set, this is the default configuration.';
 
         $this->output->writeln($configMessage);
@@ -61,7 +61,7 @@ class ConfigCommand extends Command
 
         $title = $this->config->title ?: 'N/A';
 
-        $this->text('→ <options=bold>Page title:</>        '.$title);
+        $this->text('→ <options=bold>Title:</>             '.$title);
         $this->text('→ <options=bold>Base url:</>          '.$this->helpers->getBaseUrl());
         $this->text('→ <options=bold>Build directory:</>   '.$this->helpers->getBuildDir());
         $this->text('→ <options=bold>Source directory:</>  '.$this->helpers->getSourceDir());
@@ -84,10 +84,10 @@ class ConfigCommand extends Command
         $collections = $this->config->collections;
         if (count($collections) > 0) {
             $this->lines();
-            $this->text('<options=bold>Collections:</>');
+            $this->text('<options=bold>Collections set:</>');
 
-            foreach ($collections as $collection) {
-                $this->item($collection->title);
+            foreach ($collections as $collectionDir => $collection) {
+                $this->item($collection->title.' ('.$collectionDir.')');
             }
         }
     }

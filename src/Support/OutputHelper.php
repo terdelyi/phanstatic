@@ -11,6 +11,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 trait OutputHelper
 {
+    private OutputInterface $output;
+
     public function logo(): void
     {
         $this->output->writeln('______ _                     _        _   _');
@@ -31,10 +33,20 @@ trait OutputHelper
         $this->output->writeln(' • '.$message);
     }
 
+    public function fromTo(string $from, $to): void
+    {
+        $this->output->writeln($from.' → '.$to);
+    }
+
     public function lines(int $lines = 1): void
     {
         for ($i = 0; $i < $lines; ++$i) {
             $this->output->writeln('');
         }
+    }
+
+    public function setOutput(OutputInterface $output): void
+    {
+        $this->output = $output;
     }
 }
