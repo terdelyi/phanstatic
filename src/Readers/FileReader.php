@@ -42,7 +42,7 @@ class FileReader
      *
      * @return Finder
      */
-    public function findDirectories(array|string $path, array|int|string $reader = ''): iterable
+    public function findDirectories(array|string $path, array|int|string $reader = '== 0'): iterable
     {
         return $this->finder::create()
             ->directories()

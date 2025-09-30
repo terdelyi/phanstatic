@@ -32,10 +32,10 @@ class AssetGenerator implements GeneratorInterface
     {
         $this->setOutput($output);
 
-        $output->writeln('Looking for assets...');
+        $this->text('Looking for assets...');
 
         if ( ! $this->filesystem->exists($this->getAssetsDir())) {
-            $output->writeln(sprintf('Skipping assets: %s directory doesn\'t exist', $this->getAssetsDir()));
+            $this->text('Skipping assets: %s directory doesn\'t exist', $this->getAssetsDir());
 
             return;
         }

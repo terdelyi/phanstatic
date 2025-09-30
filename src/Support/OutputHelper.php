@@ -23,9 +23,9 @@ trait OutputHelper
         $this->output->writeln('\_|   |_| |_|\__,_|_| |_|___/\__\__,_|\__|_|\___|');
     }
 
-    public function text(string $message): void
+    public function text(string $message, ...$arg): void
     {
-        $this->output->writeln($message);
+        $this->output->writeln(sprintf($message, ...$arg));
     }
 
     public function item(string $message): void

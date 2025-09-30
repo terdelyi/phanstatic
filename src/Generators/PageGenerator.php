@@ -38,10 +38,10 @@ class PageGenerator implements GeneratorInterface
     {
         $this->setOutput($output);
 
-        $output->writeln('Looking for pages...');
+        $this->text('Looking for pages...');
 
         if ( ! $this->filesystem->exists($this->getPagesDir())) {
-            $output->writeln(sprintf('Skipping pages: %s directory doesn\'t exist', $this->getPagesDir()));
+            $this->text('Skipping pages: %s directory doesn\'t exist', $this->getPagesDir());
 
             return;
         }
@@ -57,19 +57,8 @@ class PageGenerator implements GeneratorInterface
     private function process(SplFileInfo $file): void
     {
         $fileData = $this->getFileData($file);
-
-        $site = new Site(
-            title: $this->config->title,
-            baseUrl: $this->config->baseUrl,
-            meta: $this->config->meta
-        );
-        $page = new Page(
-            path: $fileData['path'],
-            relativePath: $fileData['relativePath'],
-            permalink: $fileData['permalink'],
-            url: url($fileData['permalink'])
-        );
-        $html = (new PhpCompiler())->render($file->getPathname(), new CompilerContext($site, $page));
+        $context = $this->buildContext($fileData);
+        $html = (new PhpCompiler())->render($file->getPathname(), $context);
 
         $this->filesystem->dumpFile($fileData['path'], $html);
 
@@ -120,5 +109,23 @@ class PageGenerator implements GeneratorInterface
     private function getPagesDir(): string
     {
         return $this->helpers->getSourceDir($this->sourcePath);
+    }
+
+    /** @param array<string,string> $fileData */
+    private function buildContext(array $fileData): CompilerContext
+    {
+        $site = new Site(
+            title: $this->config->title,
+            baseUrl: $this->config->baseUrl,
+            meta: $this->config->meta
+        );
+        $page = new Page(
+            path: $fileData['path'],
+            relativePath: $fileData['relativePath'],
+            permalink: $fileData['permalink'],
+            url: $this->helpers->getBaseUrl($fileData['permalink'])
+        );
+
+        return new CompilerContext($site, $page);
     }
 }

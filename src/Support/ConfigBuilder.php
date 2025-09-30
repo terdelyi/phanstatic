@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Terdelyi\Phanstatic\Support;
 
 use Terdelyi\Phanstatic\Generators\AssetGenerator;
+use Terdelyi\Phanstatic\Generators\CollectionGenerator;
 use Terdelyi\Phanstatic\Generators\PageGenerator;
 use Terdelyi\Phanstatic\Models\CollectionConfig;
 use Terdelyi\Phanstatic\Models\Config;
@@ -126,6 +127,7 @@ class ConfigBuilder
             'generators' => [
                 AssetGenerator::class,
                 PageGenerator::class,
+                CollectionGenerator::class,
             ],
             'path' => self::$defaultPath,
         ];
