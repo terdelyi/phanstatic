@@ -48,6 +48,7 @@ class CollectionGenerator implements GeneratorInterface
         $this->setOutput($output);
 
         $this->text('Looking for collections...');
+        $this->lines();
 
         if ( ! $this->filesystem->exists($this->getCollectionsDir())) {
             $this->text('Skipping pages: %s directory doesn\'t exist', $this->getCollectionsDir());
@@ -56,11 +57,14 @@ class CollectionGenerator implements GeneratorInterface
         }
 
         $collections = (new FileReader())->findDirectories($this->getCollectionsDir());
-        foreach ($collections as $collection) {
+        foreach ($collections as $key => $collection) {
             $this->process($collection);
-        }
 
-        $this->lines();
+            // @TODO: Conditions should be supported by the OutputHelper
+            if ((int) $key + 1 > count($collections)) {
+                $this->lines();
+            }
+        }
     }
 
     private function process(SplFileInfo $directory): void
@@ -81,6 +85,8 @@ class CollectionGenerator implements GeneratorInterface
         }
 
         $this->processIndexPages($collection);
+
+        $this->lines();
     }
 
     /**
@@ -169,7 +175,49 @@ class CollectionGenerator implements GeneratorInterface
         );
     }
 
-    private function processIndexPages(Collection $collection): void {}
+    private function processIndexPages(Collection $collection): void
+    {
+        // Prepare for loop
+        $itemsTotal = $collection->count();
+        $pagesRequired = (int) ceil($itemsTotal / $collection->pageSize);
+
+        for ($page = 1; $page <= $pagesRequired; ++$page) {
+            $slug = $collection->slug === ''
+                ? 'page/'.$page
+                : $collection->slug.'/page/'.$page;
+            $indexPagePath = $page > 1 ? $slug : $collection->slug;
+            $current = $indexPagePath ? $indexPagePath.'/index.html' : 'index.html';
+            $targetFile = $this->helpers->getBuildDir($current);
+            $items = $collection->items();
+
+            usort($items, function (CollectionItem $a, CollectionItem $b) {
+                return $b->date <=> $a->date;
+            });
+
+            $slicedItems = array_slice($items, ($page - 1) * $collection->pageSize, $collection->pageSize);
+            $pageData = new Page(
+                path: $targetFile,
+                relativePath: $current,
+                permalink: $indexPagePath.'/',
+                url: url($indexPagePath.'/')
+            );
+            $newCollection = $collection->cloneWithItems($slicedItems);
+            $pagination = $pagesRequired > 1
+                ? CollectionPaginator::create($page, $pagesRequired, $collection->slug, $itemsTotal)
+                : null;
+            $data = $this->buildContext($pageData, $newCollection, $pagination);
+            $html = (new PhpCompiler())->render($collection->indexTemplate, $data);
+
+            try {
+                $this->filesystem->dumpFile($targetFile, $html);
+            } catch (IOException $ex) {
+                throw new \Exception('Failed to save file: '.$targetFile.' '.$ex->getMessage());
+            }
+
+            $indexPath = $this->helpers->getBuildDir($current, true);
+            $this->text('Index page created (%s/%s): %s', $page, $pagesRequired, $indexPath);
+        }
+    }
 
     private function buildContext(Page $page, Collection $collection, ?CollectionPaginator $pagination = null): CompilerContext
     {
