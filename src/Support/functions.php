@@ -33,9 +33,20 @@ if ( ! function_exists('build_dir')) {
 }
 
 if ( ! function_exists('dd')) {
-    function dd(...$arg): string
+    function dd(mixed ...$args): string
     {
-        var_dump($arg);
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
+        $file = $trace['file'] ?? 'unknown file';
+        $line = $trace['line'] ?? 'unknown line';
+        echo "{$file}:{$line}\n";
+
+        foreach ($args as $arg) {
+            ob_start();
+            var_dump($arg);
+            $dump = ob_get_clean() ?: '';
+            $dump = preg_replace('/^.*\n/', '', $dump, 1);
+            echo $dump."\n";
+        }
 
         exit;
     }
