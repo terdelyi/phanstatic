@@ -13,7 +13,6 @@ use Terdelyi\Phanstatic\Compilers\MarkdownCompiler;
 use Terdelyi\Phanstatic\Compilers\PhpCompiler;
 use Terdelyi\Phanstatic\Models\Collection;
 use Terdelyi\Phanstatic\Models\CollectionItem;
-use Terdelyi\Phanstatic\Models\CollectionPaginator;
 use Terdelyi\Phanstatic\Models\CompilerContext;
 use Terdelyi\Phanstatic\Models\Config;
 use Terdelyi\Phanstatic\Models\Page;
@@ -22,6 +21,7 @@ use Terdelyi\Phanstatic\Phanstatic;
 use Terdelyi\Phanstatic\Readers\FileReader;
 use Terdelyi\Phanstatic\Support\Helpers;
 use Terdelyi\Phanstatic\Support\OutputHelper;
+use Terdelyi\Phanstatic\Support\PaginatedCollectionBuilder;
 
 class CollectionGenerator implements GeneratorInterface
 {
@@ -113,7 +113,7 @@ class CollectionGenerator implements GeneratorInterface
             title: $title,
             basename: $directory->getBasename(),
             sourceDir: $directory->getPathname(),
-            slug: $config->slug ?? $directory->getBasename(),
+            slug: ! empty($config->slug) ? $config->slug : $directory->getBasename(),
             singleTemplate: $singleTemplate,
             indexTemplate: $indexTemplate,
             items: [],
@@ -125,7 +125,8 @@ class CollectionGenerator implements GeneratorInterface
     {
         $markdown = $this->markdownCompiler->render($file->getPathname());
         $page = $this->buildPage($file->getBasename('.md'), $collection->slug, $markdown);
-        $context = $this->buildContext($page, $collection);
+        $site = Site::fromConfig($this->config);
+        $context = new CompilerContext($site, $page, $collection);
         $html = $this->phpCompiler->render($collection->singleTemplate, $context);
 
         try {
@@ -142,114 +143,53 @@ class CollectionGenerator implements GeneratorInterface
         );
     }
 
-    private function buildPage(string $basename, string $collectionSlug, MarkdownCompiler $markdown): Page
+    private function buildPage(string $basename, string $slug, MarkdownCompiler $markdown): Page
     {
-        $permalink = $collectionSlug !== '' ? "/{$collectionSlug}/{$basename}/" : "/{$basename}/";
-
-        if ($basename === 'index') {
-            $permalink = '/';
+        $relativePath = $basename;
+        if ($slug !== '') {
+            $relativePath = $slug.'/'.$relativePath;
         }
-
-        $permalinkWithoutSlash = substr($permalink, 1);
-
-        $newPath = $this->helpers->getBuildDir($permalinkWithoutSlash.'index.html');
-
-        if ($permalink === '/') {
-            $newPath = $this->helpers->getBuildDir('index.html');
-        }
-
-        $relativePath = $permalink === '/' ? 'index.html' : $permalinkWithoutSlash.'index.html';
 
         $meta = $markdown->meta();
         $title = ! isset($meta['title']) ? dd($markdown) : $meta['title'];
         unset($meta['title']);
 
         return new Page(
-            path: $newPath,
+            path: $this->helpers->getBuildDir($relativePath.'/index.html'),
             relativePath: $relativePath,
-            permalink: $permalink,
-            url: url($permalink),
+            permalink: $relativePath.'/',
+            url: url($relativePath.'/'),
             title: $title,
             content: $markdown->content(),
             meta: $meta,
         );
     }
 
-    private function processIndexPages(Collection $collection): void
-    {
-        // Prepare for loop
-        $itemsTotal = $collection->count();
-        $pagesRequired = (int) ceil($itemsTotal / $collection->pageSize);
-
-        for ($page = 1; $page <= $pagesRequired; ++$page) {
-            $slug = $collection->slug === ''
-                ? 'page/'.$page
-                : $collection->slug.'/page/'.$page;
-            $indexPagePath = $page > 1 ? $slug : $collection->slug;
-            $current = $indexPagePath ? $indexPagePath.'/index.html' : 'index.html';
-            $targetFile = $this->helpers->getBuildDir($current);
-            $items = $collection->items();
-
-            usort($items, function (CollectionItem $a, CollectionItem $b) {
-                return $b->date <=> $a->date;
-            });
-
-            $slicedItems = array_slice($items, ($page - 1) * $collection->pageSize, $collection->pageSize);
-            $pageData = new Page(
-                path: $targetFile,
-                relativePath: $current,
-                permalink: $indexPagePath.'/',
-                url: url($indexPagePath.'/')
-            );
-            $newCollection = $collection->cloneWithItems($slicedItems);
-            $pagination = $pagesRequired > 1
-                ? CollectionPaginator::create($page, $pagesRequired, $collection->slug, $itemsTotal)
-                : null;
-            $data = $this->buildContext($pageData, $newCollection, $pagination);
-            $html = (new PhpCompiler())->render($collection->indexTemplate, $data);
-
-            try {
-                $this->filesystem->dumpFile($targetFile, $html);
-            } catch (IOException $ex) {
-                throw new \Exception('Failed to save file: '.$targetFile.' '.$ex->getMessage());
-            }
-
-            $indexPath = $this->helpers->getBuildDir($current, true);
-            $this->text('Index page created (%s/%s): %s', $page, $pagesRequired, $indexPath);
-        }
-    }
-
-    private function buildContext(Page $page, Collection $collection, ?CollectionPaginator $pagination = null): CompilerContext
-    {
-        $site = new Site(
-            title: $this->config->title,
-            baseUrl: $this->config->baseUrl,
-            meta: $this->config->meta,
-        );
-
-        return new CompilerContext(
-            site: $site,
-            page: $page,
-            collection: $collection,
-            pagination: $pagination,
-        );
-    }
-
     private function addPageToCollection(Collection $collection, Page $page): void
     {
-        // @TODO: Date could be part of page - filemtime or meta
-        $date = $page->meta['date'];
-        unset($page->meta['date']);
-
-        $collectionItem = new CollectionItem(
-            title: $page->title ?? '',
-            link: $page->url ?? '',
-            excerpt: $page->description ?? '',
-            date: $date,
-            meta: $page->meta,
-        );
-
+        $collectionItem = CollectionItem::fromPage($page);
         $collection->add($collectionItem);
+    }
+
+    private function processIndexPages(Collection $collection): void
+    {
+        $totalItems = $collection->count();
+        $totalPages = (int) ceil($totalItems / $collection->pageSize);
+
+        for ($page = 1; $page <= $totalPages; ++$page) {
+            $builder = PaginatedCollectionBuilder::build($collection, $page);
+            $filePath = $this->helpers->getBuildDir($builder->path('/index.html'));
+            $context = $builder->context(Site::fromConfig($this->config));
+            $html = (new PhpCompiler())->render($collection->indexTemplate, $context);
+
+            try {
+                $this->filesystem->dumpFile($filePath, $html);
+            } catch (IOException $ex) {
+                throw new \Exception('Failed to save file: '.$filePath.' '.$ex->getMessage());
+            }
+
+            $this->text('Paginated page created (%s/%s): %s', $page, $totalPages, $context->page?->relativePath);
+        }
     }
 
     private function getCollectionsDir(): string
