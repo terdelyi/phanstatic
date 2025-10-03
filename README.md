@@ -1,5 +1,8 @@
-Phanstatic 👷‍
-==========
+<a href="https://phanstatic.com" target="_blank"><img src="https://raw.githubusercontent.com/terdelyi/phanstatic/tree/feature/di-container/art/logo.png" width="500" alt="Phanstatic"></a>
+
+<a href="https://packagist.org/packages/terdelyi/phanstatic"><img src="https://img.shields.io/packagist/dt/terdelyi/phanstatic" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/terdelyi/phanstatic"><img src="https://img.shields.io/packagist/v/terdelyi/phanstatic" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/terdelyi/phanstatic"><img src="https://img.shields.io/packagist/l/terdelyi/phanstatic" alt="License"></a>
 
 Phanstatic is a simple, lightweight, CLI based static site generator written in PHP. There are no frameworks or template
 engines, just simple pages written in pure PHP code and markdown files. During the building process, all of your content
