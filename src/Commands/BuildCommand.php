@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Terdelyi\Phanstatic\Generators\GeneratorInterface;
 use Terdelyi\Phanstatic\Models\Config;
 use Terdelyi\Phanstatic\Support\Helpers;
 use Terdelyi\Phanstatic\Support\Time;
@@ -75,6 +76,7 @@ class BuildCommand extends Command
 
     private function runGenerators(InputInterface $input, OutputInterface $output): void
     {
+        /** @var GeneratorInterface $generator */
         foreach ($this->config->generators as $generator) {
             (new $generator())->run($input, $output);
         }

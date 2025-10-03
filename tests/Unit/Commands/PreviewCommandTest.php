@@ -20,7 +20,7 @@ class PreviewCommandTest extends TestCase
 {
     private CommandTester $commandTester;
 
-    private Helpers|MockInterface $helpers;
+    private Helpers&MockInterface $helpers;
 
     protected function setUp(): void
     {
