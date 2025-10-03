@@ -1,4 +1,4 @@
-<a href="https://phanstatic.com" target="_blank"><img src="https://raw.githubusercontent.com/terdelyi/phanstatic/tree/feature/di-container/art/logo.png" width="500" alt="Phanstatic"></a>
+<a href="https://phanstatic.com" target="_blank"><img src="https://raw.githubusercontent.com/terdelyi/phanstatic/refs/heads/feature/di-container/art/logo.png" width="500" alt="Phanstatic"></a>
 
 <a href="https://packagist.org/packages/terdelyi/phanstatic"><img src="https://img.shields.io/packagist/dt/terdelyi/phanstatic" alt="Total Downloads"></a>
 <a href="https://packagist.org/packages/terdelyi/phanstatic"><img src="https://img.shields.io/packagist/v/terdelyi/phanstatic" alt="Latest Stable Version"></a>
