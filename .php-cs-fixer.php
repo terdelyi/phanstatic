@@ -27,5 +27,8 @@ return (new Config())
         'php_unit_test_class_requires_covers' => false,
         'unary_operator_spaces' => false,
         'not_operator_with_space' => true,
+        'php_unit_attributes' => true,
+        'php_unit_test_annotation' => true,
+        'php_unit_test_case_static_method_calls' => true,
     ])
     ->setFinder($finder);

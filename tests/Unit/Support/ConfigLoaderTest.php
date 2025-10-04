@@ -19,8 +19,8 @@ class ConfigLoaderTest extends TestCase
         $configLoader = new ConfigLoader('');
         $config = $configLoader->load();
 
-        $this->assertEquals(null, $config->path);
-        $this->assertEquals('http://localhost:8000', $config->baseUrl);
+        static::assertEquals(null, $config->path);
+        static::assertEquals('http://localhost:8000', $config->baseUrl);
     }
 
     #[Test]
@@ -30,8 +30,8 @@ class ConfigLoaderTest extends TestCase
         $configLoader = new ConfigLoader($customConfig);
         $config = $configLoader->load();
 
-        $this->assertEquals($customConfig, $config->path);
-        $this->assertEquals('This is a custom config', $config->title);
+        static::assertEquals($customConfig, $config->path);
+        static::assertEquals('This is a custom config', $config->title);
     }
 
     #[Test]
@@ -51,6 +51,6 @@ class ConfigLoaderTest extends TestCase
             $output = ob_get_clean();
         }
 
-        $this->assertEquals('This is an invalid config file.', $output);
+        static::assertEquals('This is an invalid config file.', $output);
     }
 }

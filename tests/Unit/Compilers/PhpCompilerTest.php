@@ -26,7 +26,7 @@ class PhpCompilerTest extends TestCase
     #[Test]
     public function canRenderATemplate(): void
     {
-        $path = './tests/data/content/pages/template.php';
+        $path = self::$dataPath.'/pages/template.php';
         $data = new CompilerContext(
             null,
             new Page(
@@ -46,7 +46,7 @@ class PhpCompilerTest extends TestCase
             Page url: url
             EOT;
 
-        $this->assertEquals($expected, $output);
+        static::assertEquals($expected, $output);
     }
 
     #[Test]
@@ -54,7 +54,7 @@ class PhpCompilerTest extends TestCase
     {
         $this->expectException(\ParseError::class);
 
-        $path = './tests/data/content/pages/template-with-error.php';
+        $path = self::$dataPath.'/pages/template-with-error.php';
         $data = new CompilerContext(
             null,
             new Page(
@@ -77,7 +77,7 @@ class PhpCompilerTest extends TestCase
     {
         $this->expectsOutput();
 
-        $path = './tests/data/content/pages/template.php';
+        $path = self::$dataPath.'/pages/template.php';
 
         $data = new CompilerContext(
             null,
@@ -104,6 +104,6 @@ class PhpCompilerTest extends TestCase
             $result = ob_get_clean();
         }
 
-        $this->assertEquals($expected, $result);
+        static::assertEquals($expected, $result);
     }
 }

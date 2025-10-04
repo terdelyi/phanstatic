@@ -6,6 +6,7 @@ namespace Tests\Unit\Support;
 
 use Mockery as m;
 use Mockery\MockInterface;
+use PHPUnit\Framework\Attributes\Test;
 use Terdelyi\Phanstatic\Phanstatic;
 use Terdelyi\Phanstatic\Support\Helpers;
 use Tests\Unit\TestCase;
@@ -28,7 +29,8 @@ class FunctionsTest extends TestCase
             ->andReturnSelf();
     }
 
-    public function testPermalinkReturnsFullUrl(): void
+    #[Test]
+    public function permalinkReturnsFullUrl(): void
     {
         $permalink = 'test-permalink';
         $expectedUrl = 'http://example.com/test-permalink';
@@ -37,10 +39,11 @@ class FunctionsTest extends TestCase
             ->with($permalink)
             ->andReturn($expectedUrl);
 
-        $this->assertEquals($expectedUrl, url($permalink));
+        static::assertEquals($expectedUrl, url($permalink));
     }
 
-    public function testAssetReturnsFullUrl(): void
+    #[Test]
+    public function assetReturnsFullUrl(): void
     {
         $file = 'image/test.jpg';
         $expectedUrl = 'https://example.com/assets/image/test.jpg';
@@ -49,6 +52,6 @@ class FunctionsTest extends TestCase
             ->with($file)
             ->andReturn($expectedUrl);
 
-        $this->assertEquals($expectedUrl, asset($file));
+        static::assertEquals($expectedUrl, asset($file));
     }
 }

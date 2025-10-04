@@ -22,8 +22,8 @@ class CollectionConfigTest extends TestCase
             5
         );
 
-        $this->assertEquals('Test Title', $collectionConfig->title);
-        $this->assertEquals('test-title', $collectionConfig->slug);
-        $this->assertEquals(5, $collectionConfig->pageSize);
+        static::assertEquals('Test Title', $collectionConfig->title);
+        static::assertEquals('test-title', $collectionConfig->slug);
+        static::assertEquals(5, $collectionConfig->pageSize);
     }
 }

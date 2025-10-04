@@ -19,7 +19,7 @@ class ConfigBuilderTest extends TestCase
     {
         $configBuilder = ConfigBuilder::make();
 
-        $this->assertInstanceOf(ConfigBuilder::class, $configBuilder);
+        static::assertInstanceOf(ConfigBuilder::class, $configBuilder);
     }
 
     #[Test]
@@ -34,7 +34,7 @@ class ConfigBuilderTest extends TestCase
         $configBuilder->setGenerators(['generatorA', 'generatorB']);
         $config = $configBuilder->build();
 
-        $this->assertInstanceOf(Config::class, $config);
-        $this->assertEquals('Test title', $config->title);
+        static::assertInstanceOf(Config::class, $config);
+        static::assertEquals('Test title', $config->title);
     }
 }

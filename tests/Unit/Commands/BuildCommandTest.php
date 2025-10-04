@@ -66,7 +66,7 @@ class BuildCommandTest extends TestCase
             Cleaning out build directory....
             EOT;
 
-        $this->assertStringContainsString($expected, $display);
+        static::assertStringContainsString($expected, $display);
     }
 
     #[Test]
@@ -79,6 +79,6 @@ class BuildCommandTest extends TestCase
             Build completed in 0 seconds
             EOT;
 
-        $this->assertStringContainsString($expected, $display);
+        static::assertStringContainsString($expected, $display);
     }
 }

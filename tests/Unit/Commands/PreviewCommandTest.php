@@ -56,6 +56,6 @@ class PreviewCommandTest extends TestCase
 
         $display = trim($this->commandTester->getDisplay());
 
-        $this->assertEquals('Directory invalid-path does not exist. Have you run build before?', $display);
+        static::assertEquals('Directory invalid-path does not exist. Have you run build before?', $display);
     }
 }

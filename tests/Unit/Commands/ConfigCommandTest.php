@@ -55,6 +55,6 @@ class ConfigCommandTest extends TestCase
             Loaded content generators
             EOT;
 
-        $this->assertStringContainsString($expected, $display);
+        static::assertStringContainsString($expected, $display);
     }
 }

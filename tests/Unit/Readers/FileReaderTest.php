@@ -50,7 +50,7 @@ class FileReaderTest extends TestCase
         /** @var \SplFileInfo[] $iterator */
         $iterator = $files->getIterator();
 
-        $this->assertCount(1, $iterator);
-        $this->assertEquals('sample-config.php', $iterator[0]->getPathname());
+        static::assertCount(1, $iterator);
+        static::assertEquals('sample-config.php', $iterator[0]->getPathname());
     }
 }

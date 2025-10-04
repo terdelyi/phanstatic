@@ -27,14 +27,14 @@ class ConfigTest extends TestCase
             ['generatorA', 'generatorB'],
         );
 
-        $this->assertEquals('source-dir', $config->sourceDir);
-        $this->assertEquals('build-dir', $config->buildDir);
-        $this->assertEquals('base-url', $config->baseUrl);
-        $this->assertEquals('title', $config->title);
-        $this->assertEquals(['meta' => 'value'], $config->meta);
-        $this->assertEquals(['generatorA', 'generatorB'], $config->generators);
-        $this->assertEquals('Test', $config->collections[0]->title);
-        $this->assertEquals('test', $config->collections[0]->slug);
-        $this->assertEquals('5', $config->collections[0]->pageSize);
+        static::assertEquals('source-dir', $config->sourceDir);
+        static::assertEquals('build-dir', $config->buildDir);
+        static::assertEquals('base-url', $config->baseUrl);
+        static::assertEquals('title', $config->title);
+        static::assertEquals(['meta' => 'value'], $config->meta);
+        static::assertEquals(['generatorA', 'generatorB'], $config->generators);
+        static::assertEquals('Test', $config->collections[0]->title);
+        static::assertEquals('test', $config->collections[0]->slug);
+        static::assertEquals('5', $config->collections[0]->pageSize);
     }
 }
