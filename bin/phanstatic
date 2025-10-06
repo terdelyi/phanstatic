@@ -9,7 +9,7 @@ use Terdelyi\Phanstatic\Phanstatic;
 include $_composer_autoload_path ?? __DIR__.'/../vendor/autoload.php';
 
 try {
-    $application = Phanstatic::init();
+    $application = new Phanstatic();
     $application->run();
 } catch (Throwable $e) {
     echo 'Error: '.$e->getMessage().' in '.$e->getFile().' (Line: '.$e->getLine().')';

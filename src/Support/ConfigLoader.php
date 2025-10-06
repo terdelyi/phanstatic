@@ -8,29 +8,25 @@ use Terdelyi\Phanstatic\Models\Config;
 
 class ConfigLoader
 {
-    public function __construct(
-        private readonly string $configPath
-    ) {}
-
-    public function load(): Config
+    public function load(string $configPath): ?Config
     {
-        $configFile = file_exists($this->configPath) ? $this->configPath : null;
+        $configFile = file_exists($configPath) ? $configPath : null;
 
         if ( ! $configFile) {
-            return ConfigBuilder::make()
-                ->setPath($configFile)
-                ->build();
+            return Config::init();
         }
 
-        /** @var ?ConfigBuilder $builder */
-        $builder = require $configFile;
+        try {
+            /** @var Config $config */
+            $config = require $configFile;
 
-        if ( ! is_object($builder)) {
-            throw new \RuntimeException('Invalid config file content. Please return a ConfigBuilder.');
+            Config::init($config);
+
+            return $config;
+        } catch (\Throwable $ex) {
+            echo 'Invalid config file content. Please return a Config object in '.$configFile.PHP_EOL;
+
+            return null;
         }
-
-        $builder->setPath($configFile);
-
-        return $builder->build();
     }
 }

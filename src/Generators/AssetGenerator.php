@@ -8,7 +8,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\SplFileInfo;
-use Terdelyi\Phanstatic\Phanstatic;
 use Terdelyi\Phanstatic\Readers\FileReader;
 use Terdelyi\Phanstatic\Support\Helpers;
 use Terdelyi\Phanstatic\Support\OutputHelper;
@@ -22,10 +21,10 @@ class AssetGenerator implements GeneratorInterface
     private Filesystem $filesystem;
     private Helpers $helpers;
 
-    public function __construct()
+    public function __construct(?Filesystem $filesystem = null, ?Helpers $helpers = null)
     {
-        $this->filesystem = new Filesystem();
-        $this->helpers = Phanstatic::get()->helpers;
+        $this->filesystem = $filesystem ?? new Filesystem();
+        $this->helpers = $helpers ?? new Helpers();
     }
 
     public function run(InputInterface $input, OutputInterface $output): void

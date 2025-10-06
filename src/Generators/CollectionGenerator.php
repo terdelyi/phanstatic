@@ -17,7 +17,6 @@ use Terdelyi\Phanstatic\Models\CompilerContext;
 use Terdelyi\Phanstatic\Models\Config;
 use Terdelyi\Phanstatic\Models\Page;
 use Terdelyi\Phanstatic\Models\Site;
-use Terdelyi\Phanstatic\Phanstatic;
 use Terdelyi\Phanstatic\Readers\FileReader;
 use Terdelyi\Phanstatic\Support\Helpers;
 use Terdelyi\Phanstatic\Support\OutputHelper;
@@ -37,8 +36,8 @@ class CollectionGenerator implements GeneratorInterface
     public function __construct()
     {
         $this->filesystem = new Filesystem();
-        $this->helpers = Phanstatic::get()->helpers;
-        $this->config = Phanstatic::get()->config;
+        $this->helpers = new Helpers();
+        $this->config = Config::get();
         $this->markdownCompiler = new MarkdownCompiler();
         $this->phpCompiler = new PhpCompiler();
     }

@@ -4,7 +4,7 @@
 <a href="https://packagist.org/packages/terdelyi/phanstatic"><img src="https://img.shields.io/packagist/v/terdelyi/phanstatic" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/terdelyi/phanstatic"><img src="https://img.shields.io/packagist/l/terdelyi/phanstatic" alt="License"></a>
 
-Phanstatic is a simple, lightweight, CLI based static site generator written in PHP. There are no frameworks or template
+Phanstatic is a dead simple, modern, lightweight, CLI based static site generator written in PHP. There are no frameworks or template
 engines, just simple pages written in pure PHP code and markdown files. During the building process, all of your content
 is transformed into static HTML files, ready to deploy or upload to your server.
 
@@ -43,20 +43,23 @@ You can override the default host (`--host`) and the port (`--port`) settings if
 You can place a configuration file under `content/config.php` which must return a `ConfigBuilder` object like this:
 
 ```php
-use Terdelyi\Phanstatic\Support\ConfigBuilder;
+use Terdelyi\Phanstatic\Models\Config;
+use Terdelyi\Phanstatic\Models\CollectionConfig;
 
-return (new ConfigBuilder)
-    ->setBaseUrl(getenv('BASE_URL'))
-    ->setTitle('My super-fast static site')
-    ->addCollection(
-        key: 'posts',
-        title: 'Posts',
-        slug: 'posts',
-        pageSize: 10
-    );
+return new Config(
+    baseUrl: (string) getenv('BASE_URL'),
+    title: 'My super-fast static site',
+    collections: [
+        'posts' => new CollectionConfig(
+            title: 'Posts',
+            slug: 'posts',
+            pageSize: 10
+        ),
+    ],
+);
 ```
-If no `config.php` file exist the builder will use the default settings. To explore settings your IDE will help you by
-offering the available methods.
+If no `config.php` file exist the builder will use the default settings. To explore settings your IDE should guide you by
+offering the available properties with types.
 
 ## Content basics
 
@@ -84,3 +87,6 @@ Structuring the content is simple. The `content` folder is where your files live
 ├── composer.json
 ├── composer.lock
 ```
+
+If you create a folder under `collections` you **must add it as a collection** to your config file, unless you're going
+to have `Configuration for collection 'Collection' is missing` error.

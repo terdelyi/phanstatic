@@ -13,7 +13,6 @@ use Terdelyi\Phanstatic\Models\CompilerContext;
 use Terdelyi\Phanstatic\Models\Config;
 use Terdelyi\Phanstatic\Models\Page;
 use Terdelyi\Phanstatic\Models\Site;
-use Terdelyi\Phanstatic\Phanstatic;
 use Terdelyi\Phanstatic\Readers\FileReader;
 use Terdelyi\Phanstatic\Support\Helpers;
 use Terdelyi\Phanstatic\Support\OutputHelper;
@@ -27,11 +26,11 @@ class PageGenerator implements GeneratorInterface
     private Helpers $helpers;
     private Config $config;
 
-    public function __construct()
+    public function __construct(?Filesystem $filesystem = null, ?Helpers $helpers = null, ?Config $config = null)
     {
-        $this->filesystem = new Filesystem();
-        $this->helpers = Phanstatic::get()->helpers;
-        $this->config = Phanstatic::get()->config;
+        $this->filesystem = $filesystem ?? new Filesystem();
+        $this->helpers = $helpers ?? new Helpers();
+        $this->config = $config ?? Config::get();
     }
 
     public function run(InputInterface $input, OutputInterface $output): void

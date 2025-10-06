@@ -13,6 +13,7 @@ use Terdelyi\Phanstatic\Generators\PageGenerator;
 use Terdelyi\Phanstatic\Models\Config;
 use Terdelyi\Phanstatic\Phanstatic;
 use Terdelyi\Phanstatic\Support\ConfigBuilder;
+use Terdelyi\Phanstatic\Support\Helpers;
 use Tests\Unit\TestCase;
 
 /**
@@ -23,7 +24,6 @@ class PageGeneratorTest extends TestCase
     protected bool $cleanUp = true;
 
     #[Test]
-    #[RunInSeparateProcess]
     public function canRun(): void
     {
         $input = m::mock(InputInterface::class);
@@ -31,11 +31,10 @@ class PageGeneratorTest extends TestCase
         $output = m::mock(OutputInterface::class);
         $output->shouldReceive('writeln');
 
-        $phanstatic = Phanstatic::init(config: $this->getConfig());
-
+        Config::init($this->getConfig());
         (new PageGenerator())->run($input, $output);
 
-        $file = $phanstatic->helpers->getBuildDir('index.html');
+        $file = (new Helpers())->getBuildDir('index.html');
 
         static::assertFileExists($file);
         static::assertEquals('This is a test.', file_get_contents($file));
@@ -43,9 +42,9 @@ class PageGeneratorTest extends TestCase
 
     private function getConfig(): Config
     {
-        return ConfigBuilder::make()
-            ->setSourceDir('tests/data/content')
-            ->setBuildDir('tests/data/dist')
-            ->build();
+        return new Config(
+            sourceDir: 'tests/data/content',
+            buildDir: 'tests/data/dist',
+        );
     }
 }

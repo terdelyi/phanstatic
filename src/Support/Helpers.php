@@ -8,10 +8,12 @@ use Terdelyi\Phanstatic\Models\Config;
 
 class Helpers
 {
-    public function __construct(
-        private readonly Config $config,
-        private readonly string $workingDir,
-    ) {}
+    private readonly Config $config;
+
+    public function __construct(?Config $config = null)
+    {
+        $this->config = $config ?? Config::get();
+    }
 
     public function getBaseUrl(?string $permalink = null): string
     {
@@ -34,7 +36,7 @@ class Helpers
 
     public function getBaseDir(?string $path = null): string
     {
-        $workingDir = $this->workingDir;
+        $workingDir = $this->config->path;
 
         if ($path !== null) {
             return "{$workingDir}/{$path}";
@@ -45,7 +47,7 @@ class Helpers
 
     public function getSourceDir(?string $path = null, bool $relative = false): string
     {
-        $sourceDir = $relative ? $this->config->sourceDir : "{$this->workingDir}/{$this->config->sourceDir}";
+        $sourceDir = $relative ? $this->config->sourceDir : "{$this->config->workingDir}/{$this->config->sourceDir}";
 
         if ($path !== null) {
             return "{$sourceDir}/{$path}";
@@ -56,7 +58,7 @@ class Helpers
 
     public function getBuildDir(?string $path = null, bool $relative = false): string
     {
-        $buildDir = $relative ? $this->config->buildDir : "{$this->workingDir}/{$this->config->buildDir}";
+        $buildDir = $relative ? $this->config->buildDir : "{$this->config->workingDir}/{$this->config->buildDir}";
 
         if ($path !== null) {
             return "{$buildDir}/{$path}";
