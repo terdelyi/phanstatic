@@ -8,9 +8,9 @@ use Terdelyi\Phanstatic\Models\Config;
 
 class ConfigLoader
 {
-    public function load(string $configPath): ?Config
+    public function load(?string $configPath = null): ?Config
     {
-        $configFile = file_exists($configPath) ? $configPath : null;
+        $configFile = $configPath && file_exists($configPath) ? $configPath : null;
 
         if ( ! $configFile) {
             return Config::init();
@@ -19,6 +19,7 @@ class ConfigLoader
         try {
             /** @var Config $config */
             $config = require $configFile;
+            $config->path = $configPath;
 
             Config::init($config);
 

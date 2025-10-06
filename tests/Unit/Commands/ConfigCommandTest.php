@@ -25,13 +25,15 @@ class ConfigCommandTest extends TestCase
         parent::setUp();
 
         $config = new Config(
-            'source-dir',
-            'build-dir',
-            'base-url',
-            'title',
-            ['meta' => 'value'],
-            [new CollectionConfig('Test', 'test', 5)],
-            ['generatorA', 'generatorB'],
+            workingDir: 'source-dir',
+            sourceDir: 'base-url',
+            buildDir: 'build-dir',
+            title: 'title',
+            meta: ['meta' => 'value'],
+            collections: [
+                'test' => new CollectionConfig('Test', 'test', 5),
+            ],
+            generators: ['generatorA', 'generatorB'],
         );
 
         $helpers = m::mock(Helpers::class);

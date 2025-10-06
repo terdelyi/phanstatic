@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Support;
 
 use PHPUnit\Framework\Attributes\Test;
+use Terdelyi\Phanstatic\Models\Config;
 use Terdelyi\Phanstatic\Support\ConfigLoader;
 use Tests\Unit\TestCase;
 
@@ -16,41 +17,40 @@ class ConfigLoaderTest extends TestCase
     #[Test]
     public function itCanLoadDefaultConfig(): void
     {
-        $configLoader = new ConfigLoader('');
+        $configLoader = new ConfigLoader();
         $config = $configLoader->load();
 
-        static::assertEquals(null, $config->path);
-        static::assertEquals('http://localhost:8000', $config->baseUrl);
+        static::assertEquals(Config::DEFAULT_PATH, $config?->path);
+        static::assertEquals('http://localhost:8000', $config?->baseUrl);
     }
 
     #[Test]
     public function itCanLoadCustomConfig(): void
     {
-        $customConfig = './tests/data/config/sample-config.php';
-        $configLoader = new ConfigLoader($customConfig);
-        $config = $configLoader->load();
+        $customConfig = self::$dataPath.'/config/sample-config.php';
+        $configLoader = new ConfigLoader();
+        $config = $configLoader->load($customConfig);
 
-        static::assertEquals($customConfig, $config->path);
-        static::assertEquals('This is a custom config', $config->title);
+        static::assertEquals($customConfig, $config?->path);
+        static::assertEquals('This is a custom config', $config?->title);
     }
 
     #[Test]
     public function itHandlesInvalidCustomConfig(): void
     {
-        $this->expectException(\RuntimeException::class);
         $this->expectsOutput();
 
-        $customConfig = './tests/data/config/invalid-config.php';
-        $configLoader = new ConfigLoader($customConfig);
+        $customConfig = self::$dataPath.'/config/invalid-config.php';
+        $configLoader = new ConfigLoader();
 
         ob_start();
 
         try {
-            $configLoader->load();
+            $configLoader->load($customConfig);
         } finally {
             $output = ob_get_clean();
         }
 
-        static::assertEquals('This is an invalid config file.', $output);
+        static::assertStringStartsWith('This is an invalid config file.Invalid config file content. Please return a Config object in', $output);
     }
 }

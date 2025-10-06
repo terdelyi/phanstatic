@@ -40,7 +40,7 @@ class PreviewCommandTest extends TestCase
     public function itHasOutput(): void
     {
         $this->helpers->shouldReceive('getBuildDir')
-            ->andReturn('./tests/data/dist');
+            ->andReturn(self::$dataPath.'/dist');
 
         $this->commandTester->execute([]);
         $this->commandTester->assertCommandIsSuccessful();

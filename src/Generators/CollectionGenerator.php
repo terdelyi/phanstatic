@@ -93,6 +93,7 @@ class CollectionGenerator implements GeneratorInterface
      */
     private function parseCollection(SplFileInfo $directory): Collection
     {
+        // @TODO: Simplify this if Collection in config is set
         $collection = $directory->getBasename();
         $config = $this->config->collections[$collection] ?? null;
         $title = $config->title ?? ucwords($directory->getBasename());

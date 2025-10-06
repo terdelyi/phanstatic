@@ -18,13 +18,15 @@ class ConfigTest extends TestCase
     public function itCanCreateInstance(): void
     {
         $config = new Config(
-            'source-dir',
-            'build-dir',
-            'base-url',
-            'title',
-            ['meta' => 'value'],
-            [new CollectionConfig('Test', 'test', 5)],
-            ['generatorA', 'generatorB'],
+            sourceDir: 'source-dir',
+            buildDir: 'build-dir',
+            baseUrl: 'base-url',
+            title: 'title',
+            meta: ['meta' => 'value'],
+            collections: [
+                'test' => new CollectionConfig('Test', 'test', 5),
+            ],
+            generators: ['generatorA', 'generatorB'],
         );
 
         static::assertEquals('source-dir', $config->sourceDir);
@@ -33,8 +35,8 @@ class ConfigTest extends TestCase
         static::assertEquals('title', $config->title);
         static::assertEquals(['meta' => 'value'], $config->meta);
         static::assertEquals(['generatorA', 'generatorB'], $config->generators);
-        static::assertEquals('Test', $config->collections[0]->title);
-        static::assertEquals('test', $config->collections[0]->slug);
-        static::assertEquals('5', $config->collections[0]->pageSize);
+        static::assertEquals('Test', $config->collections['test']->title);
+        static::assertEquals('test', $config->collections['test']->slug);
+        static::assertEquals('5', $config->collections['test']->pageSize);
     }
 }

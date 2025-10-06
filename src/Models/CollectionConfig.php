@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Terdelyi\Phanstatic\Models;
 
+// @TODO: Merge this with Collection
 class CollectionConfig
 {
     public function __construct(

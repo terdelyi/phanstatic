@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace Integration\Generators;
 
 use Mockery as m;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Terdelyi\Phanstatic\Generators\PageGenerator;
 use Terdelyi\Phanstatic\Models\Config;
-use Terdelyi\Phanstatic\Phanstatic;
-use Terdelyi\Phanstatic\Support\ConfigBuilder;
 use Terdelyi\Phanstatic\Support\Helpers;
 use Tests\Unit\TestCase;
 

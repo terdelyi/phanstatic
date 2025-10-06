@@ -7,10 +7,9 @@
          beStrictAboutOutputDuringTests="true"
          failOnRisky="false"
          failOnWarning="false"
-         stopOnError="true"
-         stopOnFailure="true"
-         stopOnIncomplete="true"
-         processIsolation="false">
+         stopOnError="false"
+         stopOnFailure="false"
+         stopOnIncomplete="false">
   <testsuites>
     <testsuite name="unit">
       <directory>tests/Unit</directory>
