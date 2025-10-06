@@ -48,7 +48,7 @@ class ConfigLoaderTest extends TestCase
         try {
             $configLoader->load($customConfig);
         } finally {
-            $output = ob_get_clean();
+            $output = ob_get_clean() ?: '';
         }
 
         static::assertStringStartsWith('This is an invalid config file.Invalid config file content. Please return a Config object in', $output);
