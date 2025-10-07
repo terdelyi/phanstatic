@@ -20,6 +20,11 @@ class Site
         return $this->get($key);
     }
 
+    public static function fromConfig(Config $config): Site
+    {
+        return new self($config->title, $config->baseUrl, $config->meta);
+    }
+
     public function get(string $key): mixed
     {
         return $this->meta[$key] ?? null;

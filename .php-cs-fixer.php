@@ -10,6 +10,9 @@ $finder = (new Finder())
         'bin',
         'src',
         'tests',
+    ])
+    ->exclude([
+        'data',
     ]);
 
 return (new Config())
@@ -22,5 +25,10 @@ return (new Config())
         'yoda_style' => false,
         'multiline_whitespace_before_semicolons' => false,
         'php_unit_test_class_requires_covers' => false,
+        'unary_operator_spaces' => false,
+        'not_operator_with_space' => true,
+        'php_unit_attributes' => true,
+        'php_unit_test_annotation' => true,
+        'php_unit_test_case_static_method_calls' => true,
     ])
     ->setFinder($finder);

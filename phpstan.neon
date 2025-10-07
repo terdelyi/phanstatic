@@ -4,6 +4,8 @@ parameters:
     - bin
     - src
     - tests
+  excludePaths:
+    - tests/data
 
 includes:
     - vendor/phpstan/phpstan-mockery/extension.neon

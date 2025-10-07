@@ -3,9 +3,16 @@
 
 declare(strict_types=1);
 
+use Symfony\Component\Console\Command\Command;
 use Terdelyi\Phanstatic\Phanstatic;
 
 include $_composer_autoload_path ?? __DIR__.'/../vendor/autoload.php';
 
-$app = new Phanstatic();
-$app->init();
+try {
+    $application = new Phanstatic();
+    $application->run();
+} catch (Throwable $e) {
+    echo 'Error: '.$e->getMessage().' in '.$e->getFile().' (Line: '.$e->getLine().')';
+
+    exit(Command::FAILURE);
+}

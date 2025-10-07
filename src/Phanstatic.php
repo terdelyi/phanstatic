@@ -4,76 +4,73 @@ declare(strict_types=1);
 
 namespace Terdelyi\Phanstatic;
 
-use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Application as SymfonyConsole;
 use Symfony\Component\Console\Command\Command;
-use Terdelyi\Phanstatic\Config\Config;
-use Terdelyi\Phanstatic\Config\ConfigBuilder;
-use Terdelyi\Phanstatic\Console\BuildCommand;
-use Terdelyi\Phanstatic\Console\ConfigCommand;
-use Terdelyi\Phanstatic\Console\PreviewCommand;
-use Terdelyi\Phanstatic\Support\Output;
+use Symfony\Component\Filesystem\Filesystem;
+use Terdelyi\Phanstatic\Commands\BuildCommand;
+use Terdelyi\Phanstatic\Commands\ConfigCommand;
+use Terdelyi\Phanstatic\Commands\PreviewCommand;
+use Terdelyi\Phanstatic\Models\Config;
+use Terdelyi\Phanstatic\Support\CommandLineExecutor;
+use Terdelyi\Phanstatic\Support\ConfigLoader;
+use Terdelyi\Phanstatic\Support\Helpers;
+use Terdelyi\Phanstatic\Support\Time;
 
 class Phanstatic
 {
     private string $name = 'Phanstatic';
-    private string $version = '0.5.0';
-    private string $defaultConfigFile = 'content/config.php';
-    private static ?Config $config = null;
+    private string $version = '1.0.0';
 
-    public function init(): void
+    /**
+     * @throws \Exception
+     */
+    public function run(): void
     {
-        try {
-            $config = $this->loadConfig();
-
-            $application = new Application($this->name, $this->version);
-            $application->addCommands([
-                new BuildCommand($config),
-                new PreviewCommand($config),
-                new ConfigCommand($config),
-            ]);
-            $application->setCatchErrors();
-            $application->setCatchExceptions(true);
-
-            // TODO: Add custom output formatter here
-            $application->run(
-                output: new Output()
-            );
-        } catch (\Throwable $e) {
-            echo 'Error: '.$e->getMessage().PHP_EOL;
-
-            exit(Command::FAILURE);
+        if ( ! $this->loadConfig()) {
+            return;
         }
+
+        $application = new SymfonyConsole($this->name, $this->version);
+        $application->addCommands($this->commands());
+        $application->setDefaultCommand('config');
+        $application->setCatchErrors();
+        $application->setCatchExceptions(true);
+        $application->run();
     }
 
-    public static function getConfig(): Config
+    public function loadConfig(): bool
     {
-        if (self::$config === null) {
-            return ConfigBuilder::make()
-                ->build();
+        $workingDir = getcwd() ?: null;
+        $contentDir = $workingDir.'/'.Config::DEFAULT_SOURCE;
+
+        if ( ! is_dir($contentDir)) {
+            echo 'The content directory is missing. Are you in the project path?'.PHP_EOL;
+
+            return false;
         }
 
-        return self::$config;
+        $configFilePath = $workingDir.'/'.Config::DEFAULT_PATH;
+        $configLoaded = (new ConfigLoader())->load($configFilePath);
+
+        if ( ! $configLoaded) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
-     * @throws \RuntimeException
+     * @return array<int, Command>
      */
-    private function loadConfig(): Config
+    private function commands(): array
     {
-        $currentDirectory = getcwd();
-        $configFile = $currentDirectory.'/'.$this->defaultConfigFile;
+        $config = Config::get();
+        $helpers = new Helpers($config);
 
-        if (file_exists($configFile)) {
-            $config = require $configFile;
-
-            self::setConfig($config);
-        }
-
-        return self::getConfig();
-    }
-
-    private static function setConfig(Config $config): void
-    {
-        self::$config = $config;
+        return [
+            new BuildCommand($config, $helpers, new Filesystem(), new Time()),
+            new PreviewCommand(new CommandLineExecutor(), $helpers),
+            new ConfigCommand($config, $helpers),
+        ];
     }
 }

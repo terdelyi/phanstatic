@@ -1,21 +1,25 @@
-Phanstatic 👷‍
-==========
+<a href="https://phanstatic.com" target="_blank"><img src="https://raw.githubusercontent.com/terdelyi/phanstatic/refs/heads/feature/di-container/art/logo.png" alt="Phanstatic"></a>
 
-Phanstatic is a simple, lightweight, CLI based static site generator written in PHP. There are no frameworks or template
+<a href="https://packagist.org/packages/terdelyi/phanstatic"><img src="https://img.shields.io/packagist/dt/terdelyi/phanstatic" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/terdelyi/phanstatic"><img src="https://img.shields.io/packagist/v/terdelyi/phanstatic" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/terdelyi/phanstatic"><img src="https://img.shields.io/packagist/l/terdelyi/phanstatic" alt="License"></a>
+
+Phanstatic is a dead simple, modern, lightweight, CLI based static site generator written in PHP. There are no frameworks or template
 engines, just simple pages written in pure PHP code and markdown files. During the building process, all of your content
-is transformed into static HTML files, ready to deploy.
+is transformed into static HTML files, ready to deploy or upload to your server.
 
 ## Install
 
 To create a new project just run:
 
 ```
-composer create-project terdelyi/phanstatic:dev-develop
+composer create-project terdelyi/phanstatic
 ```
 
 ## Build
 
-To build static files from your `content` directory to the `dist` folder run the following command in your root folder:
+To build static files to the `dist` folder from the files placed inside the `content` directory run the following
+command in your root folder:
 
 ```
 php ./vendor/bin/phanstatic build
@@ -23,7 +27,7 @@ php ./vendor/bin/phanstatic build
 
 ## Preview
 
-To preview your build in a browser:
+To preview the `dist` folder quickly in a browser:
 
 ```
 php ./vendor/bin/phanstatic preview
@@ -36,30 +40,36 @@ You can override the default host (`--host`) and the port (`--port`) settings if
 
 ## Configuration
 
-As a starter all you need is a `content/pages` directory in the root of your project which contains `.php` files.
-
-Optionally, you can also place a configuration file under `content/config.php` which must return a `Config` object like
-this:
+You can place a configuration file under `content/config.php` which must return a `ConfigBuilder` object like this:
 
 ```php
-use Terdelyi\Phanstatic\Config\ConfigBuilder;
+use Terdelyi\Phanstatic\Models\Config;
+use Terdelyi\Phanstatic\Models\CollectionConfig;
 
-return (new ConfigBuilder)
-    ->setBaseUrl(getenv('BASE_URL'))
-    ->setTitle('My super-fast static site')
-    ->addCollection(
-        key: 'posts',
-        title: 'Posts',
-        slug: 'posts',
-        pageSize: 10
-    )
-    ->build();
+return new Config(
+    baseUrl: (string) getenv('BASE_URL'),
+    title: 'My super-fast static site',
+    collections: [
+        'posts' => new CollectionConfig(
+            title: 'Posts',
+            slug: 'posts',
+            pageSize: 10
+        ),
+    ],
+);
 ```
+If no `config.php` file exist the builder will use the default settings. To explore settings your IDE should guide you by
+offering the available properties with types.
 
-## Example content structure
+## Content basics
 
-None of these files are mandatory. Phanstatic and its builders will look for the existing folders and configuration
-and use them if they're available.
+Structuring the content is simple. The `content` folder is where your files live:
+
+- `content/pages`: This is where you put your `.php` files.
+- `content/collections`: This is where you put your `.md` files under subdirectories named as your collection key.
+- `content/assets`: Any of these files will be published under `dist/assets`. It can be `.js`, `.css` or any type of images.
+
+### Example project structure
 
 ```
 ├── content
@@ -78,10 +88,5 @@ and use them if they're available.
 ├── composer.lock
 ```
 
-The contents of the assets folder will be copied to the `dist/assets` folder on build as it is and will be available
-from the url `/assets`.
-
-## Contributing
-
-Bugfixes and feature requests are highly welcome, but this package is in its early stages, and I'm planning to add any
-new features carefully.
+If you create a folder under `collections` you **must add it as a collection** to your config file, unless you're going
+to have `Configuration for collection 'Collection' is missing` error.
