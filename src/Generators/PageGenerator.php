@@ -9,6 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\SplFileInfo;
 use Terdelyi\Phanstatic\Compilers\PhpCompiler;
+use Terdelyi\Phanstatic\Generators\Page\Context;
 use Terdelyi\Phanstatic\Models\CompilerContext;
 use Terdelyi\Phanstatic\Models\Config;
 use Terdelyi\Phanstatic\Models\Page;
@@ -55,76 +56,19 @@ class PageGenerator implements GeneratorInterface
 
     private function process(SplFileInfo $file): void
     {
-        $fileData = $this->getFileData($file);
-        $context = $this->buildContext($fileData);
+        $context = (new Context())->buildContext($file);
         $html = (new PhpCompiler())->render($file->getPathname(), $context);
 
-        $this->filesystem->dumpFile($fileData['path'], $html);
+        $this->filesystem->dumpFile($context->page->path, $html);
 
         $this->fromTo(
-            $this->helpers->getSourceDir($fileData['relativePath'], true),
-            $this->helpers->getBuildDir($fileData['relativePath'], true)
+            $this->helpers->getSourceDir($context->page->relativePath, true),
+            $this->helpers->getBuildDir($context->page->relativePath, true)
         );
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function getFileData(SplFileInfo $file): array
-    {
-        $permalink = $this->createPermalink($file);
-        $relativePath = $this->createRelativePathFromPermalink($permalink);
-
-        return [
-            // 'basename' => $file->getBasename('.php'),
-            'path' => $this->helpers->getBuildDir($relativePath),
-            'relativePath' => $relativePath,
-            'permalink' => $permalink,
-        ];
-    }
-
-    private function createPermalink(SplFileInfo $file): string
-    {
-        $basename = $file->getBasename('.php');
-
-        if ($basename === 'index') {
-            return '/';
-        }
-
-        if ($file->getRelativePath() !== '') {
-            return "/{$file->getRelativePath()}/{$basename}/";
-        }
-
-        return "/{$basename}/";
-    }
-
-    private function createRelativePathFromPermalink(string $permalink): string
-    {
-        $permalinkWithoutSlash = substr($permalink, 1);
-
-        return $permalink === '/' ? 'index.html' : "{$permalinkWithoutSlash}index.html";
     }
 
     private function getPagesDir(): string
     {
         return $this->helpers->getSourceDir($this->sourcePath);
-    }
-
-    /** @param array<string,string> $fileData */
-    private function buildContext(array $fileData): CompilerContext
-    {
-        $site = new Site(
-            title: $this->config->title,
-            baseUrl: $this->config->baseUrl,
-            meta: $this->config->meta
-        );
-        $page = new Page(
-            path: $fileData['path'],
-            relativePath: $fileData['relativePath'],
-            permalink: $fileData['permalink'],
-            url: $this->helpers->getBaseUrl($fileData['permalink'])
-        );
-
-        return new CompilerContext($site, $page);
     }
 }

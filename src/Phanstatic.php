@@ -21,14 +21,15 @@ class Phanstatic
     private string $name = 'Phanstatic';
     private string $version = '1.0.0';
 
+    public function __construct(private string $basePath) {}
+
     /**
      * @throws \Exception
      */
     public function run(): void
     {
-        if ( ! $this->loadConfig()) {
-            return;
-        }
+        $this->checkContentDirectoryExist();
+        $this->loadConfig();
 
         $application = new SymfonyConsole($this->name, $this->version);
         $application->addCommands($this->commands());
@@ -38,25 +39,33 @@ class Phanstatic
         $application->run();
     }
 
-    public function loadConfig(): bool
+    public function getBasePath(): string
     {
-        $workingDir = getcwd() ?: null;
-        $contentDir = $workingDir.'/'.Config::DEFAULT_SOURCE;
+        return $this->basePath;
+    }
 
-        if ( ! is_dir($contentDir)) {
-            echo 'The content directory is missing. Are you in the project path?'.PHP_EOL;
-
-            return false;
-        }
-
-        $configFilePath = $workingDir.'/'.Config::DEFAULT_PATH;
-        $configLoaded = (new ConfigLoader())->load($configFilePath);
+    /**
+     * @throws \Exception
+     */
+    public function loadConfig(): void
+    {
+        $configLoaded = (new ConfigLoader())->load($this->basePath);
 
         if ( ! $configLoaded) {
-            return false;
+            throw new \Exception('Could not load configuration file');
         }
+    }
 
-        return true;
+    /**
+     * @throws \Exception
+     */
+    private function checkContentDirectoryExist(): void
+    {
+        $contentDir = $this->basePath.'/'.Config::DEFAULT_SOURCE;
+
+        if ( ! is_dir($contentDir)) {
+            throw new \Exception('The content directory is missing. Are you in the project path?');
+        }
     }
 
     /**

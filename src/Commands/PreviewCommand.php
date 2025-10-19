@@ -23,23 +23,30 @@ class PreviewCommand extends Command
     protected function configure(): void
     {
         $this->setName('preview')
-            ->setDescription('Start built-in PHP server to preview the output directory')
+            ->setDescription('Start built-in PHP server to preview your site')
             ->addOption('host', null, InputOption::VALUE_OPTIONAL, 'Hostname or ip address', 'localhost')
-            ->addOption('port', 'p', InputOption::VALUE_REQUIRED, 'Port', 8000);
+            ->addOption('port', 'p', InputOption::VALUE_REQUIRED, 'Port', 8000)
+            ->addOption('dist', 'd', InputOption::VALUE_NONE, 'Preview the built files from the dist folder');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $publicDir = $this->helpers->getBuildDir();
+        $sourceDir = $this->helpers->getSourceDir();
+        $options = $this->validate($input);
 
-        if ( ! file_exists($publicDir)) {
+        if ($options['dist'] && ! file_exists($publicDir)) {
             $output->writeln("<error>Directory {$publicDir} does not exist. Have you run build before?</error>");
 
             return Command::FAILURE;
         }
 
-        $options = $this->validate($input);
-        $command = "php -S {$options['host']}:{$options['port']} -t {$this->helpers->getBuildDir()}";
+        $source = $options['dist']
+            ? "-t {$publicDir}"
+            : "-t {$sourceDir}".' '.__DIR__.'/../server.php';
+        $host = $options['host'].':'.$options['port'];
+
+        $command = "BASE_URL=\"http://{$host}\" php -S {$host} {$source}";
         $outcome = $this->executor->run($command);
 
         return $outcome === false ? Command::FAILURE : Command::SUCCESS;
@@ -50,19 +57,10 @@ class PreviewCommand extends Command
      */
     private function validate(InputInterface $input): array
     {
-        $options = [
-            'host' => $input->getOption('host') ?? 'localhost',
-            'port' => $input->getOption('port') ?? 8000,
+        return [
+            'host' => (string) $input->getOption('host'),
+            'port' => (int) $input->getOption('port'),
+            'dist' => (bool) $input->getOption('dist'),
         ];
-
-        if ( ! is_string($options['host'])) {
-            throw new \InvalidArgumentException('Host must be a string');
-        }
-
-        if ( ! is_int($options['port'])) {
-            throw new \InvalidArgumentException('Port must be an integer');
-        }
-
-        return $options;
     }
 }
