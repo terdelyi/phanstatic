@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\Generators;
+namespace Terdelyi\Phanstatic\Generators\Collection;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,16 +11,14 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\SplFileInfo;
 use Terdelyi\Phanstatic\Compilers\MarkdownCompiler;
 use Terdelyi\Phanstatic\Compilers\PhpCompiler;
+use Terdelyi\Phanstatic\Generators\GeneratorInterface;
 use Terdelyi\Phanstatic\Models\Collection;
 use Terdelyi\Phanstatic\Models\CollectionItem;
-use Terdelyi\Phanstatic\Models\CompilerContext;
 use Terdelyi\Phanstatic\Models\Config;
 use Terdelyi\Phanstatic\Models\Page;
-use Terdelyi\Phanstatic\Models\Site;
 use Terdelyi\Phanstatic\Readers\FileReader;
 use Terdelyi\Phanstatic\Support\Helpers;
 use Terdelyi\Phanstatic\Support\OutputHelper;
-use Terdelyi\Phanstatic\Support\PaginatedCollectionBuilder;
 
 class CollectionGenerator implements GeneratorInterface
 {
@@ -123,45 +121,22 @@ class CollectionGenerator implements GeneratorInterface
 
     private function processPage(SplFileInfo $file, Collection $collection): void
     {
-        $markdown = $this->markdownCompiler->render($file->getPathname());
-        $page = $this->buildPage($file->getBasename('.md'), $collection->slug, $markdown);
-        $site = Site::fromConfig($this->config);
-        $context = new CompilerContext($site, $page, $collection);
+        $context = (new SingleContextBuilder())->build($file, $collection);
+        $context->collection = $collection;
+
         $html = $this->phpCompiler->render($collection->singleTemplate, $context);
 
         try {
-            $this->filesystem->dumpFile($page->path, $html);
+            $this->filesystem->dumpFile($context->page->path, $html);
         } catch (IOException $ex) {
-            throw new \Exception('Failed to save file: '.$page->path.' '.$ex->getMessage());
+            throw new \Exception('Failed to save file: '.$context->page->path.' '.$ex->getMessage());
         }
 
-        $this->addPageToCollection($collection, $page);
+        $this->addPageToCollection($collection, $context->page);
 
         $this->fromTo(
             $this->helpers->getSourceDir($file->getRelativePathname(), true),
-            $this->helpers->getBuildDir($page->relativePath, true)
-        );
-    }
-
-    private function buildPage(string $basename, string $slug, MarkdownCompiler $markdown): Page
-    {
-        $relativePath = $basename;
-        if ($slug !== '') {
-            $relativePath = $slug.'/'.$relativePath;
-        }
-
-        $meta = $markdown->meta();
-        $title = ! isset($meta['title']) ? dd($markdown) : $meta['title'];
-        unset($meta['title']);
-
-        return new Page(
-            path: $this->helpers->getBuildDir($relativePath.'/index.html'),
-            relativePath: $relativePath,
-            permalink: $relativePath.'/',
-            url: url($relativePath.'/'),
-            title: $title,
-            content: $markdown->content(),
-            meta: $meta,
+            $this->helpers->getBuildDir($context->page->relativePath, true)
         );
     }
 
@@ -177,18 +152,16 @@ class CollectionGenerator implements GeneratorInterface
         $totalPages = (int) ceil($totalItems / $collection->pageSize);
 
         for ($page = 1; $page <= $totalPages; ++$page) {
-            $builder = PaginatedCollectionBuilder::build($collection, $page);
-            $filePath = $this->helpers->getBuildDir($builder->path('/index.html'));
-            $context = $builder->context(Site::fromConfig($this->config));
+            $context = (new IndexContextBuilder($collection, $page))->build();
             $html = (new PhpCompiler())->render($collection->indexTemplate, $context);
 
             try {
-                $this->filesystem->dumpFile($filePath, $html);
+                $this->filesystem->dumpFile($context->page->path, $html);
             } catch (IOException $ex) {
-                throw new \Exception('Failed to save file: '.$filePath.' '.$ex->getMessage());
+                throw new \Exception('Failed to save file: '.$context->page->path.' '.$ex->getMessage());
             }
 
-            $this->text('Paginated page created (%s/%s): %s', $page, $totalPages, $context->page?->relativePath);
+            $this->text('Paginated page created (%s/%s): %s', $page, $totalPages, $context->page->relativePath);
         }
     }
 

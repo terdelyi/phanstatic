@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Terdelyi\Phanstatic\Support;
 
 use Terdelyi\Phanstatic\Compilers\PhpCompiler;
-use Terdelyi\Phanstatic\Generators\Page\Context;
+use Terdelyi\Phanstatic\Generators\Page\ContextBuilder;
 use Terdelyi\Phanstatic\Models\CompilerContext;
+use Terdelyi\Phanstatic\Models\Config;
+use Terdelyi\Phanstatic\Readers\FileReader;
 
 class Router
 {
@@ -14,7 +16,7 @@ class Router
 
     private Helpers $helpers;
 
-    private function __construct(?Helpers $helpers = null)
+    public function __construct(?Helpers $helpers = null)
     {
         $this->helpers = $helpers ?? new Helpers();
     }
@@ -25,7 +27,13 @@ class Router
 
         if ($page = $this->getPage()) {
             $file = File::fromPath($page);
-            $context = (new Context())->buildContext($file);
+            $context = (new ContextBuilder())->build($file);
+            $this->render($file->getPathname(), $context);
+        }
+
+        if ($collection = $this->getCollection()) {
+            $file = File::fromPath($collection);
+            $context = (new ContextBuilder())->build($file);
             $this->render($file->getPathname(), $context);
         }
     }
@@ -49,7 +57,26 @@ class Router
 
     public function getCollection(): ?string
     {
-        throw new \Exception('Not implemented');
+        $matchedCollection = null;
+
+        foreach (Config::get()->collections as $key => $collection) {
+            if (str_starts_with($this->uri, (string) $collection->slug) || str_starts_with($this->uri, $key)) {
+                $matchedCollection = $collection;
+
+                break;
+            }
+        }
+
+        $files = (new FileReader())->findFiles(__DIR__.'/../../content/collections/posts', '*.md');
+        foreach ($files as $file) {
+            if ($this->uri === $matchedCollection->slug.'/'.$file->getFilenameWithoutExtension()) {
+                dd('Single collection!');
+            }
+        }
+
+        dd($matchedCollection);
+
+        return '';
     }
 
     /**

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Terdelyi\Phanstatic\Models;
 
 use Terdelyi\Phanstatic\Generators\AssetGenerator;
-use Terdelyi\Phanstatic\Generators\CollectionGenerator;
-use Terdelyi\Phanstatic\Generators\PageGenerator;
+use Terdelyi\Phanstatic\Generators\Collection\CollectionGenerator;
+use Terdelyi\Phanstatic\Generators\Page\PageGenerator;
 
 final class Config
 {

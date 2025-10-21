@@ -2,18 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Terdelyi\Phanstatic\Generators;
+namespace Terdelyi\Phanstatic\Generators\Page;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\SplFileInfo;
 use Terdelyi\Phanstatic\Compilers\PhpCompiler;
-use Terdelyi\Phanstatic\Generators\Page\Context;
-use Terdelyi\Phanstatic\Models\CompilerContext;
+use Terdelyi\Phanstatic\Generators\GeneratorInterface;
 use Terdelyi\Phanstatic\Models\Config;
-use Terdelyi\Phanstatic\Models\Page;
-use Terdelyi\Phanstatic\Models\Site;
 use Terdelyi\Phanstatic\Readers\FileReader;
 use Terdelyi\Phanstatic\Support\Helpers;
 use Terdelyi\Phanstatic\Support\OutputHelper;
@@ -56,7 +53,7 @@ class PageGenerator implements GeneratorInterface
 
     private function process(SplFileInfo $file): void
     {
-        $context = (new Context())->buildContext($file);
+        $context = (new ContextBuilder())->build($file);
         $html = (new PhpCompiler())->render($file->getPathname(), $context);
 
         $this->filesystem->dumpFile($context->page->path, $html);

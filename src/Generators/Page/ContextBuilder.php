@@ -11,7 +11,7 @@ use Terdelyi\Phanstatic\Models\Page;
 use Terdelyi\Phanstatic\Models\Site;
 use Terdelyi\Phanstatic\Support\Helpers;
 
-class Context
+class ContextBuilder
 {
     private Helpers $helpers;
     private Config $config;
@@ -22,25 +22,9 @@ class Context
         $this->config = $config ?? Config::get();
     }
 
-    /**
-     * @return array<string, string>
-     */
-    public function getFileData(SplFileInfo $file): array
+    public function build(SplFileInfo $file): CompilerContext
     {
-        $permalink = $this->createPermalink($file);
-        $relativePath = $this->createRelativePathFromPermalink($permalink);
-
-        return [
-            // 'basename' => $file->getBasename('.php'),
-            'path' => $this->helpers->getBuildDir($relativePath),
-            'relativePath' => $relativePath,
-            'permalink' => $permalink,
-        ];
-    }
-
-    public function buildContext(SplFileInfo $file): CompilerContext
-    {
-        $fileData = (new Context())->getFileData($file);
+        $page = $this->getPage($file);
 
         $site = new Site(
             title: $this->config->title,
@@ -48,14 +32,20 @@ class Context
             meta: $this->config->meta
         );
 
-        $page = new Page(
-            path: $fileData['path'],
-            relativePath: $fileData['relativePath'],
-            permalink: $fileData['permalink'],
-            url: $this->helpers->getBaseUrl($fileData['permalink'])
-        );
-
         return new CompilerContext($site, $page);
+    }
+
+    public function getPage(SplFileInfo $file): Page
+    {
+        $permalink = $this->createPermalink($file);
+        $relativePath = $this->createRelativePathFromPermalink($permalink);
+
+        return new Page(
+            path: $this->helpers->getBuildDir($relativePath),
+            relativePath: $relativePath,
+            permalink: $permalink,
+            url: $this->helpers->getBaseUrl($permalink)
+        );
     }
 
     private function createPermalink(SplFileInfo $file): string
