@@ -6,6 +6,10 @@ namespace Terdelyi\Phanstatic\Models;
 
 class Page
 {
+    public const TYPE_PAGE = 'page';
+    public const TYPE_COLLECTION = 'collection';
+    public const TYPE_COLLECTION_SINGLE = 'collection-single';
+
     /**
      * @param array<string,mixed> $meta
      */
@@ -17,6 +21,7 @@ class Page
         public ?string $title = null,
         public ?string $content = null,
         public array $meta = [],
+        public string $type = self::TYPE_PAGE,
     ) {}
 
     public function __get(string $key): mixed

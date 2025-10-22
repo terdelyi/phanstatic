@@ -12,6 +12,7 @@ use Terdelyi\Phanstatic\Models\Collection;
 use Terdelyi\Phanstatic\Models\CollectionItem;
 use Terdelyi\Phanstatic\Models\CompilerContext;
 use Terdelyi\Phanstatic\Models\Config;
+use Terdelyi\Phanstatic\Models\Page;
 use Terdelyi\Phanstatic\Readers\FileReader;
 
 class Router
@@ -25,6 +26,9 @@ class Router
         $this->helpers = $helpers ?? new Helpers();
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(string $request): void
     {
         $this->uri = $this->parseRequest($request);
@@ -36,7 +40,11 @@ class Router
         }
 
         if ($collection = $this->getCollection()) {
-            $this->render($file->getPathname(), $collection);
+            if ($collection->collection && $collection->page->type === Page::TYPE_COLLECTION_SINGLE) {
+                $this->render($collection->collection->singleTemplate, $collection);
+            } elseif ($collection->collection) {
+                $this->render($collection->collection->indexTemplate, $collection);
+            }
         }
     }
 
@@ -73,15 +81,7 @@ class Router
             return null;
         }
 
-        $single = null;
         $path = 'collections/'.$matchedCollectionConfig->slug;
-        $files = (new FileReader())->findFiles($this->helpers->getSourceDir($path), '*.md');
-        foreach ($files as $file) {
-            if ($this->uri === $matchedCollectionConfig->slug.'/'.$file->getFilenameWithoutExtension()) {
-                $single = $file;
-            }
-        }
-
         $directory = File::fromPath($this->helpers->getSourceDir($path));
         $singleTemplate = $directory->getPathname().'/single.php';
         $indexTemplate = $directory->getPathname().'/index.php';
@@ -99,14 +99,26 @@ class Router
 
         $this->getItems($this->helpers->getSourceDir($path), $collection);
 
-        if ($single) {
-            $context = (new SingleContextBuilder())->build($single, $collection);
-            $this->render($collection->singleTemplate, $context);
+        $single = null;
+        $files = (new FileReader())->findFiles($this->helpers->getSourceDir($path), '*.md');
+        foreach ($files as $file) {
+            if ($this->uri === $matchedCollectionConfig->slug.'/'.$file->getFilenameWithoutExtension()) {
+                $single = $file;
+            }
         }
 
-        $page = 1;
-        $context = (new IndexContextBuilder($collection, $page))->build();
-        $this->render($collection->indexTemplate, $context);
+        if ($single) {
+            $context = (new SingleContextBuilder())->build($single, $collection);
+            $context->collection = $collection;
+
+            return $context;
+        }
+
+        $permalinkParts = explode('/', $this->uri);
+        $permalinkParts = array_reverse($permalinkParts);
+        $page = (int) $permalinkParts[0] ?: 1;
+
+        return (new IndexContextBuilder($collection, $page))->build();
     }
 
     /**

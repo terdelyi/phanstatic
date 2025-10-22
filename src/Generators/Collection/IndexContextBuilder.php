@@ -64,6 +64,7 @@ class IndexContextBuilder
             relativePath: $path,
             permalink: $permalink,
             url: url($permalink),
+            type: Page::TYPE_COLLECTION,
         );
     }
 

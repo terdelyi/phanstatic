@@ -9,7 +9,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\SplFileInfo;
-use Terdelyi\Phanstatic\Compilers\MarkdownCompiler;
 use Terdelyi\Phanstatic\Compilers\PhpCompiler;
 use Terdelyi\Phanstatic\Generators\GeneratorInterface;
 use Terdelyi\Phanstatic\Models\Collection;

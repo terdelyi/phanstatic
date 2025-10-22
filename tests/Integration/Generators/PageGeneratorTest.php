@@ -8,7 +8,7 @@ use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Terdelyi\Phanstatic\Generators\PageGenerator;
+use Terdelyi\Phanstatic\Generators\Page\PageGenerator;
 use Terdelyi\Phanstatic\Models\Config;
 use Terdelyi\Phanstatic\Support\Helpers;
 use Tests\Unit\TestCase;

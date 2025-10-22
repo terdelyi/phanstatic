@@ -22,13 +22,11 @@ class PageGenerator implements GeneratorInterface
     private string $sourcePath = 'pages';
     private Filesystem $filesystem;
     private Helpers $helpers;
-    private Config $config;
 
-    public function __construct(?Filesystem $filesystem = null, ?Helpers $helpers = null, ?Config $config = null)
+    public function __construct(?Filesystem $filesystem = null, ?Helpers $helpers = null)
     {
         $this->filesystem = $filesystem ?? new Filesystem();
         $this->helpers = $helpers ?? new Helpers();
-        $this->config = $config ?? Config::get();
     }
 
     public function run(InputInterface $input, OutputInterface $output): void

@@ -63,6 +63,7 @@ class SingleContextBuilder
             title: $title,
             content: $markdown->content(),
             meta: $meta,
+            type: Page::TYPE_COLLECTION_SINGLE,
         );
     }
 }
