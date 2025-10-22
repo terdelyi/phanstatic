@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Terdelyi\Phanstatic\Support;
 
 use Terdelyi\Phanstatic\Compilers\PhpCompiler;
+use Terdelyi\Phanstatic\Generators\Collection\IndexContextBuilder;
+use Terdelyi\Phanstatic\Generators\Collection\SingleContextBuilder;
 use Terdelyi\Phanstatic\Generators\Page\ContextBuilder;
+use Terdelyi\Phanstatic\Models\Collection;
+use Terdelyi\Phanstatic\Models\CollectionItem;
 use Terdelyi\Phanstatic\Models\CompilerContext;
 use Terdelyi\Phanstatic\Models\Config;
 use Terdelyi\Phanstatic\Readers\FileReader;
@@ -32,9 +36,7 @@ class Router
         }
 
         if ($collection = $this->getCollection()) {
-            $file = File::fromPath($collection);
-            $context = (new ContextBuilder())->build($file);
-            $this->render($file->getPathname(), $context);
+            $this->render($file->getPathname(), $collection);
         }
     }
 
@@ -55,28 +57,56 @@ class Router
         return file_exists($file) ? $file : null;
     }
 
-    public function getCollection(): ?string
+    public function getCollection(): ?CompilerContext
     {
-        $matchedCollection = null;
+        $matchedCollectionConfig = null;
 
         foreach (Config::get()->collections as $key => $collection) {
             if (str_starts_with($this->uri, (string) $collection->slug) || str_starts_with($this->uri, $key)) {
-                $matchedCollection = $collection;
+                $matchedCollectionConfig = $collection;
 
                 break;
             }
         }
 
-        $files = (new FileReader())->findFiles(__DIR__.'/../../content/collections/posts', '*.md');
+        if ( ! $matchedCollectionConfig) {
+            return null;
+        }
+
+        $single = null;
+        $path = 'collections/'.$matchedCollectionConfig->slug;
+        $files = (new FileReader())->findFiles($this->helpers->getSourceDir($path), '*.md');
         foreach ($files as $file) {
-            if ($this->uri === $matchedCollection->slug.'/'.$file->getFilenameWithoutExtension()) {
-                dd('Single collection!');
+            if ($this->uri === $matchedCollectionConfig->slug.'/'.$file->getFilenameWithoutExtension()) {
+                $single = $file;
             }
         }
 
-        dd($matchedCollection);
+        $directory = File::fromPath($this->helpers->getSourceDir($path));
+        $singleTemplate = $directory->getPathname().'/single.php';
+        $indexTemplate = $directory->getPathname().'/index.php';
 
-        return '';
+        $collection = new Collection(
+            title: $matchedCollectionConfig->title ?? '',
+            basename: $directory->getBasename(),
+            sourceDir: $directory->getPathname(),
+            slug: ! empty($matchedCollectionConfig->slug) ? $matchedCollectionConfig->slug : $directory->getBasename(),
+            singleTemplate: $singleTemplate,
+            indexTemplate: $indexTemplate,
+            items: [],
+            pageSize: $matchedCollectionConfig->pageSize ?? 10
+        );
+
+        $this->getItems($this->helpers->getSourceDir($path), $collection);
+
+        if ($single) {
+            $context = (new SingleContextBuilder())->build($single, $collection);
+            $this->render($collection->singleTemplate, $context);
+        }
+
+        $page = 1;
+        $context = (new IndexContextBuilder($collection, $page))->build();
+        $this->render($collection->indexTemplate, $context);
     }
 
     /**
@@ -87,5 +117,17 @@ class Router
         echo (new PhpCompiler())->render($file, $context);
 
         exit;
+    }
+
+    private function getItems(string $path, Collection $collection): void
+    {
+        $files = (new FileReader())->findFiles($path, '*.md');
+        $items = [];
+
+        foreach ($files as $file) {
+            $context = (new SingleContextBuilder())->build($file, $collection);
+            $collectionItem = CollectionItem::fromPage($context->page);
+            $collection->add($collectionItem);
+        }
     }
 }

@@ -28,7 +28,6 @@ class CollectionGenerator implements GeneratorInterface
     private Filesystem $filesystem;
     private Helpers $helpers;
     private Config $config;
-    private MarkdownCompiler $markdownCompiler;
     private PhpCompiler $phpCompiler;
 
     public function __construct()
@@ -36,7 +35,6 @@ class CollectionGenerator implements GeneratorInterface
         $this->filesystem = new Filesystem();
         $this->helpers = new Helpers();
         $this->config = Config::get();
-        $this->markdownCompiler = new MarkdownCompiler();
         $this->phpCompiler = new PhpCompiler();
     }
 
