@@ -8,7 +8,7 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class File
 {
-    public static function fromPath(string $path): SplFileInfo
+    public static function fromPath(string $path, array $replace = []): SplFileInfo
     {
         $realPath = realpath($path);
 
@@ -19,8 +19,8 @@ class File
         $realPath = str_replace('\\', '/', $realPath);
         $baseDir = dirname($realPath);
 
-        $relativePath = basename($baseDir);
-        $relativePathname = $relativePath.'/'.basename($realPath);
+        $relativePath = str_replace($replace, [''], basename($baseDir));
+        $relativePathname = ($relativePath ? $relativePath.'/' : '').basename($realPath);
 
         return new SplFileInfo($realPath, $relativePath, $relativePathname);
     }

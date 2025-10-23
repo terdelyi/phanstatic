@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Terdelyi\Phanstatic\Support;
 
+use Symfony\Component\Finder\Finder;
 use Terdelyi\Phanstatic\Compilers\PhpCompiler;
 use Terdelyi\Phanstatic\Generators\Collection\IndexContextBuilder;
 use Terdelyi\Phanstatic\Generators\Collection\SingleContextBuilder;
@@ -34,7 +35,7 @@ class Router
         $this->uri = $this->parseRequest($request);
 
         if ($page = $this->getPage()) {
-            $file = File::fromPath($page);
+            $file = File::fromPath($page, ['pages']);
             $context = (new ContextBuilder())->build($file);
             $this->render($file->getPathname(), $context);
         }
@@ -97,10 +98,10 @@ class Router
             pageSize: $matchedCollectionConfig->pageSize ?? 10
         );
 
-        $this->getItems($this->helpers->getSourceDir($path), $collection);
+        $files = (new FileReader())->findFiles($this->helpers->getSourceDir($path), '*.md');
+        $this->applyItems($files, $collection);
 
         $single = null;
-        $files = (new FileReader())->findFiles($this->helpers->getSourceDir($path), '*.md');
         foreach ($files as $file) {
             if ($this->uri === $matchedCollectionConfig->slug.'/'.$file->getFilenameWithoutExtension()) {
                 $single = $file;
@@ -131,11 +132,8 @@ class Router
         exit;
     }
 
-    private function getItems(string $path, Collection $collection): void
+    private function applyItems(Finder $files, Collection $collection): void
     {
-        $files = (new FileReader())->findFiles($path, '*.md');
-        $items = [];
-
         foreach ($files as $file) {
             $context = (new SingleContextBuilder())->build($file, $collection);
             $collectionItem = CollectionItem::fromPage($context->page);
