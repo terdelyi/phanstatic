@@ -27,20 +27,23 @@ php ./vendor/bin/phanstatic build
 
 ## Preview
 
-To preview the `dist` folder quickly in a browser:
+To preview your site in a browser directly from the `content` folder just run:
 
 ```
 php ./vendor/bin/phanstatic preview
 ```
 
-This will start PHP's built-in server at `localhost` with port `8000` and make the files from the `dist` available in a
-browser.
+You can also preview the built files from the `dist` folder:
 
-You can override the default host (`--host`) and the port (`--port`) settings if necessary.
+```
+php ./vendor/bin/phanstatic preview --dist
+```
+
+If necessary you can also change the default `--host` (localhost) and the `--port` (8080) settings.
 
 ## Configuration
 
-You can place a configuration file under `content/config.php` which must return a `ConfigBuilder` object like this:
+It's optional, but you can place a configuration file under `content/config.php` which must return a `ConfigBuilder` object like this:
 
 ```php
 use Terdelyi\Phanstatic\Models\Config;
