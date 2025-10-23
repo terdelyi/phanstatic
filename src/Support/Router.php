@@ -32,104 +32,105 @@ class Router
      */
     public function handle(string $request): void
     {
-        $this->uri = $this->parseRequest($request);
+        $this->parseRequest($request);
 
-        if ($page = $this->getPage()) {
-            $file = File::fromPath($page, ['pages']);
+        if ($page = $this->parsePage()) {
+            $file = SplFileInfo::fromFilePath($page, 'pages');
             $context = (new ContextBuilder())->build($file);
-            $this->render($file->getPathname(), $context);
+
+            echo $this->render($file->getPathname(), $context);
+
+            exit;
         }
 
-        if ($collection = $this->getCollection()) {
-            if ($collection->collection && $collection->page->type === Page::TYPE_COLLECTION_SINGLE) {
-                $this->render($collection->collection->singleTemplate, $collection);
-            } elseif ($collection->collection) {
-                $this->render($collection->collection->indexTemplate, $collection);
+        if ($collection = $this->parseCollection()) {
+            if ( ! $collection->collection) {
+                return;
             }
+
+            $template = $collection->page->type === Page::TYPE_COLLECTION_SINGLE
+                ? $collection->collection->singleTemplate
+                : $collection->collection->indexTemplate;
+
+            echo $this->render($template, $collection);
+
+            exit;
         }
     }
 
-    public function parseRequest(string $request): string
+    public function parseRequest(string $request): void
     {
         $path = (string) parse_url($request, PHP_URL_PATH);
         $uri = trim($path, '/');
 
-        return $uri === ''
+        $this->uri = $uri === ''
             ? 'index'
             : htmlspecialchars($uri);
     }
 
-    public function getPage(): ?string
+    public function parsePage(): ?string
     {
-        $file = $this->helpers->getSourceDir('pages/'.$this->uri.'.php');
+        $fileName = 'pages/'.$this->uri.'.php';
+        $filePath = $this->helpers->getSourceDir($fileName);
 
-        return file_exists($file) ? $file : null;
+        return file_exists($filePath) ? $filePath : null;
     }
 
-    public function getCollection(): ?CompilerContext
+    public function parseCollection(): ?CompilerContext
     {
-        $matchedCollectionConfig = null;
-
         foreach (Config::get()->collections as $key => $collection) {
-            if (str_starts_with($this->uri, (string) $collection->slug) || str_starts_with($this->uri, $key)) {
-                $matchedCollectionConfig = $collection;
+            $matchesSlug = str_starts_with($this->uri, (string) $collection->slug);
+            $matchesKey = str_starts_with($this->uri, $key);
 
-                break;
+            if ( ! $matchesSlug && ! $matchesKey) {
+                continue;
             }
+
+            $matchedCollectionConfig = $collection;
         }
 
-        if ( ! $matchedCollectionConfig) {
+        if (empty($matchedCollectionConfig)) {
             return null;
         }
 
-        $path = 'collections/'.$matchedCollectionConfig->slug;
-        $directory = File::fromPath($this->helpers->getSourceDir($path));
-        $singleTemplate = $directory->getPathname().'/single.php';
-        $indexTemplate = $directory->getPathname().'/index.php';
+        $collectionDir = 'collections/'.$matchedCollectionConfig->slug;
+        $collectionDirPath = $this->helpers->getSourceDir($collectionDir);
+        $directory = SplFileInfo::fromFilePath($collectionDirPath, 'collections');
+        $slug = ! empty($matchedCollectionConfig->slug)
+            ? $matchedCollectionConfig->slug
+            : $directory->getBasename();
 
         $collection = new Collection(
             title: $matchedCollectionConfig->title ?? '',
             basename: $directory->getBasename(),
             sourceDir: $directory->getPathname(),
-            slug: ! empty($matchedCollectionConfig->slug) ? $matchedCollectionConfig->slug : $directory->getBasename(),
-            singleTemplate: $singleTemplate,
-            indexTemplate: $indexTemplate,
+            slug: $slug,
+            singleTemplate: $directory->getPathname().'/single.php',
+            indexTemplate: $directory->getPathname().'/index.php',
             items: [],
-            pageSize: $matchedCollectionConfig->pageSize ?? 10
+            pageSize: $matchedCollectionConfig->pageSize
         );
 
-        $files = (new FileReader())->findFiles($this->helpers->getSourceDir($path), '*.md');
-        $this->applyItems($files, $collection);
+        $itemsPath = $this->helpers->getSourceDir($collectionDir);
+        $items = (new FileReader())->findFiles($itemsPath, '*.md');
 
-        $single = null;
-        foreach ($files as $file) {
-            if ($this->uri === $matchedCollectionConfig->slug.'/'.$file->getFilenameWithoutExtension()) {
-                $single = $file;
+        $this->applyItems($items, $collection);
+
+        foreach ($items as $file) {
+            $permalink = $matchedCollectionConfig->slug.'/'.$file->getFilenameWithoutExtension();
+            if ($this->uri === $permalink) {
+                $context = (new SingleContextBuilder())->build($file, $collection);
+                $context->collection = $collection;
+
+                return $context;
             }
         }
 
-        if ($single) {
-            $context = (new SingleContextBuilder())->build($single, $collection);
-            $context->collection = $collection;
-
-            return $context;
-        }
-
-        $permalinkParts = explode('/', $this->uri);
-        $permalinkParts = array_reverse($permalinkParts);
-        $page = (int) $permalinkParts[0] ?: 1;
+        $uriParts = explode('/', $this->uri);
+        $uriParts = array_reverse($uriParts);
+        $page = (int) $uriParts[0] ?: 1;
 
         return (new IndexContextBuilder($collection, $page))->build();
-    }
-
-    /**
-     * @throws \Throwable
-     */
-    private function render(string $file, CompilerContext $context): void
-    {
-        echo (new PhpCompiler())->render($file, $context);
-
-        exit;
     }
 
     private function applyItems(Finder $files, Collection $collection): void
@@ -139,5 +140,13 @@ class Router
             $collectionItem = CollectionItem::fromPage($context->page);
             $collection->add($collectionItem);
         }
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    private function render(string $file, CompilerContext $context): string
+    {
+        return (new PhpCompiler())->render($file, $context);
     }
 }

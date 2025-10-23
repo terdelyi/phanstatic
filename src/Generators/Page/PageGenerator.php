@@ -10,7 +10,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\SplFileInfo;
 use Terdelyi\Phanstatic\Compilers\PhpCompiler;
 use Terdelyi\Phanstatic\Generators\GeneratorInterface;
-use Terdelyi\Phanstatic\Models\Config;
 use Terdelyi\Phanstatic\Readers\FileReader;
 use Terdelyi\Phanstatic\Support\Helpers;
 use Terdelyi\Phanstatic\Support\OutputHelper;
