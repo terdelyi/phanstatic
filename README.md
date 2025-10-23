@@ -4,9 +4,9 @@
 <a href="https://packagist.org/packages/terdelyi/phanstatic"><img src="https://img.shields.io/packagist/v/terdelyi/phanstatic" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/terdelyi/phanstatic"><img src="https://img.shields.io/packagist/l/terdelyi/phanstatic" alt="License"></a>
 
-Phanstatic is a dead simple, modern, lightweight, CLI based static site generator written in PHP. There are no frameworks or template
-engines, just simple pages written in pure PHP code and markdown files. During the building process, all of your content
-is transformed into static HTML files, ready to deploy or upload to your server.
+Phanstatic is a simple, lightweight, CLI based static site generator written in PHP. There are no frameworks or template
+engines, just put your content into pure PHP templates and markdown files. During the building process, all of your content
+is transformed into HTML files ready to deploy or upload to your webserver.
 
 ## Install
 
@@ -66,11 +66,11 @@ offering the available properties with types.
 
 ## Content basics
 
-Structuring the content is simple. The `content` folder is where your files live:
+Structuring the content is straightforward. The `content` folder is where your pages and collections live:
 
-- `content/pages`: This is where you put your `.php` files.
-- `content/collections`: This is where you put your `.md` files under subdirectories named as your collection key.
-- `content/assets`: Any of these files will be published under `dist/assets`. It can be `.js`, `.css` or any type of images.
+- `content/pages`: This is where you put your page templates with `.php` extension.
+- `content/collections`: This is where you put your collections in subdirectories and their items as `.md` files.
+- `content/assets`: Any files placed in here will be published under `dist/assets`.
 
 ### Example project structure
 
