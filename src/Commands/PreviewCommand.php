@@ -25,7 +25,7 @@ class PreviewCommand extends Command
         $this->setName('preview')
             ->setDescription('Start built-in PHP server to preview your site')
             ->addOption('host', null, InputOption::VALUE_OPTIONAL, 'Hostname or ip address', 'localhost')
-            ->addOption('port', 'p', InputOption::VALUE_REQUIRED, 'Port', 8000)
+            ->addOption('port', 'p', InputOption::VALUE_REQUIRED, 'Port', 8080)
             ->addOption('dist', 'd', InputOption::VALUE_NONE, 'Preview the built files from the dist folder');
     }
 

@@ -13,7 +13,7 @@ final class Config
     public const DEFAULT_PATH = 'content/config.php';
     public const DEFAULT_SOURCE = 'content';
     public const DEFAULT_BUILD = 'dist';
-    public const DEFAULT_URL = 'http://localhost:8000';
+    public const DEFAULT_URL = 'http://localhost:8080';
 
     private static ?Config $instance = null;
 
