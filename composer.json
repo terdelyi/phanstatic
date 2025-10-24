@@ -41,8 +41,8 @@
         "bin/phanstatic"
     ],
     "scripts": {
-        "style-checks": "php-cs-fixer check --config .php-cs-fixer.php",
-        "style-fix": "php-cs-fixer fix --config .php-cs-fixer.php",
+        "check-styles": "php-cs-fixer check --config .php-cs-fixer.php",
+        "fix-styles": "php-cs-fixer fix --config .php-cs-fixer.php",
         "analyse": "phpstan analyse -c phpstan.neon",
         "tests": "phpunit --configuration phpunit.xml"
     }
