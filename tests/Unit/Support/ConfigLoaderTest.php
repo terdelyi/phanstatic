@@ -21,7 +21,7 @@ class ConfigLoaderTest extends TestCase
         $config = $configLoader->load();
 
         static::assertEquals(Config::DEFAULT_PATH, $config?->path);
-        static::assertEquals('http://localhost:8000', $config?->baseUrl);
+        static::assertEquals('http://localhost:8080', $config?->baseUrl);
     }
 
     #[Test]
