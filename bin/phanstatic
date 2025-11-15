@@ -13,7 +13,7 @@ try {
     $application = new Phanstatic($workingDir);
     $application->run();
 } catch (Throwable $e) {
-    echo 'Error: '.$e->getMessage().' in '.$e->getFile().' (Line: '.$e->getLine().')';
+    echo 'Error: '.$e->getMessage().' in '.$e->getFile().'#'.$e->getLine();
 
     exit(Command::FAILURE);
 }

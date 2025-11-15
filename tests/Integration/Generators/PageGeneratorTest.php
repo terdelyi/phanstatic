@@ -24,13 +24,11 @@ class PageGeneratorTest extends TestCase
     public function canRun(): void
     {
         $input = m::mock(InputInterface::class);
-
         $output = m::mock(OutputInterface::class);
         $output->shouldReceive('writeln');
 
         Config::init($this->getConfig());
         (new PageGenerator())->run($input, $output);
-
         $file = (new Helpers())->getBuildDir('index.html');
 
         static::assertFileExists($file);
@@ -40,8 +38,9 @@ class PageGeneratorTest extends TestCase
     private function getConfig(): Config
     {
         return new Config(
-            sourceDir: 'tests/data/content',
-            buildDir: 'tests/data/dist',
+            workingDir: self::$dataPath,
+            sourceDir: 'content',
+            buildDir: 'dist',
         );
     }
 }

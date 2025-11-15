@@ -18,7 +18,7 @@ class ConfigLoaderTest extends TestCase
     public function itCanLoadDefaultConfig(): void
     {
         $configLoader = new ConfigLoader();
-        $config = $configLoader->load();
+        $config = $configLoader->load(self::$dataPath);
 
         static::assertEquals(Config::DEFAULT_PATH, $config?->path);
         static::assertEquals('http://localhost:8080', $config?->baseUrl);
@@ -27,30 +27,33 @@ class ConfigLoaderTest extends TestCase
     #[Test]
     public function itCanLoadCustomConfig(): void
     {
-        $customConfig = self::$dataPath.'/config/sample-config.php';
+        $customConfig = 'config/sample-config.php';
         $configLoader = new ConfigLoader();
-        $config = $configLoader->load($customConfig);
+        $config = $configLoader->load(self::$dataPath, $customConfig);
 
         static::assertEquals($customConfig, $config?->path);
         static::assertEquals('This is a custom config', $config?->title);
     }
 
     #[Test]
+    public function itThrowsErrorOnInvalidCustomConfigFile(): void
+    {
+        $this->expectException(\Exception::class);
+
+        (new ConfigLoader())->load(self::$dataPath, 'doesnotexist.php');
+    }
+
+    #[Test]
     public function itHandlesInvalidCustomConfig(): void
     {
-        $this->expectsOutput();
-
-        $customConfig = self::$dataPath.'/config/invalid-config.php';
-        $configLoader = new ConfigLoader();
+        $this->expectExceptionMessage('Invalid config file content in');
 
         ob_start();
 
         try {
-            $configLoader->load($customConfig);
+            (new ConfigLoader())->load(self::$dataPath, 'config/invalid-config.php');
         } finally {
             $output = ob_get_clean() ?: '';
         }
-
-        static::assertStringStartsWith('This is an invalid config file.Invalid config file content. Please return a Config object in', $output);
     }
 }
