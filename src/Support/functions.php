@@ -35,6 +35,10 @@ if ( ! function_exists('build_dir')) {
 if ( ! function_exists('dd')) {
     function dd(mixed ...$args): string
     {
+        if (PHP_SAPI !== 'cli') {
+            echo '<pre>';
+        }
+
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
         $file = $trace['file'] ?? 'unknown file';
         $line = $trace['line'] ?? 'unknown line';
@@ -46,6 +50,10 @@ if ( ! function_exists('dd')) {
             $dump = ob_get_clean() ?: '';
             $dump = preg_replace('/^.*\n/', '', $dump, 1);
             echo $dump."\n";
+        }
+
+        if (PHP_SAPI !== 'cli') {
+            echo '</pre>';
         }
 
         exit;

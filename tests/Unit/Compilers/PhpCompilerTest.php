@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Terdelyi\Phanstatic\Compilers\PhpCompiler;
 use Terdelyi\Phanstatic\Models\CompilerContext;
 use Terdelyi\Phanstatic\Models\Page;
+use Terdelyi\Phanstatic\Models\Site;
 use Tests\Unit\TestCase;
 
 /**
@@ -28,7 +29,10 @@ class PhpCompilerTest extends TestCase
     {
         $path = self::$dataPath.'/pages/template.php';
         $data = new CompilerContext(
-            null,
+            new Site(
+                'Test Site',
+                'http://example.com',
+            ),
             new Page(
                 'path-to-page',
                 'relative-path',
@@ -56,7 +60,10 @@ class PhpCompilerTest extends TestCase
 
         $path = self::$dataPath.'/pages/template-with-error.php';
         $data = new CompilerContext(
-            null,
+            new Site(
+                'Test Site',
+                'http://example.com',
+            ),
             new Page(
                 'path-to-page',
                 'relative-path',
@@ -80,7 +87,10 @@ class PhpCompilerTest extends TestCase
         $path = self::$dataPath.'/pages/template.php';
 
         $data = new CompilerContext(
-            null,
+            new Site(
+                'Test Site',
+                'http://example.com',
+            ),
             new Page(
                 'path-to-page',
                 'relative-path',

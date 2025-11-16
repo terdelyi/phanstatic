@@ -8,26 +8,42 @@ use Terdelyi\Phanstatic\Models\Config;
 
 class ConfigLoader
 {
-    public function load(?string $configPath = null): ?Config
+    /**
+     * @throws \Exception
+     */
+    public function load(string $workingDir, ?string $customConfigPath = null): ?Config
     {
-        $configFile = $configPath && file_exists($configPath) ? $configPath : null;
+        $defaultConfigPath = $workingDir.'/'.Config::DEFAULT_PATH;
 
-        if ( ! $configFile) {
-            return Config::init();
-        }
-
-        try {
-            /** @var Config $config */
-            $config = require $configFile;
-            $config->path = $configPath;
-
+        if ( ! $customConfigPath && ! file_exists($defaultConfigPath)) {
+            $config = new Config(
+                workingDir: $workingDir,
+            );
             Config::init($config);
 
             return $config;
-        } catch (\Throwable $ex) {
-            echo 'Invalid config file content. Please return a Config object in '.$configFile.PHP_EOL;
-
-            return null;
         }
+
+        $customConfigPath ??= Config::DEFAULT_PATH;
+        $configFilePath = $workingDir.'/'.$customConfigPath;
+
+        if ( ! file_exists($configFilePath)) {
+            throw new \Exception("Config file at {$configFilePath} does not exist.");
+        }
+
+        try {
+            $config = require $configFilePath;
+        } catch (\Throwable $ex) {
+            throw new \Exception("Invalid config file initialisation in {$configFilePath}");
+        }
+
+        if ( ! $config instanceof Config) {
+            throw new \Exception("Invalid config file content in {$configFilePath}. Please return a Config object.");
+        }
+
+        $config->path = $customConfigPath;
+        $config->workingDir = $workingDir;
+
+        return Config::init($config);
     }
 }

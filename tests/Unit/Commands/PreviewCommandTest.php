@@ -42,7 +42,10 @@ class PreviewCommandTest extends TestCase
         $this->helpers->shouldReceive('getBuildDir')
             ->andReturn(self::$dataPath.'/dist');
 
-        $this->commandTester->execute([]);
+        $this->helpers->shouldReceive('getSourceDir')
+            ->andReturn(self::$dataPath.'/content');
+
+        $this->commandTester->execute(['--dist' => true]);
         $this->commandTester->assertCommandIsSuccessful();
     }
 
@@ -52,7 +55,10 @@ class PreviewCommandTest extends TestCase
         $this->helpers->shouldReceive('getBuildDir')
             ->andReturn('invalid-path');
 
-        $this->commandTester->execute([]);
+        $this->helpers->shouldReceive('getSourceDir')
+            ->andReturn(self::$dataPath.'/content');
+
+        $this->commandTester->execute(['--dist' => true]);
 
         $display = trim($this->commandTester->getDisplay());
 

@@ -7,8 +7,8 @@ namespace Terdelyi\Phanstatic\Models;
 class CompilerContext
 {
     public function __construct(
-        public ?Site $site = null,
-        public ?Page $page = null,
+        public Site $site,
+        public Page $page,
         public ?Collection $collection = null,
         public ?CollectionPaginator $pagination = null,
     ) {}

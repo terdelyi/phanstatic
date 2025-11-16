@@ -5,21 +5,20 @@ declare(strict_types=1);
 namespace Terdelyi\Phanstatic\Models;
 
 use Terdelyi\Phanstatic\Generators\AssetGenerator;
-use Terdelyi\Phanstatic\Generators\CollectionGenerator;
-use Terdelyi\Phanstatic\Generators\PageGenerator;
+use Terdelyi\Phanstatic\Generators\Collection\CollectionGenerator;
+use Terdelyi\Phanstatic\Generators\Page\PageGenerator;
 
 final class Config
 {
     public const DEFAULT_PATH = 'content/config.php';
     public const DEFAULT_SOURCE = 'content';
     public const DEFAULT_BUILD = 'dist';
-    public const DEFAULT_URL = 'http://localhost:8000';
-    public readonly ?string $workingDir;
+    public const DEFAULT_URL = 'http://localhost:8080';
 
     private static ?Config $instance = null;
 
     public function __construct(
-        ?string $workingDir = null,
+        public ?string $workingDir = null,
         public string $path = self::DEFAULT_PATH,
         public readonly string $sourceDir = self::DEFAULT_SOURCE,
         public readonly string $buildDir = self::DEFAULT_BUILD,
@@ -35,9 +34,7 @@ final class Config
             PageGenerator::class,
             CollectionGenerator::class,
         ],
-    ) {
-        $this->workingDir = $workingDir ?? (getcwd() ?: null);
-    }
+    ) {}
 
     public static function init(?Config $config = null): self
     {

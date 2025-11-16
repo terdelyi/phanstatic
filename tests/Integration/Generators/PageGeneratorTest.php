@@ -8,7 +8,7 @@ use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Terdelyi\Phanstatic\Generators\PageGenerator;
+use Terdelyi\Phanstatic\Generators\Page\PageGenerator;
 use Terdelyi\Phanstatic\Models\Config;
 use Terdelyi\Phanstatic\Support\Helpers;
 use Tests\Unit\TestCase;
@@ -24,13 +24,11 @@ class PageGeneratorTest extends TestCase
     public function canRun(): void
     {
         $input = m::mock(InputInterface::class);
-
         $output = m::mock(OutputInterface::class);
         $output->shouldReceive('writeln');
 
         Config::init($this->getConfig());
         (new PageGenerator())->run($input, $output);
-
         $file = (new Helpers())->getBuildDir('index.html');
 
         static::assertFileExists($file);
@@ -40,8 +38,9 @@ class PageGeneratorTest extends TestCase
     private function getConfig(): Config
     {
         return new Config(
-            sourceDir: 'tests/data/content',
-            buildDir: 'tests/data/dist',
+            workingDir: self::$dataPath,
+            sourceDir: 'content',
+            buildDir: 'dist',
         );
     }
 }
