@@ -15,12 +15,13 @@ use Tests\Unit\TestCase;
 class ConfigLoaderTest extends TestCase
 {
     #[Test]
-    public function itCanLoadDefaultConfig(): void
+    public function itCanLoadConfigFile(): void
     {
         $configLoader = new ConfigLoader();
         $config = $configLoader->load(self::$dataPath);
 
         static::assertEquals(Config::DEFAULT_PATH, $config?->path);
+        static::assertEquals('', $config?->title);
         static::assertEquals('http://localhost:8080', $config?->baseUrl);
     }
 
@@ -53,7 +54,7 @@ class ConfigLoaderTest extends TestCase
         try {
             (new ConfigLoader())->load(self::$dataPath, 'config/invalid-config.php');
         } finally {
-            $output = ob_get_clean() ?: '';
+            ob_get_clean();
         }
     }
 }

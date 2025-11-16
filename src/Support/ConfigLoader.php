@@ -13,7 +13,9 @@ class ConfigLoader
      */
     public function load(string $workingDir, ?string $customConfigPath = null): ?Config
     {
-        if ( ! $customConfigPath) {
+        $defaultConfigPath = $workingDir.'/'.Config::DEFAULT_PATH;
+
+        if ( ! $customConfigPath && ! file_exists($defaultConfigPath)) {
             $config = new Config(
                 workingDir: $workingDir,
             );
@@ -22,6 +24,7 @@ class ConfigLoader
             return $config;
         }
 
+        $customConfigPath ??= Config::DEFAULT_PATH;
         $configFilePath = $workingDir.'/'.$customConfigPath;
 
         if ( ! file_exists($configFilePath)) {
