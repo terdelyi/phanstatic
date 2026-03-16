@@ -11,6 +11,7 @@
     ],
     "require": {
         "php": ">=8.2",
+        "ext-fileinfo": "*",
         "league/commonmark": "^2.4",
         "spatie/yaml-front-matter": "^2.0",
         "symfony/console": "^7.1",
