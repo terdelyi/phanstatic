@@ -34,6 +34,10 @@ class Router
     {
         $this->parseRequest($request);
 
+        if ($this->parseAssets()) {
+            exit;
+        }
+
         if ($page = $this->parsePage()) {
             $file = SplFileInfo::fromFilePath($page, 'pages');
             $context = (new ContextBuilder())->build($file);
@@ -131,6 +135,33 @@ class Router
         $page = (int) $uriParts[0] ?: 1;
 
         return (new IndexContextBuilder($collection, $page))->build();
+    }
+
+    private function parseAssets(): bool
+    {
+        if ( ! str_starts_with($this->uri, 'assets/')) {
+            return false;
+        }
+
+        $contentPath = $this->helpers->getSourceDir($this->uri);
+        if (file_exists($contentPath)) {
+            return false;
+        }
+
+        $distPath = $this->helpers->getBuildDir($this->uri);
+        if ( ! file_exists($distPath)) {
+            return false;
+        }
+
+        $mimeType = match (pathinfo($distPath, PATHINFO_EXTENSION)) {
+            'css' => 'text/css',
+            'js' => 'application/javascript',
+            default => mime_content_type($distPath) ?: 'application/octet-stream',
+        };
+        header("Content-Type: {$mimeType}");
+        readfile($distPath);
+
+        return true;
     }
 
     private function applyItems(Finder $files, Collection $collection): void
